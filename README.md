@@ -1,3 +1,4 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # Introduction 
 This project is an implementation for various variants of [binary decision diagrams](https://en.wikipedia.org/wiki/Binary_decision_diagram) that is used at Microsoft Research. It focuses on high performance, usability, and correctness. The library currently maintains 100% code coverage.
