@@ -32,9 +32,3 @@ steps:
     codeCoverageTool: 'Cobertura'
     summaryFileLocation: '$(Build.SourcesDirectory)/TestResults/Coverage/*cobertura.xml'
     reportDirectory: '$(Build.SourcesDirectory)/TestResults/Coverage'
-
-- task: DotNetCoreCLI@2
-  displayName: PublishWeb
-  inputs:
-    command: 'publish'
-    publishWebProjects: true
