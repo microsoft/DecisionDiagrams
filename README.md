@@ -23,16 +23,16 @@ var manager = new DDManager<CBDDNode>(new CBDDNodeFactory());
 
 // allocate three variables, two booleans and one 32-bit integer
 // the internal ordering will match the order allocated from the manager.
-VarBool<CBDDNode> a = manager.CreateBool();
-VarBool<CBDDNode> b = manager.CreateBool();
-VarInt32<CBDDNode> c = manager.CreateInt32();
+var a = manager.CreateBool();
+var b = manager.CreateBool();
+var c = manager.CreateInt32();
 
 // build formulas from the variables.
 DD f1 = manager.Or(a.Id(), b.Id());
 DD f2 = manager.And(c.GreaterOrEqual(1), c.LessOrEqual(4));
 
 // get a satisfying assignment for a formula
-Assignment<CBDDNode> assignment = manager.Sat(manager.And(f1, f2));
+var assignment = manager.Sat(manager.And(f1, f2));
 
 // get the values as C# objects
 bool valuea = assignment.Get(a);  // valuea = false
