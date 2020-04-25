@@ -23,7 +23,7 @@ steps:
   displayName: Test
   inputs:
     command: test
-    projects: '**/*.Tests/*.csproj'
+    projects: '**/*Tests/*.csproj'
     arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
 
 - task: PublishCodeCoverageResults@1
