@@ -23,16 +23,15 @@ steps:
   displayName: Test
   inputs:
     command: test
-    projects: |
-      **/*.Tests/*.csproj
-    arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Include="[DecisionDiagrams.*]*" /p:Exclude="[*Tests]*"'
+    projects: '**/*Tests/*.csproj'
+    arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
 
 - task: PublishCodeCoverageResults@1
   displayName: 'Publish Code Coverage Results'
   inputs:
     codeCoverageTool: cobertura
-    summaryFileLocation: $(build.artifactstagingdirectory)/TestResults/cobertura.xml
-    reportDirectory: '$(build.artifactstagingdirectory)/TestResults'
+    summaryFileLocation: 'D:\a\1\s\DecisionDiagramTests\coverage.cobertura.xml'
+#    summaryFileLocation: '$(build.artifactstagingdirectory)\DecisionDiagramTests\coverage.cobertura.xml'
 
 #- task: PublishCodeCoverageResults@1
 #  displayName: Publish
