@@ -10,24 +10,28 @@ steps:
     feedsToUse: 'select'
 
 - task: DotNetCoreCLI@2
+  displayName: Build
   inputs:
     command: 'build'
     projects: '''**/*.csproj'''
     arguments: '--configuration Release'
 
 - task: DotNetCoreCLI@2
+  displayName: Test
   inputs:
     command: 'test'
     projects: '''**/*Tests/*.csproj'''
     arguments: '–configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOputFormat=cobertura /p:CoverletOutput=$(Build.SourcesDirectory)\TestResults\Coverage\'
 
 - task: PublishCodeCoverageResults@1
+  displayName: Publish
   inputs:
     codeCoverageTool: 'Cobertura'
     summaryFileLocation: '$(Build.SourcesDirectory)/TestResults/Coverage/*cobertura.xml'
     reportDirectory: '$(Build.SourcesDirectory)/TestResults/Coverage'
 
 - task: DotNetCoreCLI@2
+  displayName: PublishWeb
   inputs:
     command: 'publish'
     publishWebProjects: true
