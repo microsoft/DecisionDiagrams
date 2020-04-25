@@ -1,5 +1,5 @@
 pool:
-  vmImage: 'ubuntu-16.04' # examples of other options: 'macOS-10.14', 'vs2017-win2016'
+  vmImage: 'vs2017-win2016'
 
 steps:
 
@@ -13,14 +13,14 @@ steps:
   displayName: Build
   inputs:
     command: 'build'
-    projects: '''**/*.csproj'''
+    projects: '**/*.csproj'
     arguments: '--configuration Release'
 
 - task: DotNetCoreCLI@2
   displayName: Test
   inputs:
     command: 'test'
-    projects: '''**/*Tests/*.csproj'''
+    projects: '**/*Tests/*.csproj'
     arguments: '–configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOputFormat=cobertura /p:CoverletOutput=$(Build.SourcesDirectory)\TestResults\Coverage\'
 
 - task: PublishCodeCoverageResults@1
