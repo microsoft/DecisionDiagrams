@@ -25,7 +25,7 @@ steps:
     command: test
     projects: |
       **/*.Tests/*.csproj
-    arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Include="[DecisionDiagrams.*]*" /p:Exclude="[*Tests]*"'
+    arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
 
 - task: PublishCodeCoverageResults@1
   displayName: 'Publish Code Coverage Results'
