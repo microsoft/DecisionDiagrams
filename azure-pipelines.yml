@@ -30,7 +30,7 @@ steps:
   displayName: 'Publish Code Coverage Results'
   inputs:
     codeCoverageTool: cobertura
-    summaryFileLocation: '$(build.artifactstagingdirectory)/cobertura.xml'
+    summaryFileLocation: '$(build.artifactstagingdirectory)\DecisionDiagramTests\coverage.cobertura.xml'
 
 #- task: PublishCodeCoverageResults@1
 #  displayName: Publish
