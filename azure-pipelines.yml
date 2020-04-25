@@ -22,13 +22,21 @@ steps:
 - task: DotNetCoreCLI@2
   displayName: Test
   inputs:
-    command: 'test'
-    projects: '**/*Tests/*.csproj'
-    arguments: '/p:CollectCoverage=true /p:CoverletOputFormat=cobertura /p:CoverletOutput=$(Build.SourcesDirectory)\TestResults\Coverage\'
+    command: test
+    projects: |
+      **/*.Tests/*.csproj
+    arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Include="[DecisionDiagrams.*]*" /p:Exclude="[*Tests]*"'
 
 - task: PublishCodeCoverageResults@1
-  displayName: Publish
+  displayName: 'Publish Code Coverage Results'
   inputs:
-    codeCoverageTool: 'Cobertura'
-    summaryFileLocation: '$(Build.SourcesDirectory)/TestResults/Coverage/*cobertura.xml'
-    reportDirectory: '$(Build.SourcesDirectory)/TestResults/Coverage'
+    codeCoverageTool: cobertura
+    summaryFileLocation: $(build.artifactstagingdirectory)/TestResults/cobertura.xml
+    reportDirectory: '$(build.artifactstagingdirectory)/TestResults'
+
+#- task: PublishCodeCoverageResults@1
+#  displayName: Publish
+#  inputs:
+#    codeCoverageTool: 'Cobertura'
+#    summaryFileLocation: '$(Build.SourcesDirectory)/TestResults/Coverage/*cobertura.xml'
+#    reportDirectory: '$(Build.SourcesDirectory)/TestResults/Coverage'
