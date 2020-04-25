@@ -24,7 +24,7 @@ steps:
   inputs:
     command: 'test'
     projects: '**/*Tests/*.csproj'
-    arguments: '–configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOputFormat=cobertura /p:CoverletOutput=$(Build.SourcesDirectory)\TestResults\Coverage\'
+    arguments: '/p:CollectCoverage=true /p:CoverletOputFormat=cobertura /p:CoverletOutput=$(Build.SourcesDirectory)\TestResults\Coverage\'
 
 - task: PublishCodeCoverageResults@1
   displayName: Publish
