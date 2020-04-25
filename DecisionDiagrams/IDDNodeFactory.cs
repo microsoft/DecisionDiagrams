@@ -1,0 +1,82 @@
+﻿// <copyright file="IDDNodeFactory.cs" company="Microsoft">
+// Copyright (c) Microsoft. All rights reserved.
+// </copyright>
+
+namespace DecisionDiagrams
+{
+    using System.Collections.Generic;
+
+    /// <summary>
+    /// A factory for custom nodes types. In order to support
+    /// logical operations from the decision diagram manager,
+    /// the factory must implement this interface.
+    /// </summary>
+    /// <typeparam name="T">The custom node type.</typeparam>
+    public interface IDDNodeFactory<T>
+        where T : IDDNode
+    {
+        /// <summary>
+        /// Gets or sets the decision diagram manager.
+        /// </summary>
+        DDManager<T> Manager { get; set; }
+
+        /// <summary>
+        /// Create the node representing the identity function.
+        /// </summary>
+        /// <param name="variable">The variable index.</param>
+        /// <returns>The identity function.</returns>
+        T Id(int variable);
+
+        /// <summary>
+        /// Create a new node with children flipped.
+        /// </summary>
+        /// <param name="node">The old node.</param>
+        /// <returns>A new node with children flipped.</returns>
+        T Flip(T node);
+
+        /// <summary>
+        /// Apply any reduction rules for a node.
+        /// </summary>
+        /// <param name="node">The node to reduce.</param>
+        /// <param name="result">The reduced node.</param>
+        /// <returns>If a reduction ocurred.</returns>
+        bool Reduce(T node, out DDIndex result);
+
+        /// <summary>
+        /// Implement the logical "and" operation,
+        /// recursively calling the manager if necessary.
+        /// </summary>
+        /// <param name="xid">The left index.</param>
+        /// <param name="x">The left node.</param>
+        /// <param name="yid">The right index.</param>
+        /// <param name="y">The right node.</param>
+        /// <returns>The and of the two nodes.</returns>
+        DDIndex And(DDIndex xid, T x, DDIndex yid, T y);
+
+        /// <summary>
+        /// Implement the logical "exists" operation,
+        /// recursively calling the manager if necessary.
+        /// </summary>
+        /// <param name="xid">The left index.</param>
+        /// <param name="x">The left node.</param>
+        /// <param name="variables">The variable set.</param>
+        /// <returns>The and of the two nodes.</returns>
+        DDIndex Exists(DDIndex xid, T x, VariableSet<T> variables);
+
+        /// <summary>
+        /// How to display a node.
+        /// </summary>
+        /// <param name="node">The node.</param>
+        /// <param name="negated">Parity of negation.</param>
+        /// <returns>The string representation.</returns>
+        string Display(T node, bool negated);
+
+        /// <summary>
+        /// Update an assignment to variables given an edge.
+        /// </summary>
+        /// <param name="node">The node.</param>
+        /// <param name="hi">Which edge.</param>
+        /// <param name="assignment">current assignment.</param>
+        void Sat(T node, bool hi, Dictionary<int, bool> assignment);
+    }
+}
