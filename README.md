@@ -42,20 +42,6 @@ int valuec = assignment.Get(c);   // valuec = 1
 
 You can find more detailed examples in the tests.
 
-# Contributing
-
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
-Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
-
-When you submit a pull request, a CLA bot will automatically determine whether you need to provide
-a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
-provided by the bot. You will only need to do this once across all repos using our CLA.
-
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
-contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
-
 # Implementation
 The library is based on the cache-optimized implementation of decision diagrams [here](https://research.ibm.com/haifa/projects/verification/SixthSense/papers/bdd_iwls_01.pdf), and implements three variants: 
 - Binary decision diagrams ([link](https://en.wikipedia.org/wiki/Binary_decision_diagram))
@@ -76,3 +62,17 @@ The library makes use of "complement edges" (a single bit packed into the node i
 
 ### Operations
 Internally, the manager only supports a single operation: and, but then leverages free negation to support other operations efficiently. This does make some operations such as ite and iff more costly, but can improve cache behavior since there is now only a single operation cache. Because "and" is commutative, the cache can further order the arguments to avoid redundant entries. Currently, the library does not support dynamic variable reordering as well as a number of operations such as functional composition.
+
+# Contributing
+
+This project welcomes contributions and suggestions.  Most contributions require you to agree to a
+Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
+the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
+
+When you submit a pull request, a CLA bot will automatically determine whether you need to provide
+a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
+provided by the bot. You will only need to do this once across all repos using our CLA.
+
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
+For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
+contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.

@@ -8,13 +8,15 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Company>Microsoft</Company>
-    <Authors>Ryan Beckett</Authors>
+    <Authors>Microsoft Research</Authors>
     <Description>This library implements various variants of binary decision diagrams. It focuses on high performance, usability, and correctness.</Description>
-    <PackageProjectUrl>https://github.com/ZenLib/DecisionDiagrams</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/microsoft/DecisionDiagrams</PackageProjectUrl>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-    <Copyright>Microsoft Research</Copyright>
-    <PackageTags>binary decision diagrams</PackageTags>
+    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
+    <PackageTags>binary decision diagrams bdds contraint solving verification</PackageTags>
     <PackageId>DecisionDiagrams</PackageId>
+    <Version>1.0.1</Version>
+    <RepositoryUrl>https://github.com/microsoft/DecisionDiagrams</RepositoryUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
