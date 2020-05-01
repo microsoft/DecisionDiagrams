@@ -57,7 +57,7 @@ namespace DecisionDiagrams
         /// <returns>Whether the set contains that variable.</returns>
         internal bool Contains(int variable)
         {
-            return this.variables.Get(variable);
+            return variable < this.variables.Length && this.variables.Get(variable);
         }
     }
 }

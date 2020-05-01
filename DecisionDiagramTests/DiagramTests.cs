@@ -1363,6 +1363,25 @@ namespace DecisionDiagramTests
         }
 
         /// <summary>
+        /// Test that quantification works when adding new variables.
+        /// </summary>
+        [TestMethod]
+        public void TestExistsNewVariable()
+        {
+            if (QuantifiersSupported)
+            {
+                var factory = new BDDNodeFactory();
+                var manager = new DDManager<BDDNode>(factory, 8, 8, true);
+                var x = manager.CreateBool();
+                var variableSet = manager.CreateVariableSet(new Variable<BDDNode>[] { x });
+                var y = manager.CreateBool();
+                var z = manager.And(x.Id(), y.Id());
+                var y2 = manager.Exists(z, variableSet);
+                Assert.AreEqual(y.Id(), y2);
+            }
+        }
+
+        /// <summary>
         /// Select a random literal.
         /// </summary>
         /// <returns>Returns a random literal.</returns>
