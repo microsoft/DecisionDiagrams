@@ -44,7 +44,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\LICENSE.txt">
+    <None Include="..\..\..\DecisionDiagrams\LICENSE.txt">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
