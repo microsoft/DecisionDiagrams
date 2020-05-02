@@ -61,6 +61,11 @@ namespace DecisionDiagrams
         /// <returns>The resulting function.</returns>
         public DDIndex Exists(DDIndex xid, BDDNode x, VariableSet<BDDNode> variables)
         {
+            if (x.Variable > variables.MaxIndex)
+            {
+                return xid;
+            }
+
             var lo = this.Manager.Exists(x.Low, variables);
             var hi = this.Manager.Exists(x.High, variables);
             if (variables.Contains(x.Variable))

@@ -6,6 +6,7 @@ namespace DecisionDiagramTests
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
+    using System.Linq;
     using DecisionDiagrams;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -1378,6 +1379,68 @@ namespace DecisionDiagramTests
                 var z = manager.And(x.Id(), y.Id());
                 var y2 = manager.Exists(z, variableSet);
                 Assert.AreEqual(y.Id(), y2);
+            }
+        }
+
+        /// <summary>
+        /// Test that quantification works when adding new variables.
+        /// </summary>
+        [TestMethod]
+        public void TestExistsMultipleVariables()
+        {
+            if (QuantifiersSupported)
+            {
+                var factory = new BDDNodeFactory();
+                var manager = new DDManager<BDDNode>(factory, 8, 8, true);
+                var a = manager.CreateInt32();
+                var b = manager.CreateBool();
+                var variableSet = manager.CreateVariableSet(new Variable<BDDNode>[] { b });
+                var x = manager.And(a.Eq(9), b.Id());
+                var y = manager.Exists(x, variableSet);
+                Assert.AreEqual(a.Eq(9), y);
+            }
+        }
+
+        /// <summary>
+        /// Test that quantification works when adding new variables.
+        /// </summary>
+        [TestMethod]
+        public void TestExistsEarlyCutoff()
+        {
+            if (QuantifiersSupported)
+            {
+                var factory = new BDDNodeFactory();
+                var manager = new DDManager<BDDNode>(factory, 8, 8, true);
+                var a = manager.CreateBool();
+                var b = manager.CreateBool();
+                var c = manager.CreateBool();
+                var d = manager.CreateBool();
+                var f1 = manager.And(c.Id(), d.Id());
+                var f2 = manager.And(a.Id(), manager.And(b.Id(), f1));
+                var variableSet = manager.CreateVariableSet(new Variable<BDDNode>[] { a, b });
+                var f3 = manager.Exists(f2, variableSet);
+                Assert.AreEqual(f1, f3);
+            }
+        }
+
+        /// <summary>
+        /// Test that quantification works when adding new variables.
+        /// </summary>
+        [TestMethod]
+        public void TestVariableSetHasCorrectVariables()
+        {
+            if (QuantifiersSupported)
+            {
+                var factory = new BDDNodeFactory();
+                var manager = new DDManager<BDDNode>(factory, 8, 8, true);
+                var a = manager.CreateBool();
+                var b = manager.CreateBool();
+                _ = manager.CreateBool();
+                _ = manager.CreateBool();
+                var variableSet = manager.CreateVariableSet(new Variable<BDDNode>[] { a, b });
+                Assert.AreEqual(2, variableSet.Variables.Length);
+                Assert.IsTrue(variableSet.Variables.Contains(a));
+                Assert.IsTrue(variableSet.Variables.Contains(b));
             }
         }
 
