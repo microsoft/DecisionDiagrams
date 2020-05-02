@@ -5,6 +5,7 @@
 namespace DecisionDiagramTests
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using DecisionDiagrams;
@@ -1371,10 +1372,9 @@ namespace DecisionDiagramTests
         {
             if (QuantifiersSupported)
             {
-                var factory = new BDDNodeFactory();
-                var manager = new DDManager<BDDNode>(factory, 8, 8, true);
+                var manager = new DDManager<T>(this.Factory, 8, 8, true);
                 var x = manager.CreateBool();
-                var variableSet = manager.CreateVariableSet(new Variable<BDDNode>[] { x });
+                var variableSet = manager.CreateVariableSet(new Variable<T>[] { x });
                 var y = manager.CreateBool();
                 var z = manager.And(x.Id(), y.Id());
                 var y2 = manager.Exists(z, variableSet);
@@ -1390,11 +1390,10 @@ namespace DecisionDiagramTests
         {
             if (QuantifiersSupported)
             {
-                var factory = new BDDNodeFactory();
-                var manager = new DDManager<BDDNode>(factory, 8, 8, true);
+                var manager = new DDManager<T>(this.Factory, 8, 8, true);
                 var a = manager.CreateInt32();
                 var b = manager.CreateBool();
-                var variableSet = manager.CreateVariableSet(new Variable<BDDNode>[] { b });
+                var variableSet = manager.CreateVariableSet(new Variable<T>[] { b });
                 var x = manager.And(a.Eq(9), b.Id());
                 var y = manager.Exists(x, variableSet);
                 Assert.AreEqual(a.Eq(9), y);
@@ -1409,15 +1408,14 @@ namespace DecisionDiagramTests
         {
             if (QuantifiersSupported)
             {
-                var factory = new BDDNodeFactory();
-                var manager = new DDManager<BDDNode>(factory, 8, 8, true);
+                var manager = new DDManager<T>(this.Factory, 8, 8, true);
                 var a = manager.CreateBool();
                 var b = manager.CreateBool();
                 var c = manager.CreateBool();
                 var d = manager.CreateBool();
                 var f1 = manager.And(c.Id(), d.Id());
                 var f2 = manager.And(a.Id(), manager.And(b.Id(), f1));
-                var variableSet = manager.CreateVariableSet(new Variable<BDDNode>[] { a, b });
+                var variableSet = manager.CreateVariableSet(new Variable<T>[] { a, b });
                 var f3 = manager.Exists(f2, variableSet);
                 Assert.AreEqual(f1, f3);
             }
@@ -1431,17 +1429,31 @@ namespace DecisionDiagramTests
         {
             if (QuantifiersSupported)
             {
-                var factory = new BDDNodeFactory();
-                var manager = new DDManager<BDDNode>(factory, 8, 8, true);
+                var manager = new DDManager<T>(this.Factory, 8, 8, true);
                 var a = manager.CreateBool();
                 var b = manager.CreateBool();
                 _ = manager.CreateBool();
                 _ = manager.CreateBool();
-                var variableSet = manager.CreateVariableSet(new Variable<BDDNode>[] { a, b });
+                var variableSet = manager.CreateVariableSet(new Variable<T>[] { a, b });
                 Assert.AreEqual(2, variableSet.Variables.Length);
                 Assert.IsTrue(variableSet.Variables.Contains(a));
                 Assert.IsTrue(variableSet.Variables.Contains(b));
             }
+        }
+
+        /// <summary>
+        /// Test that quantification works when adding new variables.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void TestVariableMapException()
+        {
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var a = manager.CreateInt8();
+            var b = manager.CreateInt16();
+            var map = new Dictionary<Variable<T>, Variable<T>>();
+            map.Add(a, b);
+            _ = manager.CreateVariableMap(map);
         }
 
         /// <summary>

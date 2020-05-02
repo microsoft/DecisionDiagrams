@@ -124,12 +124,12 @@ namespace DecisionDiagrams
         /// <summary>
         /// The operation cache for the "and" operation.
         /// </summary>
-        private AndOperationResult[] andCache;
+        private OperationResult2[] andCache;
 
         /// <summary>
         /// The operation cache for the quantifier operations.
         /// </summary>
-        private QuantifierOperationResult[] quantifierCache;
+        private OperationResult2[] quantifierCache;
 
         /// <summary>
         /// Dictionary from handles (externally visible nodes)
@@ -205,6 +205,16 @@ namespace DecisionDiagrams
         public VariableSet<T> CreateVariableSet(Variable<T>[] variables)
         {
             return new VariableSet<T>(this, variables, this.numVariables);
+        }
+
+        /// <summary>
+        /// Creates a new variable map.
+        /// </summary>
+        /// <param name="variables">The variables.</param>
+        /// <returns>The variable map.</returns>
+        public VariableMap<T> CreateVariableMap(Dictionary<Variable<T>, Variable<T>> variables)
+        {
+            return new VariableMap<T>(this, variables, this.numVariables);
         }
 
         /// <summary>
@@ -1308,7 +1318,7 @@ namespace DecisionDiagrams
 
             // Look for result in the cache
             int index = hash & this.cacheMask;
-            AndOperationResult result = this.andCache[index];
+            OperationResult2 result = this.andCache[index];
             if (result.Arg.Equals(arg))
             {
                 return result.Result;
@@ -1321,7 +1331,7 @@ namespace DecisionDiagrams
             var res = this.factory.And(x, lo, y, hi);
 
             // insert the result into the cache
-            AndOperationResult oresult = new AndOperationResult { Arg = arg, Result = res };
+            OperationResult2 oresult = new OperationResult2 { Arg = arg, Result = res };
             this.andCache[index] = oresult;
 
             return res;
@@ -1346,7 +1356,7 @@ namespace DecisionDiagrams
 
             // Look for result in the cache
             int index = hash & this.cacheMask;
-            QuantifierOperationResult result = this.quantifierCache[index];
+            OperationResult2 result = this.quantifierCache[index];
             if (result.Arg.Equals(arg))
             {
                 return result.Result;
@@ -1358,7 +1368,7 @@ namespace DecisionDiagrams
 
             // insert the result into the cache
             // cache may have been resized during allocation
-            QuantifierOperationResult oresult = new QuantifierOperationResult { Arg = arg, Result = res };
+            OperationResult2 oresult = new OperationResult2 { Arg = arg, Result = res };
             this.quantifierCache[index] = oresult;
 
             return res;
@@ -1656,8 +1666,8 @@ namespace DecisionDiagrams
             {
                 var computedSize = (int)(this.poolSize / this.cacheRatio);
                 this.cacheMask = Bitops.BitmaskForPowerOfTwo(computedSize);
-                this.andCache = new AndOperationResult[computedSize];
-                this.quantifierCache = new QuantifierOperationResult[computedSize];
+                this.andCache = new OperationResult2[computedSize];
+                this.quantifierCache = new OperationResult2[computedSize];
             }
         }
 
@@ -1906,25 +1916,7 @@ namespace DecisionDiagrams
         /// cache. It sotres the key argument so that we can
         /// compare in the case of a hash collision.
         /// </summary>
-        private struct AndOperationResult
-        {
-            /// <summary>
-            /// Gets or sets the key argument in the cache.
-            /// </summary>
-            public OperationArg2 Arg { get; set; }
-
-            /// <summary>
-            /// Gets or sets the DD result from the "and" operation.
-            /// </summary>
-            public DDIndex Result { get; set; }
-        }
-
-        /// <summary>
-        /// A data structure representing the result in the
-        /// cache. It stores the key argument so that we can
-        /// compare in the case of a hash collision.
-        /// </summary>
-        private struct QuantifierOperationResult
+        private struct OperationResult2
         {
             /// <summary>
             /// Gets or sets the key argument in the cache.
