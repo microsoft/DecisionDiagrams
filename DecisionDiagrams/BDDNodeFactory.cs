@@ -86,7 +86,6 @@ namespace DecisionDiagrams
         /// <returns>A new formula with the susbtitution.</returns>
         public DDIndex Replace(DDIndex xid, BDDNode x, VariableMap<BDDNode> variableMap)
         {
-            System.Console.WriteLine($"replace: {this.Manager.Display(xid)}, negated = {xid.IsComplemented()}");
             if (x.Variable > variableMap.MaxIndex)
             {
                 return xid;
@@ -96,17 +95,19 @@ namespace DecisionDiagrams
             var hi = this.Manager.Replace(x.High, variableMap);
 
             var level = variableMap.Get(x.Variable);
-            System.Console.WriteLine($"index: {x.Variable} --> {level}");
             level = level < 0 ? x.Variable : level;
-            var res = RepairOrder(level, lo, hi);
-            System.Console.WriteLine($"return repaired: {this.Manager.Display(res)}, negated = {res.IsComplemented()}");
-            return res;
+            return RepairOrder(level, lo, hi);
         }
 
+        /// <summary>
+        /// Returns a new formula that repairs the order after a substitution.
+        /// </summary>
+        /// <param name="level">Variable level of the new node.</param>
+        /// <param name="lo">The node's lo branch.</param>
+        /// <param name="hi">The node's hi branch.</param>
+        /// <returns></returns>
         private DDIndex RepairOrder(int level, DDIndex lo, DDIndex hi)
         {
-            System.Console.WriteLine($"RepairOrder: {level}, {this.Manager.Display(lo)}, {this.Manager.Display(hi)}");
-
             var loNode = this.Manager.MemoryPool[lo.GetPosition()];
             var hiNode = this.Manager.MemoryPool[hi.GetPosition()];
 
@@ -121,32 +122,22 @@ namespace DecisionDiagrams
 
             if (level < loLevel && level < hiLevel)
             {
-                System.Console.WriteLine($"case 1");
                 return this.Manager.Allocate(new BDDNode(level, lo, hi));
             }
-            /* else if (level == loLevel || level == hiLevel)
-            {
-                throw new System.InvalidOperationException("");
-            } */
             else if (loLevel < hiLevel)
             {
-                System.Console.WriteLine($"case 2");
-                System.Console.WriteLine($"loNode.Low: {this.Manager.Display(loNode.Low)}");
-                System.Console.WriteLine($"loNode.High: {this.Manager.Display(loNode.High)}");
                 var l = RepairOrder(level, loNode.Low, hi);
                 var h = RepairOrder(level, loNode.High, hi);
                 return this.Manager.Allocate(new BDDNode(loNode.Variable, l, h));
             }
             else if (loLevel > hiLevel)
             {
-                System.Console.WriteLine($"case 3");
                 var l = RepairOrder(level, lo, hiNode.Low);
                 var h = RepairOrder(level, lo, hiNode.High);
                 return this.Manager.Allocate(new BDDNode(hiNode.Variable, l, h));
             }
             else
             {
-                System.Console.WriteLine($"case 4");
                 var l = RepairOrder(level, loNode.Low, hiNode.Low);
                 var h = RepairOrder(level, loNode.High, hiNode.High);
                 return this.Manager.Allocate(new BDDNode(loNode.Variable, l, h));

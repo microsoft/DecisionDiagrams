@@ -1541,7 +1541,7 @@ namespace DecisionDiagramTests
         }
 
         /// <summary>
-        /// Test replacing with a variable earlier in the ordering.
+        /// Test replacing using negation.
         /// </summary>
         [TestMethod]
         public void TestReplaceWithNegation()
@@ -1559,6 +1559,67 @@ namespace DecisionDiagramTests
                 var variableMap = manager.CreateVariableMap(map);
                 var f3 = manager.Replace(f1, variableMap);
                 Assert.AreEqual(f2, f3);
+            }
+        }
+
+        /// <summary>
+        /// Test replacing using xor.
+        /// </summary>
+        [TestMethod]
+        public void TestReplaceWithXor()
+        {
+            if (QuantifiersSupported)
+            {
+                var manager = new DDManager<T>(this.Factory, 8, 8, true);
+                var a = manager.CreateBool();
+                var b = manager.CreateBool();
+                var c = manager.CreateBool();
+                var fab = manager.Or(manager.And(a.Id(), b.Id()), manager.And(manager.Not(a.Id()), manager.Not(b.Id())));
+                var fac = manager.Or(manager.And(a.Id(), c.Id()), manager.And(manager.Not(a.Id()), manager.Not(c.Id())));
+                var fbc = manager.Or(manager.And(b.Id(), c.Id()), manager.And(manager.Not(b.Id()), manager.Not(c.Id())));
+
+                var m1 = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>> { { a, b } });
+                var m2 = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>> { { b, a } });
+                var m3 = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>> { { a, c } });
+                var m4 = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>> { { c, a } });
+                var m5 = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>> { { b, c } });
+                var m6 = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>> { { c, b } });
+
+                Assert.AreEqual(fbc, manager.Replace(fab, m3));
+                Assert.AreEqual(fac, manager.Replace(fab, m5));
+                Assert.AreEqual(fbc, manager.Replace(fac, m1));
+                Assert.AreEqual(fab, manager.Replace(fac, m6));
+                Assert.AreEqual(fac, manager.Replace(fbc, m2));
+                Assert.AreEqual(fab, manager.Replace(fbc, m4));
+            }
+        }
+
+        /// <summary>
+        /// Test replacing multiple variables.
+        /// </summary>
+        [TestMethod]
+        public void TestReplaceAllVariables()
+        {
+            if (QuantifiersSupported)
+            {
+                var manager = new DDManager<T>(this.Factory, 8, 8, true);
+                var a = manager.CreateBool();
+                var b = manager.CreateBool();
+                var c = manager.CreateBool();
+                var d = manager.CreateBool();
+                var e = manager.CreateBool();
+                var f = manager.CreateBool();
+                var f1 = manager.Or(a.Id(), manager.And(b.Id(), manager.Not(c.Id())));
+                var f2 = manager.Or(f.Id(), manager.And(e.Id(), manager.Not(d.Id())));
+
+                var m = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>>
+                {
+                    { a, f },
+                    { b, e },
+                    { c, d },
+                });
+
+                Assert.AreEqual(f2, manager.Replace(f1, m));
             }
         }
 
