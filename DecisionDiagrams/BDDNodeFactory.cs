@@ -61,6 +61,11 @@ namespace DecisionDiagrams
         /// <returns>The resulting function.</returns>
         public DDIndex Exists(DDIndex xid, BDDNode x, VariableSet<BDDNode> variables)
         {
+            if (x.Variable > variables.MaxIndex)
+            {
+                return xid;
+            }
+
             var lo = this.Manager.Exists(x.Low, variables);
             var hi = this.Manager.Exists(x.High, variables);
             if (variables.Contains(x.Variable))
@@ -69,6 +74,74 @@ namespace DecisionDiagrams
             }
 
             return this.Manager.Allocate(new BDDNode(x.Variable, lo, hi));
+        }
+
+        /// <summary>
+        /// Implement a replacement operation that substitutes
+        /// variables for other variables.
+        /// </summary>
+        /// <param name="xid">The left index.</param>
+        /// <param name="x">The left node.</param>
+        /// <param name="variableMap">The variable set.</param>
+        /// <returns>A new formula with the susbtitution.</returns>
+        public DDIndex Replace(DDIndex xid, BDDNode x, VariableMap<BDDNode> variableMap)
+        {
+            if (x.Variable > variableMap.MaxIndex)
+            {
+                return xid;
+            }
+
+            var lo = this.Manager.Replace(x.Low, variableMap);
+            var hi = this.Manager.Replace(x.High, variableMap);
+
+            var level = variableMap.Get(x.Variable);
+            level = level < 0 ? x.Variable : level;
+            return RepairOrder(level, lo, hi);
+        }
+
+        /// <summary>
+        /// Returns a new formula that repairs the order after a substitution.
+        /// </summary>
+        /// <param name="level">Variable level of the new node.</param>
+        /// <param name="lo">The node's lo branch.</param>
+        /// <param name="hi">The node's hi branch.</param>
+        /// <returns></returns>
+        private DDIndex RepairOrder(int level, DDIndex lo, DDIndex hi)
+        {
+            var loNode = this.Manager.MemoryPool[lo.GetPosition()];
+            var hiNode = this.Manager.MemoryPool[hi.GetPosition()];
+
+            loNode = lo.IsComplemented() ? Flip(loNode) : loNode;
+            hiNode = hi.IsComplemented() ? Flip(hiNode) : hiNode;
+
+            var loConst = lo.IsConstant();
+            var hiConst = hi.IsConstant();
+
+            var loLevel = loConst ? int.MaxValue : loNode.Variable;
+            var hiLevel = hiConst ? int.MaxValue : hiNode.Variable;
+
+            if (level < loLevel && level < hiLevel)
+            {
+                return this.Manager.Allocate(new BDDNode(level, lo, hi));
+            }
+            else if (loLevel < hiLevel)
+            {
+                var l = RepairOrder(level, loNode.Low, hi);
+                var h = RepairOrder(level, loNode.High, hi);
+                return this.Manager.Allocate(new BDDNode(loNode.Variable, l, h));
+            }
+            else if (loLevel > hiLevel)
+            {
+                var l = RepairOrder(level, lo, hiNode.Low);
+                var h = RepairOrder(level, lo, hiNode.High);
+                return this.Manager.Allocate(new BDDNode(hiNode.Variable, l, h));
+            }
+            else
+            {
+                var l = RepairOrder(level, loNode.Low, hiNode.Low);
+                var h = RepairOrder(level, loNode.High, hiNode.High);
+                return this.Manager.Allocate(new BDDNode(loNode.Variable, l, h));
+            }
         }
 
         /// <summary>

@@ -6,6 +6,7 @@ namespace DecisionDiagrams
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
 
     /// <summary>
     /// Class to hold a collection of DD variables and
@@ -45,7 +46,7 @@ namespace DecisionDiagrams
         /// <param name="order">The variable order.</param>
         internal Variable(DDManager<T> manager, int[] indices, VariableType type, Func<int, int> order)
         {
-            this.uid = id++;
+            this.uid = Interlocked.Increment(ref id);
             this.Manager = manager;
             this.Indices = indices;
             this.ReverseIndices = new Dictionary<int, int>();

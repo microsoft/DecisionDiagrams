@@ -98,7 +98,20 @@ namespace DecisionDiagrams
         /// <returns>The resulting function.</returns>
         public DDIndex Exists(DDIndex xid, CBDDNode x, VariableSet<CBDDNode> variables)
         {
-            throw new System.NotImplementedException();
+            throw new System.NotSupportedException();
+        }
+
+        /// <summary>
+        /// Implement a replacement operation that substitutes
+        /// variables for other variables.
+        /// </summary>
+        /// <param name="xid">The left index.</param>
+        /// <param name="x">The left node.</param>
+        /// <param name="variableMap">The variable set.</param>
+        /// <returns>A new formula with the susbtitution.</returns>
+        public DDIndex Replace(DDIndex xid, CBDDNode x, VariableMap<CBDDNode> variableMap)
+        {
+            throw new System.NotSupportedException();
         }
 
         /// <summary>
