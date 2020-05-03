@@ -77,6 +77,83 @@ namespace DecisionDiagrams
         }
 
         /// <summary>
+        /// Implement a replacement operation that substitutes
+        /// variables for other variables.
+        /// </summary>
+        /// <param name="xid">The left index.</param>
+        /// <param name="x">The left node.</param>
+        /// <param name="variableMap">The variable set.</param>
+        /// <returns>A new formula with the susbtitution.</returns>
+        public DDIndex Replace(DDIndex xid, BDDNode x, VariableMap<BDDNode> variableMap)
+        {
+            System.Console.WriteLine($"replace: {this.Manager.Display(xid)}, negated = {xid.IsComplemented()}");
+            if (x.Variable > variableMap.MaxIndex)
+            {
+                return xid;
+            }
+
+            var lo = this.Manager.Replace(x.Low, variableMap);
+            var hi = this.Manager.Replace(x.High, variableMap);
+
+            var level = variableMap.Get(x.Variable);
+            System.Console.WriteLine($"index: {x.Variable} --> {level}");
+            level = level < 0 ? x.Variable : level;
+            var res = RepairOrder(level, lo, hi);
+            System.Console.WriteLine($"return repaired: {this.Manager.Display(res)}, negated = {res.IsComplemented()}");
+            return res;
+        }
+
+        private DDIndex RepairOrder(int level, DDIndex lo, DDIndex hi)
+        {
+            System.Console.WriteLine($"RepairOrder: {level}, {this.Manager.Display(lo)}, {this.Manager.Display(hi)}");
+
+            var loNode = this.Manager.MemoryPool[lo.GetPosition()];
+            var hiNode = this.Manager.MemoryPool[hi.GetPosition()];
+
+            loNode = lo.IsComplemented() ? Flip(loNode) : loNode;
+            hiNode = hi.IsComplemented() ? Flip(hiNode) : hiNode;
+
+            var loConst = lo.IsConstant();
+            var hiConst = hi.IsConstant();
+
+            var loLevel = loConst ? int.MaxValue : loNode.Variable;
+            var hiLevel = hiConst ? int.MaxValue : hiNode.Variable;
+
+            if (level < loLevel && level < hiLevel)
+            {
+                System.Console.WriteLine($"case 1");
+                return this.Manager.Allocate(new BDDNode(level, lo, hi));
+            }
+            /* else if (level == loLevel || level == hiLevel)
+            {
+                throw new System.InvalidOperationException("");
+            } */
+            else if (loLevel < hiLevel)
+            {
+                System.Console.WriteLine($"case 2");
+                System.Console.WriteLine($"loNode.Low: {this.Manager.Display(loNode.Low)}");
+                System.Console.WriteLine($"loNode.High: {this.Manager.Display(loNode.High)}");
+                var l = RepairOrder(level, loNode.Low, hi);
+                var h = RepairOrder(level, loNode.High, hi);
+                return this.Manager.Allocate(new BDDNode(loNode.Variable, l, h));
+            }
+            else if (loLevel > hiLevel)
+            {
+                System.Console.WriteLine($"case 3");
+                var l = RepairOrder(level, lo, hiNode.Low);
+                var h = RepairOrder(level, lo, hiNode.High);
+                return this.Manager.Allocate(new BDDNode(hiNode.Variable, l, h));
+            }
+            else
+            {
+                System.Console.WriteLine($"case 4");
+                var l = RepairOrder(level, loNode.Low, hiNode.Low);
+                var h = RepairOrder(level, loNode.High, hiNode.High);
+                return this.Manager.Allocate(new BDDNode(loNode.Variable, l, h));
+            }
+        }
+
+        /// <summary>
         /// Create a new node with children flipped.
         /// </summary>
         /// <param name="node">The old node.</param>

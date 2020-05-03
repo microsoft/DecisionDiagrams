@@ -34,6 +34,11 @@ namespace DecisionDiagrams
         internal int Id { get; private set; }
 
         /// <summary>
+        /// Gets the id as an index for caching.
+        /// </summary>
+        internal DDIndex IdIndex { get; }
+
+        /// <summary>
         /// Gets the variables in the set.
         /// </summary>
         internal int[] variableArray { get; }
@@ -54,6 +59,7 @@ namespace DecisionDiagrams
             this.manager = manager;
             this.MaxIndex = 0;
             this.Id = Interlocked.Increment(ref nextId);
+            this.IdIndex = new DDIndex(this.Id, false);
             this.variableArray = new int[numVariables];
             this.Mapping = mapping;
 

@@ -64,6 +64,16 @@ namespace DecisionDiagrams
         DDIndex Exists(DDIndex xid, T x, VariableSet<T> variables);
 
         /// <summary>
+        /// Implement a replacement operation that substitutes
+        /// variables for other variables.
+        /// </summary>
+        /// <param name="xid">The left index.</param>
+        /// <param name="x">The left node.</param>
+        /// <param name="variableMap">The variable set.</param>
+        /// <returns>A new formula with the susbtitution.</returns>
+        DDIndex Replace(DDIndex xid, T x, VariableMap<T> variableMap);
+
+        /// <summary>
         /// How to display a node.
         /// </summary>
         /// <param name="node">The node.</param>

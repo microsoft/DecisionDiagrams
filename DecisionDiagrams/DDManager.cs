@@ -132,6 +132,11 @@ namespace DecisionDiagrams
         private OperationResult2[] quantifierCache;
 
         /// <summary>
+        /// The operation cache for replace operations.
+        /// </summary>
+        private OperationResult2[] replaceCache;
+
+        /// <summary>
         /// Dictionary from handles (externally visible nodes)
         /// to internal indices.
         /// </summary>
@@ -306,6 +311,19 @@ namespace DecisionDiagrams
             this.Check(x.ManagerId);
             this.CheckForCollection();
             return this.FromIndex(this.Exists(x.Index, variables));
+        }
+
+        /// <summary>
+        /// Variable substitution DDs.
+        /// </summary>
+        /// <param name="x">The operand.</param>
+        /// <param name="variableMap">The variable map to perform the substitution.</param>
+        /// <returns>The replaced formula.</returns>
+        public DD Replace(DD x, VariableMap<T> variableMap)
+        {
+            this.Check(x.ManagerId);
+            this.CheckForCollection();
+            return this.FromIndex(this.Replace(x.Index, variableMap));
         }
 
         /// <summary>
@@ -1375,6 +1393,43 @@ namespace DecisionDiagrams
         }
 
         /// <summary>
+        /// Replace the variables according to a mapping.
+        /// </summary>
+        /// <param name="x">The input function.</param>
+        /// <param name="variableMap">The variables to quantify.</param>
+        /// <returns>The logical "if-then-else".</returns>
+        internal DDIndex Replace(DDIndex x, VariableMap<T> variableMap)
+        {
+            if (x.IsConstant())
+            {
+                return x;
+            }
+
+            var xidx = x.GetPosition();
+            var arg = new OperationArg2(x, variableMap.IdIndex);
+            var hash = arg.GetHashCode() & 0x7FFFFFFF;
+
+            // Look for result in the cache
+            int index = hash & this.cacheMask;
+            OperationResult2 result = this.replaceCache[index];
+            if (result.Arg.Equals(arg))
+            {
+                return result.Result;
+            }
+
+            T node = this.memoryPool[xidx];
+            node = x.IsComplemented() ? this.factory.Flip(node) : node;
+            var res = this.factory.Replace(x, node, variableMap);
+
+            // insert the result into the cache
+            // cache may have been resized during allocation
+            OperationResult2 oresult = new OperationResult2 { Arg = arg, Result = res };
+            this.replaceCache[index] = oresult;
+
+            return res;
+        }
+
+        /// <summary>
         /// Compute the disjunction of two functions.
         /// </summary>
         /// <param name="x">The first function.</param>
@@ -1668,6 +1723,7 @@ namespace DecisionDiagrams
                 this.cacheMask = Bitops.BitmaskForPowerOfTwo(computedSize);
                 this.andCache = new OperationResult2[computedSize];
                 this.quantifierCache = new OperationResult2[computedSize];
+                this.replaceCache = new OperationResult2[computedSize];
             }
         }
 
