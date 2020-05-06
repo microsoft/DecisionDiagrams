@@ -6,7 +6,7 @@
 This project is an implementation for various variants of [binary decision diagrams](https://en.wikipedia.org/wiki/Binary_decision_diagram) that is used at Microsoft Research. It focuses on high performance, usability, and correctness. The library currently maintains 100% code coverage.
 
 # Installation
-Just add the project to your visual studio solution or add the package from [nuget](https://www.nuget.org/packages/DecisionDiagrams/1.0.1).
+Just add the project to your visual studio solution or add the package from [nuget](https://www.nuget.org/packages/DecisionDiagrams).
 
 # Getting Started
 To import the library, add the following line to your file:
