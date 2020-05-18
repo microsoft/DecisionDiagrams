@@ -652,7 +652,7 @@ namespace DecisionDiagramTests
         }
 
         /// <summary>
-        /// Test DeMorgan's equivalence with random tests.
+        /// Test inequalities with random tests.
         /// </summary>
         [TestMethod]
         public void TestInequalities()
@@ -702,6 +702,28 @@ namespace DecisionDiagramTests
                 for (int j = 0; j <= 14; j++)
                 {
                     Assert.AreEqual(r128[j], 0);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Test 128-bit inequalities with random tests.
+        /// </summary>
+        [TestMethod]
+        public void TestInteger128()
+        {
+            for (int i = 0; i < numRandomTests; i++)
+            {
+                byte[] bytes = new byte[16];
+                this.Rnd.NextBytes(bytes);
+
+                var f = this.V128.Eq(bytes);
+                var assignment = this.Manager.Sat(f);
+                var r128 = assignment.Get(this.V128);
+
+                for (int j = 0; j <= 15; j++)
+                {
+                    Assert.AreEqual(bytes[j], r128[j], $"failed on: {j}");
                 }
             }
         }

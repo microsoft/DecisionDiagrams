@@ -8,11 +8,6 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-
-        <!-- Dictionary of words to exclude from being marked as typos. -->
-        <CodeAnalysisDictionary Include="AnalysisDictionary.xml">
-            <Visible>False</Visible>
-        </CodeAnalysisDictionary>
     </ItemGroup>
 
     <PropertyGroup Condition="'$(DisableStyleCop)' != 'true'">
