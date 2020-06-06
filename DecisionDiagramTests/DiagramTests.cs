@@ -325,7 +325,6 @@ namespace DecisionDiagramTests
         {
             this.RandomTest((a, b) =>
             {
-                Console.WriteLine($"got random: {this.Manager.Display(a)}");
                 var x = this.Manager.Not(this.Manager.And(a, b));
                 var y = this.Manager.Or(this.Manager.Not(a), this.Manager.Not(b));
                 Assert.AreEqual(x, y);
@@ -1422,6 +1421,26 @@ namespace DecisionDiagramTests
                 var z = manager.And(x.Id(), y.Id());
                 var y2 = manager.Exists(z, variableSet);
                 Assert.AreEqual(y.Id(), y2);
+            }
+        }
+
+        /// <summary>
+        /// Test that quantification works for large variable indices.
+        /// </summary>
+        [TestMethod]
+        public void TestExistsAnyIndex()
+        {
+            if (QuantifiersSupported)
+            {
+                var manager = new DDManager<T>(this.Factory, 8, 8, true);
+
+                for (int i = 0; i < 10000; i++)
+                {
+                    var x = manager.CreateBool();
+                    var variableSet = manager.CreateVariableSet(new Variable<T>[] { x });
+                    var e = manager.Exists(x.Id(), variableSet);
+                    Assert.AreEqual(manager.True(), e, $"{i}");
+                }
             }
         }
 

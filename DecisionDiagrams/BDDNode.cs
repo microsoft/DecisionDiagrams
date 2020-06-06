@@ -20,7 +20,7 @@ namespace DecisionDiagrams
         /// <summary>
         /// Node meta data.
         /// </summary>
-        private NodeData16 data;
+        private NodeData32 data;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BDDNode"/> struct.
@@ -30,7 +30,7 @@ namespace DecisionDiagrams
         /// <param name="hi">The high (true) child.</param>
         public BDDNode(int variable, DDIndex lo, DDIndex hi)
         {
-            this.data = new NodeData16(variable, false);
+            this.data = new NodeData32(variable, false);
             this.Low = lo;
             this.High = hi;
         }
