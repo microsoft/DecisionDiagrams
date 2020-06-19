@@ -22,7 +22,7 @@ namespace DecisionDiagramTests
         /// <summary>
         /// How many random inputs to generate per test.
         /// </summary>
-        private static int numRandomTests = 200;
+        private static int numRandomTests = 400;
 
         /// <summary>
         /// Gets or sets the decision diagram factory.
@@ -355,6 +355,149 @@ namespace DecisionDiagramTests
             {
                 var x = this.Manager.Implies(a, b);
                 var y = this.Manager.Implies(this.Manager.Not(b), this.Manager.Not(a));
+                Assert.AreEqual(x, y);
+            });
+        }
+
+        /// <summary>
+        /// Test ite equivalence.
+        /// </summary>
+        [TestMethod]
+        public void IteEquiv1()
+        {
+            this.RandomTest((a, b) =>
+            {
+                var x = this.Manager.Ite(a, b, this.Manager.False());
+                var y = this.Manager.And(a, b);
+                Assert.AreEqual(x, y);
+            });
+        }
+
+        /// <summary>
+        /// Test ite equivalence.
+        /// </summary>
+        [TestMethod]
+        public void IteExpanded()
+        {
+            this.RandomTest((a, b, c) =>
+            {
+                var x = this.Manager.Ite(a, b, c);
+                var y = this.Manager.And(
+                    this.Manager.Implies(a, b),
+                    this.Manager.Implies(this.Manager.Not(a), c));
+                Assert.AreEqual(x, y);
+            });
+        }
+
+        /// <summary>
+        /// Test ite equivalence.
+        /// </summary>
+        [TestMethod]
+        public void IteEquiv2()
+        {
+            this.RandomTest((a, b) =>
+            {
+                var x = this.Manager.Ite(a, this.Manager.Not(b), this.Manager.False());
+                var y = this.Manager.And(a, this.Manager.Not(b));
+                Assert.AreEqual(x, y);
+            });
+        }
+
+        /// <summary>
+        /// Test ite equivalence.
+        /// </summary>
+        [TestMethod]
+        public void IteEquiv3()
+        {
+            this.RandomTest((a, b) =>
+            {
+                var x = this.Manager.Ite(a, this.Manager.False(), b);
+                var y = this.Manager.And(this.Manager.Not(a), b);
+                Assert.AreEqual(x, y);
+            });
+        }
+
+        /// <summary>
+        /// Test ite equivalence.
+        /// </summary>
+        [TestMethod]
+        public void IteEquiv4()
+        {
+            this.RandomTest((a, b) =>
+            {
+                var x = this.Manager.Ite(a, this.Manager.Not(b), b);
+                var y = this.Manager.Or(
+                    this.Manager.And(a, this.Manager.Not(b)),
+                    this.Manager.And(this.Manager.Not(a), b));
+                Assert.AreEqual(x, y);
+            });
+        }
+
+        /// <summary>
+        /// Test ite equivalence.
+        /// </summary>
+        [TestMethod]
+        public void IteEquiv5()
+        {
+            this.RandomTest((a, b) =>
+            {
+                var x = this.Manager.Ite(a, this.Manager.True(), b);
+                var y = this.Manager.Or(a, b);
+                Assert.AreEqual(x, y);
+            });
+        }
+
+        /// <summary>
+        /// Test ite equivalence.
+        /// </summary>
+        [TestMethod]
+        public void IteEquiv6()
+        {
+            this.RandomTest((a, b) =>
+            {
+                var x = this.Manager.Ite(a, this.Manager.False(), this.Manager.True());
+                var y = this.Manager.Not(a);
+                Assert.AreEqual(x, y);
+            });
+        }
+
+        /// <summary>
+        /// Test ite equivalence.
+        /// </summary>
+        [TestMethod]
+        public void IteEquiv7()
+        {
+            this.RandomTest((a, b) =>
+            {
+                var x = this.Manager.Ite(a, this.Manager.True(), this.Manager.False());
+                Assert.AreEqual(x, a);
+            });
+        }
+
+        /// <summary>
+        /// Test ite equivalence.
+        /// </summary>
+        [TestMethod]
+        public void IteEquiv8()
+        {
+            this.RandomTest((a, b) =>
+            {
+                var x = this.Manager.Ite(a, b, this.Manager.True());
+                var y = this.Manager.Implies(a, b);
+                Assert.AreEqual(x, y);
+            });
+        }
+
+        /// <summary>
+        /// Test ite equivalence.
+        /// </summary>
+        [TestMethod]
+        public void IteEquiv9()
+        {
+            this.RandomTest((a, b) =>
+            {
+                var x = this.Manager.Ite(a, b, this.Manager.True());
+                var y = this.Manager.Implies(a, b);
                 Assert.AreEqual(x, y);
             });
         }
@@ -1771,6 +1914,23 @@ namespace DecisionDiagramTests
                     Assert.AreEqual(f1, f3);
                 }
             }
+        }
+
+        /// <summary>
+        /// Test replacing multiple variables.
+        /// </summary>
+        [TestMethod]
+        public void TestStaticCache()
+        {
+            var manager = new DDManager<T>(this.Factory, 8, 8, false);
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            var c = manager.CreateBool();
+            var x = manager.And(a.Id(), b.Id());
+            var y = manager.And(x, c.Id());
+            var m = manager.And(b.Id(), c.Id());
+            var n = manager.And(a.Id(), m);
+            Assert.AreEqual(n, y);
         }
 
         /// <summary>

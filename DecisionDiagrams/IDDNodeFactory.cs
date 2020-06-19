@@ -21,6 +21,11 @@ namespace DecisionDiagrams
         DDManager<T> Manager { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the factory supports ite.
+        /// </summary>
+        bool SupportsIte { get; }
+
+        /// <summary>
         /// Create the node representing the identity function.
         /// </summary>
         /// <param name="variable">The variable index.</param>
@@ -52,6 +57,19 @@ namespace DecisionDiagrams
         /// <param name="y">The right node.</param>
         /// <returns>The and of the two nodes.</returns>
         DDIndex And(DDIndex xid, T x, DDIndex yid, T y);
+
+        /// <summary>
+        /// Implement the logical "ite" operation,
+        /// recursively calling the manager if necessary.
+        /// </summary>
+        /// <param name="fid">The f index.</param>
+        /// <param name="f">The f node.</param>
+        /// <param name="gid">The g index.</param>
+        /// <param name="g">The g node.</param>
+        /// <param name="hid">The h index.</param>
+        /// <param name="h">The h node.</param>
+        /// <returns>The ite of the three nodes.</returns>
+        DDIndex Ite(DDIndex fid, T f, DDIndex gid, T g, DDIndex hid, T h);
 
         /// <summary>
         /// Implement the logical "exists" operation,
