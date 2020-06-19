@@ -127,6 +127,11 @@ namespace DecisionDiagrams
         private OperationResult2[] andCache;
 
         /// <summary>
+        /// The operation cache for the "ite" operation.
+        /// </summary>
+        private OperationResult3[] iteCache;
+
+        /// <summary>
         /// The operation cache for the quantifier operations.
         /// </summary>
         private OperationResult2[] quantifierCache;
@@ -188,7 +193,7 @@ namespace DecisionDiagrams
             this.poolSize = nodes;
             this.cacheRatio = ratio;
             this.dynamicCache = dynamicCache;
-            this.initialCacheSize = CurrentCacheSize();
+            this.initialCacheSize = DynamicCacheSize();
             this.gcMinCutoff = gcMinCutoff;
             this.printDebug = printDebug;
             this.factory = nodeFactory;
@@ -374,7 +379,7 @@ namespace DecisionDiagrams
             this.Check(g.ManagerId);
             this.Check(t.ManagerId);
             this.Check(f.ManagerId);
-            return this.FromIndex(this.Or(this.And(g.Index, t.Index), this.And(this.Not(g.Index), f.Index)));
+            return this.FromIndex(this.Ite(g.Index, t.Index, f.Index));
         }
 
         /// <summary>
@@ -1317,7 +1322,7 @@ namespace DecisionDiagrams
         {
             if (this.andCache == null)
             {
-                this.andCache = CreateCache();
+                this.andCache = CreateCache2();
             }
 
             if (x.IsOne())
@@ -1373,6 +1378,76 @@ namespace DecisionDiagrams
         }
 
         /// <summary>
+        /// Compute the ite of three functions.
+        /// </summary>
+        /// <param name="f">The guard.</param>
+        /// <param name="g">The true case.</param>
+        /// <param name="h">The false case.</param>
+        /// <returns>The logical "ite".</returns>
+        internal DDIndex IteRecursive(DDIndex f, DDIndex g, DDIndex h)
+        {
+            if (this.iteCache == null)
+            {
+                this.iteCache = CreateCache3();
+            }
+
+            if (f.IsOne())
+            {
+                return g;
+            }
+
+            if (f.IsZero())
+            {
+                return h;
+            }
+
+            if (g.Equals(h))
+            {
+                return g;
+            }
+
+            if (g.IsOne() && h.IsZero())
+            {
+                return f;
+            }
+
+            if (g.IsZero() && h.IsOne())
+            {
+                return f.Flip();
+            }
+
+            var fidx = f.GetPosition();
+            var gidx = g.GetPosition();
+            var hidx = h.GetPosition();
+
+            var arg = new OperationArg3(f, g, h);
+            var hash = arg.GetHashCode() & 0x7FFFFFFF;
+
+            // Look for result in the cache
+            int index = hash & this.cacheMask;
+            OperationResult3 result = this.iteCache[index];
+            if (result.Arg.Equals(arg))
+            {
+                return result.Result;
+            }
+
+            T fnode = this.memoryPool[fidx];
+            T gnode = this.memoryPool[gidx];
+            T hnode = this.memoryPool[hidx];
+            fnode = f.IsComplemented() ? this.factory.Flip(fnode) : fnode;
+            gnode = g.IsComplemented() ? this.factory.Flip(gnode) : gnode;
+            hnode = h.IsComplemented() ? this.factory.Flip(hnode) : hnode;
+
+            var res = this.factory.Ite(f, fnode, g, gnode, h, hnode);
+
+            // insert the result into the cache
+            OperationResult3 oresult = new OperationResult3 { Arg = arg, Result = res };
+            this.iteCache[index] = oresult;
+
+            return res;
+        }
+
+        /// <summary>
         /// Compute the exists of a function.
         /// </summary>
         /// <param name="x">The input function.</param>
@@ -1382,7 +1457,7 @@ namespace DecisionDiagrams
         {
             if (this.quantifierCache == null)
             {
-                this.quantifierCache = CreateCache();
+                this.quantifierCache = CreateCache2();
             }
 
             if (x.IsConstant())
@@ -1424,7 +1499,7 @@ namespace DecisionDiagrams
         {
             if (this.replaceCache == null)
             {
-                this.replaceCache = CreateCache();
+                this.replaceCache = CreateCache2();
             }
 
             if (x.IsConstant())
@@ -1509,7 +1584,14 @@ namespace DecisionDiagrams
         /// <returns>The logical "ite".</returns>
         internal DDIndex Ite(DDIndex x, DDIndex y, DDIndex z)
         {
-            return this.And(this.Implies(x, y), this.Implies(this.Not(x), z));
+            if (this.factory.SupportsIte)
+            {
+                return this.IteRecursive(x, y, z);
+            }
+            else
+            {
+                return this.And(this.Implies(x, y), this.Implies(this.Not(x), z));
+            }
         }
 
         /// <summary>
@@ -1743,12 +1825,17 @@ namespace DecisionDiagrams
         /// </summary>
         private void ResetCaches()
         {
-            var computedSize = dynamicCache ? CurrentCacheSize() : this.initialCacheSize;
+            var computedSize = CurrentCacheSize();
             this.cacheMask = Bitops.BitmaskForPowerOfTwo(computedSize);
 
             if (this.andCache != null)
             {
                 this.andCache = new OperationResult2[computedSize];
+            }
+
+            if (this.iteCache != null)
+            {
+                this.iteCache = new OperationResult3[computedSize];
             }
 
             if (this.quantifierCache != null)
@@ -1763,21 +1850,37 @@ namespace DecisionDiagrams
         }
 
         /// <summary>
-        /// Gets the cache size.
+        /// Gets the dynamic cache size.
         /// </summary>
         /// <returns></returns>
-        private int CurrentCacheSize()
+        private int DynamicCacheSize()
         {
             return (int)(this.poolSize / this.cacheRatio);
         }
 
         /// <summary>
+        /// Gets the current cache size.
+        /// </summary>
+        /// <returns></returns>
+        private int CurrentCacheSize()
+        {
+            return dynamicCache ? DynamicCacheSize() : this.initialCacheSize;
+        }
+
+        /// <summary>
         /// Creates a cache with the correct size.
         /// </summary>
-        private OperationResult2[] CreateCache()
+        private OperationResult2[] CreateCache2()
         {
-            var computedSize = (int)(this.poolSize / this.cacheRatio);
-            return new OperationResult2[computedSize];
+            return new OperationResult2[CurrentCacheSize()];
+        }
+
+        /// <summary>
+        /// Creates a cache with the correct size.
+        /// </summary>
+        private OperationResult3[] CreateCache3()
+        {
+            return new OperationResult3[CurrentCacheSize()];
         }
 
         /// <summary>
@@ -2031,6 +2134,74 @@ namespace DecisionDiagrams
             /// Gets or sets the key argument in the cache.
             /// </summary>
             public OperationArg2 Arg { get; set; }
+
+            /// <summary>
+            /// Gets or sets the DD result from the "and" operation.
+            /// </summary>
+            public DDIndex Result { get; set; }
+        }
+
+        /// <summary>
+        /// A data structure capturing a pair of arguments
+        /// to an "and" operation.
+        /// </summary>
+        private struct OperationArg3 : IEquatable<OperationArg3>
+        {
+            private DDIndex param1;
+
+            private DDIndex param2;
+
+            private DDIndex param3;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="OperationArg3"/> struct.
+            /// </summary>
+            /// <param name="param1">The first operand.</param>
+            /// <param name="param2">The second operand.</param>
+            /// <param name="param3">The third operand.</param>
+            public OperationArg3(DDIndex param1, DDIndex param2, DDIndex param3)
+            {
+                this.param1 = param1;
+                this.param2 = param2;
+                this.param3 = param3;
+            }
+
+            /// <summary>
+            /// Equality between a pair of arguments.
+            /// </summary>
+            /// <param name="other">The other argument.</param>
+            /// <returns>Whether the objects are equal.</returns>
+            public bool Equals(OperationArg3 other)
+            {
+                return this.param1.Equals(other.param1) &&
+                       this.param2.Equals(other.param2) &&
+                       this.param3.Equals(other.param3);
+            }
+
+            /// <summary>
+            /// Compute the hashcode as a simple sum for performance.
+            /// </summary>
+            /// <returns>The hash code.</returns>
+            public override int GetHashCode()
+            {
+                var a = this.param1.GetHashCode();
+                var b = this.param2.GetHashCode();
+                var c = this.param3.GetHashCode();
+                return a + b + c;
+            }
+        }
+
+        /// <summary>
+        /// A data structure representing the result in the
+        /// cache. It sotres the key argument so that we can
+        /// compare in the case of a hash collision.
+        /// </summary>
+        private struct OperationResult3
+        {
+            /// <summary>
+            /// Gets or sets the key argument in the cache.
+            /// </summary>
+            public OperationArg3 Arg { get; set; }
 
             /// <summary>
             /// Gets or sets the DD result from the "and" operation.

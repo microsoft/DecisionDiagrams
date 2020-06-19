@@ -5,6 +5,7 @@
 namespace DecisionDiagrams
 {
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
 
     /// <summary>
     /// Implementation of a CBDD node factory that creates CBDD nodes that
@@ -19,6 +20,11 @@ namespace DecisionDiagrams
         /// ensuring canonicity.
         /// </summary>
         public DDManager<CBDDNode> Manager { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the factory supports ite.
+        /// </summary>
+        public bool SupportsIte { get; } = false;
 
         /// <summary>
         /// The logical conjunction of two BDDs as the
@@ -86,6 +92,23 @@ namespace DecisionDiagrams
                     return this.Manager.Allocate(new CBDDNode(y.Variable, y.NextVariable, lo, hi));
                 }
             }
+        }
+
+        /// <summary>
+        /// Implement the logical "ite" operation,
+        /// recursively calling the manager if necessary.
+        /// </summary>
+        /// <param name="fid">The f index.</param>
+        /// <param name="f">The f node.</param>
+        /// <param name="gid">The g index.</param>
+        /// <param name="g">The g node.</param>
+        /// <param name="hid">The h index.</param>
+        /// <param name="h">The h node.</param>
+        /// <returns>The ite of the three nodes.</returns>
+        [ExcludeFromCodeCoverage]
+        public DDIndex Ite(DDIndex fid, CBDDNode f, DDIndex gid, CBDDNode g, DDIndex hid, CBDDNode h)
+        {
+            throw new System.NotSupportedException();
         }
 
         /// <summary>

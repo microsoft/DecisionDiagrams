@@ -21,6 +21,11 @@ namespace DecisionDiagrams
         public DDManager<BDDNode> Manager { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the factory supports ite.
+        /// </summary>
+        public bool SupportsIte { get; } = true;
+
+        /// <summary>
         /// The logical conjunction of two BDDs as the
         /// standard BDD "apply" operation.
         /// </summary>
@@ -48,6 +53,89 @@ namespace DecisionDiagrams
                 var low = this.Manager.And(x.Low, y.Low);
                 var high = this.Manager.And(x.High, y.High);
                 return this.Manager.Allocate(new BDDNode(x.Variable, low, high));
+            }
+        }
+
+        /// <summary>
+        /// Implement the logical "ite" operation,
+        /// recursively calling the manager if necessary.
+        /// </summary>
+        /// <param name="fid">The f index.</param>
+        /// <param name="f">The f node.</param>
+        /// <param name="gid">The g index.</param>
+        /// <param name="g">The g node.</param>
+        /// <param name="hid">The h index.</param>
+        /// <param name="h">The h node.</param>
+        /// <returns>The ite of the three nodes.</returns>
+        public DDIndex Ite(DDIndex fid, BDDNode f, DDIndex gid, BDDNode g, DDIndex hid, BDDNode h)
+        {
+            var flevel = Level(fid, f);
+            var glevel = Level(gid, g);
+            var hlevel = Level(hid, h);
+
+            if (flevel == glevel)
+            {
+                if (flevel == hlevel)
+                {
+                    var x = this.Manager.IteRecursive(f.Low, g.Low, h.Low);
+                    var y = this.Manager.IteRecursive(f.High, g.High, h.High);
+                    return this.Manager.Allocate(new BDDNode(f.Variable, x, y));
+                }
+                else if (flevel < hlevel)
+                {
+                    var x = this.Manager.IteRecursive(f.Low, g.Low, hid);
+                    var y = this.Manager.IteRecursive(f.High, g.High, hid);
+                    return this.Manager.Allocate(new BDDNode(f.Variable, x, y));
+                }
+                else
+                {
+                    var x = this.Manager.IteRecursive(fid, gid, h.Low);
+                    var y = this.Manager.IteRecursive(fid, gid, h.High);
+                    return this.Manager.Allocate(new BDDNode(h.Variable, x, y));
+                }
+            }
+            else if (flevel < glevel)
+            {
+                if (flevel == hlevel)
+                {
+                    var x = this.Manager.IteRecursive(f.Low, gid, h.Low);
+                    var y = this.Manager.IteRecursive(f.High, gid, h.High);
+                    return this.Manager.Allocate(new BDDNode(f.Variable, x, y));
+                }
+                else if (flevel < hlevel)
+                {
+                    var x = this.Manager.IteRecursive(f.Low, gid, hid);
+                    var y = this.Manager.IteRecursive(f.High, gid, hid);
+                    return this.Manager.Allocate(new BDDNode(f.Variable, x, y));
+                }
+                else
+                {
+                    var x = this.Manager.IteRecursive(fid, gid, h.Low);
+                    var y = this.Manager.IteRecursive(fid, gid, h.High);
+                    return this.Manager.Allocate(new BDDNode(h.Variable, x, y));
+                }
+            }
+            else
+            {
+                if (glevel == hlevel)
+                {
+                    var x = this.Manager.IteRecursive(fid, g.Low, h.Low);
+                    var y = this.Manager.IteRecursive(fid, g.High, h.High);
+                    return this.Manager.Allocate(new BDDNode(g.Variable, x, y));
+                }
+                else
+                if (glevel < hlevel)
+                {
+                    var x = this.Manager.IteRecursive(fid, g.Low, hid);
+                    var y = this.Manager.IteRecursive(fid, g.High, hid);
+                    return this.Manager.Allocate(new BDDNode(g.Variable, x, y));
+                }
+                else
+                {
+                    var x = this.Manager.IteRecursive(fid, gid, h.Low);
+                    var y = this.Manager.IteRecursive(fid, gid, h.High);
+                    return this.Manager.Allocate(new BDDNode(h.Variable, x, y));
+                }
             }
         }
 
@@ -114,11 +202,8 @@ namespace DecisionDiagrams
             loNode = lo.IsComplemented() ? Flip(loNode) : loNode;
             hiNode = hi.IsComplemented() ? Flip(hiNode) : hiNode;
 
-            var loConst = lo.IsConstant();
-            var hiConst = hi.IsConstant();
-
-            var loLevel = loConst ? int.MaxValue : loNode.Variable;
-            var hiLevel = hiConst ? int.MaxValue : hiNode.Variable;
+            var loLevel = Level(lo, loNode);
+            var hiLevel = Level(hi, hiNode);
 
             if (level < loLevel && level < hiLevel)
             {
@@ -206,6 +291,18 @@ namespace DecisionDiagrams
         public void Sat(BDDNode node, bool hi, Dictionary<int, bool> assignment)
         {
             assignment.Add(node.Variable, hi);
+        }
+
+        /// <summary>
+        /// Gets the "level" for the node, where the maximum
+        /// value is used for constants.
+        /// </summary>
+        /// <param name="idx">The node index.</param>
+        /// <param name="node">The node.</param>
+        /// <returns></returns>
+        private int Level(DDIndex idx, BDDNode node)
+        {
+            return idx.IsConstant() ? int.MaxValue : node.Variable;
         }
     }
 }
