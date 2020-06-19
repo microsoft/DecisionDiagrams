@@ -149,6 +149,11 @@ namespace DecisionDiagrams
         private double gcLoadIncrease;
 
         /// <summary>
+        /// The initial cache size.
+        /// </summary>
+        private int initialCacheSize;
+
+        /// <summary>
         /// Whether to print debugging information including when a
         /// resize occurs and when garbage collection takes place.
         /// </summary>
@@ -163,7 +168,13 @@ namespace DecisionDiagrams
         /// <param name="dynamicCache">Whether to dynamically expand the cache.</param>
         /// <param name="gcMinCutoff">The minimum node table size required to invoke collection.</param>
         /// <param name="printDebug">Whether to print debugging information such as GC collections.</param>
-        public DDManager(IDDNodeFactory<T> nodeFactory, uint numNodes = 1 << 19, int cacheRatio = 16, bool dynamicCache = true, int gcMinCutoff = 1 << 20, bool printDebug = false)
+        public DDManager(
+            IDDNodeFactory<T> nodeFactory,
+            uint numNodes = 1 << 19,
+            int cacheRatio = 16,
+            bool dynamicCache = true,
+            int gcMinCutoff = 1 << 20,
+            bool printDebug = false)
         {
             if (cacheRatio < 0)
             {
@@ -177,6 +188,7 @@ namespace DecisionDiagrams
             this.poolSize = nodes;
             this.cacheRatio = ratio;
             this.dynamicCache = dynamicCache;
+            this.initialCacheSize = CurrentCacheSize();
             this.gcMinCutoff = gcMinCutoff;
             this.printDebug = printDebug;
             this.factory = nodeFactory;
@@ -184,7 +196,7 @@ namespace DecisionDiagrams
             this.memoryPool = new T[this.poolSize];
             this.uniqueTable = new UniqueTable<T>(this);
             this.UpdateGcLoadIncrease();
-            this.ResetCaches(true);
+            this.ResetCaches();
             this.handleTable = new HandleTable<T>(this);
         }
 
@@ -1303,6 +1315,11 @@ namespace DecisionDiagrams
         /// <returns>The logical "and".</returns>
         internal DDIndex And(DDIndex x, DDIndex y)
         {
+            if (this.andCache == null)
+            {
+                this.andCache = CreateCache();
+            }
+
             if (x.IsOne())
             {
                 return y;
@@ -1363,6 +1380,11 @@ namespace DecisionDiagrams
         /// <returns>The logical "if-then-else".</returns>
         internal DDIndex Exists(DDIndex x, VariableSet<T> variables)
         {
+            if (this.quantifierCache == null)
+            {
+                this.quantifierCache = CreateCache();
+            }
+
             if (x.IsConstant())
             {
                 return x;
@@ -1400,6 +1422,11 @@ namespace DecisionDiagrams
         /// <returns>The logical "if-then-else".</returns>
         internal DDIndex Replace(DDIndex x, VariableMap<T> variableMap)
         {
+            if (this.replaceCache == null)
+            {
+                this.replaceCache = CreateCache();
+            }
+
             if (x.IsConstant())
             {
                 return x;
@@ -1657,7 +1684,7 @@ namespace DecisionDiagrams
             }
             else
             {
-                this.ResetCaches(true);
+                this.ResetCaches();
             }
         }
 
@@ -1714,17 +1741,43 @@ namespace DecisionDiagrams
         /// <summary>
         /// Reset the caches if necessary.
         /// </summary>
-        /// <param name="force">Whether to force a reset.</param>
-        private void ResetCaches(bool force)
+        private void ResetCaches()
         {
-            if (this.dynamicCache || force)
+            var computedSize = dynamicCache ? CurrentCacheSize() : this.initialCacheSize;
+            this.cacheMask = Bitops.BitmaskForPowerOfTwo(computedSize);
+
+            if (this.andCache != null)
             {
-                var computedSize = (int)(this.poolSize / this.cacheRatio);
-                this.cacheMask = Bitops.BitmaskForPowerOfTwo(computedSize);
                 this.andCache = new OperationResult2[computedSize];
+            }
+
+            if (this.quantifierCache != null)
+            {
                 this.quantifierCache = new OperationResult2[computedSize];
+            }
+
+            if (this.replaceCache != null)
+            {
                 this.replaceCache = new OperationResult2[computedSize];
             }
+        }
+
+        /// <summary>
+        /// Gets the cache size.
+        /// </summary>
+        /// <returns></returns>
+        private int CurrentCacheSize()
+        {
+            return (int)(this.poolSize / this.cacheRatio);
+        }
+
+        /// <summary>
+        /// Creates a cache with the correct size.
+        /// </summary>
+        private OperationResult2[] CreateCache()
+        {
+            var computedSize = (int)(this.poolSize / this.cacheRatio);
+            return new OperationResult2[computedSize];
         }
 
         /// <summary>
@@ -1735,7 +1788,7 @@ namespace DecisionDiagrams
             PrintDebug($"[DD] Resizing node table to: {2 * this.poolSize}");
             this.poolSize = 2 * this.poolSize;
             Array.Resize(ref this.memoryPool, unchecked((int)this.poolSize));
-            this.ResetCaches(true);
+            this.ResetCaches();
         }
 
         /// <summary>

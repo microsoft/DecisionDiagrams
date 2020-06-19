@@ -1774,6 +1774,23 @@ namespace DecisionDiagramTests
         }
 
         /// <summary>
+        /// Test replacing multiple variables.
+        /// </summary>
+        [TestMethod]
+        public void TestStaticCache()
+        {
+            var manager = new DDManager<T>(this.Factory, 8, 8, false);
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            var c = manager.CreateBool();
+            var x = manager.And(a.Id(), b.Id());
+            var y = manager.And(x, c.Id());
+            var m = manager.And(b.Id(), c.Id());
+            var n = manager.And(a.Id(), m);
+            Assert.AreEqual(n, y);
+        }
+
+        /// <summary>
         /// Select a random literal.
         /// </summary>
         /// <returns>Returns a random literal.</returns>
