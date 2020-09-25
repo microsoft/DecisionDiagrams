@@ -1507,6 +1507,24 @@ namespace DecisionDiagramTests
         }
 
         /// <summary>
+        /// Test that the number of bits is correct.
+        /// </summary>
+        [TestMethod]
+        public void TestNumBits()
+        {
+            var factory = new BDDNodeFactory();
+            var manager = new DDManager<BDDNode>(factory);
+
+            Assert.AreEqual(1, manager.CreateBool().NumBits);
+            Assert.AreEqual(8, manager.CreateInt8().NumBits);
+            Assert.AreEqual(16, manager.CreateInt16().NumBits);
+            Assert.AreEqual(32, manager.CreateInt32().NumBits);
+            Assert.AreEqual(64, manager.CreateInt64().NumBits);
+            Assert.AreEqual(7, manager.CreateInt(7).NumBits);
+            Assert.AreEqual(19, manager.CreateInt(19).NumBits);
+        }
+
+        /// <summary>
         /// Test that the node children are correct.
         /// </summary>
         [TestMethod]

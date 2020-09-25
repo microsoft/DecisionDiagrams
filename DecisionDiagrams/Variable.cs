@@ -127,6 +127,11 @@ namespace DecisionDiagrams
         }
 
         /// <summary>
+        /// Gets the number of bits contained in the variable.
+        /// </summary>
+        public int NumBits { get => this.Indices.Length; }
+
+        /// <summary>
         /// Gets the manager.
         /// </summary>
         internal DDManager<T> Manager { get; }
