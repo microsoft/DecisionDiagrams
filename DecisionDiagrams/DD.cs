@@ -2,14 +2,16 @@
 // Copyright (c) Microsoft. All rights reserved.
 // </copyright>
 
+using System;
+
 namespace DecisionDiagrams
 {
-    using System.Collections.Generic;
-
     /// <summary>
     /// Decision diagram representing a boolean function.
     /// </summary>
+#pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     public sealed class DD
+#pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="DD"/> class.
@@ -67,18 +69,6 @@ namespace DecisionDiagrams
         public override bool Equals(object obj)
         {
             return obj is DD dD && this.ManagerId == dD.ManagerId && this.Index.Equals(dD.Index);
-        }
-
-        /// <summary>
-        /// Hash code for DD function.
-        /// </summary>
-        /// <returns>The hash code.</returns>
-        public override int GetHashCode()
-        {
-            var hashCode = 7;
-            hashCode = (hashCode * 31) + this.ManagerId.GetHashCode();
-            hashCode = (hashCode * 31) + EqualityComparer<DDIndex>.Default.GetHashCode(this.Index);
-            return hashCode;
         }
     }
 }

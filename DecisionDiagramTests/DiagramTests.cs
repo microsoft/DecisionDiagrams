@@ -605,6 +605,36 @@ namespace DecisionDiagramTests
             Assert.IsFalse(x.Equals(0));
         }
 
+        /// <summary>
+        /// Test the hash code is preserved by garbage collection.
+        /// </summary>
+        [TestMethod]
+        public void TestGarbageCollectionPreservesHashcode()
+        {
+            CreateGarbage();
+
+            var x = this.Manager.And(this.VarA, this.VarB);
+
+            GC.Collect();
+            this.Manager.GarbageCollect();
+
+            var y = this.Manager.And(this.VarA, this.VarB);
+
+            Assert.AreEqual(x.GetHashCode(), y.GetHashCode());
+            Assert.IsTrue(x.Equals(y));
+        }
+
+        /// <summary>
+        /// Helper function to create garbage in a new scope.
+        /// </summary>
+        private void CreateGarbage()
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                this.Manager.Or(this.RandomDD(), this.RandomDD());
+            }
+        }
+
         /*  some odd behavior with GC.Collect() in unit testing mode
         /// <summary>
         /// Test that garbage collection collects nodes when released.
