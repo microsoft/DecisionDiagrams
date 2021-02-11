@@ -331,7 +331,7 @@ namespace DecisionDiagrams
         }
 
         /// <summary>
-        /// Variable substitution DDs.
+        /// Variable substitution for DDs.
         /// </summary>
         /// <param name="x">The operand.</param>
         /// <param name="variableMap">The variable map to perform the substitution.</param>
@@ -407,7 +407,7 @@ namespace DecisionDiagrams
         }
 
         /// <summary>
-        /// Gets the left child of a DD.
+        /// Gets the right child of a DD.
         /// </summary>
         /// <param name="x">The DD.</param>
         /// <returns>The left child.</returns>
@@ -418,7 +418,7 @@ namespace DecisionDiagrams
         }
 
         /// <summary>
-        /// Gets the left child of a DD.
+        /// Gets the variable for a DD.
         /// </summary>
         /// <param name="x">The DD.</param>
         /// <returns>The left child.</returns>
@@ -806,7 +806,7 @@ namespace DecisionDiagrams
         }
 
         /// <summary>
-        /// Create a new bitvector from a variable.
+        /// Create a new bitvector from bit variables.
         /// </summary>
         /// <param name="bits">The bits.</param>
         /// <returns>bitvector.</returns>
@@ -852,7 +852,7 @@ namespace DecisionDiagrams
         }
 
         /// <summary>
-        /// Compute the disjunction of two domains.
+        /// Compute the negation of a bitvector.
         /// </summary>
         /// <param name="bitvector">The bitvector.</param>
         /// <returns>Bitvector.</returns>
@@ -868,7 +868,7 @@ namespace DecisionDiagrams
         }
 
         /// <summary>
-        /// Compute the exclusive or of two domains.
+        /// Compute the exclusive or of two bitvectors.
         /// </summary>
         /// <param name="bitvector1">The first domain.</param>
         /// <param name="bitvector2">The second domain.</param>
@@ -888,7 +888,7 @@ namespace DecisionDiagrams
         }
 
         /// <summary>
-        /// If the else for two bitvectors.
+        /// If the else for bitvectors.
         /// </summary>
         /// <param name="guard">The guard condition.</param>
         /// <param name="bitvector1">The first bitvector.</param>
@@ -954,7 +954,7 @@ namespace DecisionDiagrams
         }
 
         /// <summary>
-        /// Less than or equal for two bitvectors.
+        /// Less than or equal for two signed bitvectors.
         /// </summary>
         /// <param name="bitvector1">The first bitvector.</param>
         /// <param name="bitvector2">The second bitvector.</param>
@@ -1000,7 +1000,7 @@ namespace DecisionDiagrams
         }
 
         /// <summary>
-        /// Greater than or equal for two bitvector.
+        /// Greater than or equal for two signed bitvector.
         /// </summary>
         /// <param name="bitvector1">The first bitvector.</param>
         /// <param name="bitvector2">The second bitvector.</param>
@@ -1023,7 +1023,7 @@ namespace DecisionDiagrams
         }
 
         /// <summary>
-        /// Less than for two bitvectors.
+        /// Bitwise and for two bitvectors.
         /// </summary>
         /// <param name="bitvector1">The first bitvector.</param>
         /// <param name="bitvector2">The second bitvector.</param>
@@ -1058,22 +1058,22 @@ namespace DecisionDiagrams
         }
 
         /// <summary>
-        /// Less than for two bitvectors.
+        /// Greater than for two bitvectors.
         /// </summary>
         /// <param name="bitvector1">The first bitvector.</param>
         /// <param name="bitvector2">The second bitvector.</param>
-        /// <returns>Whether the first bitvector is less than the second.</returns>
+        /// <returns>Whether the first bitvector is greater than the second.</returns>
         public DD Greater(BitVector<T> bitvector1, BitVector<T> bitvector2)
         {
             return this.And(this.GreaterOrEqual(bitvector1, bitvector2), this.Not(this.Eq(bitvector1, bitvector2)));
         }
 
         /// <summary>
-        /// Subtract two bitvectors.
+        /// Subtraction of two bitvectors.
         /// </summary>
         /// <param name="bitvector1">The first bitvector.</param>
         /// <param name="bitvector2">The second bitvector.</param>
-        /// <returns>The sum of the results.</returns>
+        /// <returns>The subtraction of the arguments as a bitvector.</returns>
         public BitVector<T> Subtract(BitVector<T> bitvector1, BitVector<T> bitvector2)
         {
             var result = new BitVector<T>(this, bitvector1.Size);
@@ -1150,7 +1150,7 @@ namespace DecisionDiagrams
         }
 
         /// <summary>
-        /// Check the equality of domain sizes.
+        /// Check the equality of bitvector sizes.
         /// </summary>
         /// <param name="domain1">The first domain.</param>
         /// <param name="domain2">The second domain.</param>
@@ -1452,7 +1452,7 @@ namespace DecisionDiagrams
         /// </summary>
         /// <param name="x">The input function.</param>
         /// <param name="variables">The variables to quantify.</param>
-        /// <returns>The logical "if-then-else".</returns>
+        /// <returns>The logical "existential" quantification.</returns>
         internal DDIndex Exists(DDIndex x, VariableSet<T> variables)
         {
             if (this.quantifierCache == null)
@@ -1494,7 +1494,7 @@ namespace DecisionDiagrams
         /// </summary>
         /// <param name="x">The input function.</param>
         /// <param name="variableMap">The variables to quantify.</param>
-        /// <returns>The logical "if-then-else".</returns>
+        /// <returns>The substituted decision diagram.</returns>
         internal DDIndex Replace(DDIndex x, VariableMap<T> variableMap)
         {
             if (this.replaceCache == null)
@@ -1783,7 +1783,7 @@ namespace DecisionDiagrams
         /// at 20% and increase the load factor we will tolerate after a collection
         /// up to 80% as the number of nodes grows.
         /// </summary>
-        [ExcludeFromCodeCoverage]  // requires too large manager
+        [ExcludeFromCodeCoverage]  // requires too large of a manager
         private void UpdateGcLoadIncrease()
         {
             var currentNodeCount = this.memoryPool.Length;
@@ -1852,7 +1852,7 @@ namespace DecisionDiagrams
         /// <summary>
         /// Gets the dynamic cache size.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The cache size.</returns>
         private int DynamicCacheSize()
         {
             return (int)(this.poolSize / this.cacheRatio);
@@ -1861,7 +1861,7 @@ namespace DecisionDiagrams
         /// <summary>
         /// Gets the current cache size.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The cache size.</returns>
         private int CurrentCacheSize()
         {
             return dynamicCache ? DynamicCacheSize() : this.initialCacheSize;
@@ -2058,7 +2058,7 @@ namespace DecisionDiagrams
         }
 
         /// <summary>
-        /// Basic sanity checks for nodes provided by the user.
+        /// Basic sanity check for nodes provided by the user.
         /// </summary>
         /// <param name="managerId">The manager id.</param>
         private void Check(int managerId)
