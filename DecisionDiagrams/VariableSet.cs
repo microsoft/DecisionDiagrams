@@ -15,25 +15,25 @@ namespace DecisionDiagrams
         where T : IDDNode
     {
         /// <summary>
-        /// The manager object.
-        /// </summary>
-        private DDManager<T> manager;
-
-        /// <summary>
         /// The set of variables.
         /// </summary>
         private BitArray variables;
 
         /// <summary>
+        /// Gets the smallest index in the set.
+        /// </summary>
+        internal int MinIndex { get; } = -1;
+
+        /// <summary>
         /// Gets the largest index in the set.
         /// </summary>
-        internal int MaxIndex { get; } = 0;
+        internal int MaxIndex { get; } = -1;
 
         /// <summary>
         /// Gets the DD representing the variables for efficient
-        /// caching purposes.
+        /// caching and comparison purposes.
         /// </summary>
-        internal DDIndex AsIndex { get; private set; }
+        public DDIndex AsIndex { get; private set; }
 
         /// <summary>
         /// Gets the variables in the set.
@@ -45,21 +45,32 @@ namespace DecisionDiagrams
         /// </summary>
         /// <param name="manager">The manager object.</param>
         /// <param name="variables">The variables.</param>
-        /// <param name="numVariables">The number of variables in the manager.</param>
-        internal VariableSet(DDManager<T> manager, Variable<T>[] variables, int numVariables)
+        internal VariableSet(DDManager<T> manager, Variable<T>[] variables)
         {
-            this.manager = manager;
-            this.variables = new BitArray(numVariables);
             this.AsIndex = DDIndex.True;
             this.Variables = variables;
-            foreach (var v in variables)
+
+            for (int i = 0; i < variables.Length; i++)
             {
-                for (int i = v.Indices.Length - 1; i >= 0; i--)
+                var v = variables[i];
+                for (int j = v.Indices.Length - 1; j >= 0; j--)
                 {
-                    var variableIndex = v.Indices[i];
+                    var variableIndex = v.Indices[j];
+                    this.MinIndex = this.MinIndex < 0 ? variableIndex : Math.Min(this.MinIndex, variableIndex);
                     this.MaxIndex = Math.Max(this.MaxIndex, variableIndex);
                     this.AsIndex = manager.And(this.AsIndex, manager.IdIdx(variableIndex));
-                    this.variables.Set(variableIndex, true);
+                }
+            }
+
+            this.variables = new BitArray(this.MaxIndex - this.MinIndex + 1);
+
+            for (int i = 0; i < variables.Length; i++)
+            {
+                var v = variables[i];
+                for (int j = v.Indices.Length - 1; j >= 0; j--)
+                {
+                    var variableIndex = v.Indices[j];
+                    this.variables.Set(variableIndex - this.MinIndex, true);
                 }
             }
         }
@@ -71,7 +82,13 @@ namespace DecisionDiagrams
         /// <returns>Whether the set contains that variable.</returns>
         internal bool Contains(int variable)
         {
-            return this.variables.Get(variable);
+            if (variable < this.MinIndex)
+            {
+                return false;
+            }
+
+            var index = variable - this.MinIndex;
+            return this.variables.Get(index);
         }
     }
 }

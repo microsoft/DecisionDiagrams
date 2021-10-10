@@ -1695,6 +1695,58 @@ namespace DecisionDiagramTests
         }
 
         /// <summary>
+        /// Test that variable set lookup works after allocating new variables.
+        /// </summary>
+        [TestMethod]
+        public void TestVariableSetAfterNewVariables1()
+        {
+            if (QuantifiersSupported)
+            {
+                var manager = new DDManager<T>(this.Factory, 8, 8, true);
+                var a = manager.CreateBool();
+                var b = manager.CreateBool();
+                var variableSet = manager.CreateVariableSet(new Variable<T>[] { a, b });
+                var c = manager.CreateBool();
+                var d = manager.CreateBool();
+                var x = manager.And(c.Id(), d.Id());
+                var y = manager.And(a.Id(), manager.And(b.Id(), x));
+                var z = manager.Exists(y, variableSet);
+                Assert.AreEqual(x, z);
+            }
+        }
+
+        /// <summary>
+        /// Test that variable set lookup works after allocating new variables.
+        /// </summary>
+        [TestMethod]
+        public void TestVariableSetAfterNewVariables2()
+        {
+            if (QuantifiersSupported)
+            {
+                var manager = new DDManager<T>(this.Factory, 8, 8, true);
+                var variableSet = manager.CreateVariableSet(new Variable<T>[] { });
+                var a = manager.CreateBool().Id();
+                var x = manager.Exists(a, variableSet);
+                Assert.AreEqual(a, x);
+            }
+        }
+
+        /// <summary>
+        /// Test that variable set equality works.
+        /// </summary>
+        [TestMethod]
+        public void TestVariableSetEquality()
+        {
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            var c = manager.CreateInt8();
+            var variableSet1 = manager.CreateVariableSet(new Variable<T>[] { a, b, c });
+            var variableSet2 = manager.CreateVariableSet(new Variable<T>[] { c, b, a });
+            Assert.AreEqual(variableSet1.AsIndex, variableSet2.AsIndex);
+        }
+
+        /// <summary>
         /// Test that we can access the variable mapping.
         /// </summary>
         [TestMethod]

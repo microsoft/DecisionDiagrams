@@ -226,7 +226,7 @@ namespace DecisionDiagrams
         /// <returns>The variable set.</returns>
         public VariableSet<T> CreateVariableSet(Variable<T>[] variables)
         {
-            return new VariableSet<T>(this, variables, this.numVariables);
+            return new VariableSet<T>(this, variables);
         }
 
         /// <summary>
