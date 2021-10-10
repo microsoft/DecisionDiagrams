@@ -1762,7 +1762,7 @@ namespace DecisionDiagramTests
         }
 
         /// <summary>
-        /// Test replacing with a variable later in the ordering.
+        /// Test replacing with a an empty map.
         /// </summary>
         [TestMethod]
         public void TestReplaceWithEmpty()
@@ -1779,7 +1779,7 @@ namespace DecisionDiagramTests
         }
 
         /// <summary>
-        /// Test replacing with a variable later in the ordering.
+        /// Test replacing for a constant.
         /// </summary>
         [TestMethod]
         public void TestReplaceWithConstant()
@@ -1793,7 +1793,7 @@ namespace DecisionDiagramTests
         }
 
         /// <summary>
-        /// Test replacing with a variable later in the ordering.
+        /// Test replacing with a map made before new variables are added.
         /// </summary>
         [TestMethod]
         public void TestReplaceWithEmptyAfterNewVariables()
@@ -1803,6 +1803,26 @@ namespace DecisionDiagramTests
             var a = manager.CreateBool().Id();
             var x = manager.Replace(a, variableMap);
             Assert.AreEqual(a, x);
+        }
+
+        /// <summary>
+        /// Test replacing a variable in the middle of a chain.
+        /// </summary>
+        [TestMethod]
+        public void TestReplaceSequence()
+        {
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            var c = manager.CreateBool();
+            var d = manager.CreateBool();
+            var e = manager.CreateBool();
+            var f1 = manager.And(a.Id(), manager.And(b.Id(), manager.And(c.Id(), d.Id())));
+            var f2 = manager.And(a.Id(), manager.And(b.Id(), manager.And(e.Id(), d.Id())));
+            var map = new Dictionary<Variable<T>, Variable<T>> { { c, e } };
+            var variableMap = manager.CreateVariableMap(map);
+            var f3 = manager.Replace(f1, variableMap);
+            Assert.AreEqual(f2, f3);
         }
 
         /// <summary>
