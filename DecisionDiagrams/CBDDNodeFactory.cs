@@ -121,7 +121,19 @@ namespace DecisionDiagrams
         /// <returns>The resulting function.</returns>
         public DDIndex Exists(DDIndex xid, CBDDNode x, VariableSet<CBDDNode> variables)
         {
-            throw new System.NotSupportedException();
+            if (x.Variable > variables.MaxIndex)
+            {
+                return xid;
+            }
+
+            var lo = this.Manager.Exists(ExpandLowChild(x), variables);
+            var hi = this.Manager.Exists(x.High, variables);
+            if (variables.Contains(x.Variable))
+            {
+                return this.Manager.Or(lo, hi);
+            }
+
+            return this.Manager.Allocate(new CBDDNode(x.Variable, x.Variable + 1, lo, hi));
         }
 
         /// <summary>
@@ -223,6 +235,28 @@ namespace DecisionDiagrams
             {
                 assignment.Add(node.Variable, hi);
             }
+        }
+
+        /// <summary>
+        /// Expand the low child to the next variable if in a chain.
+        /// </summary>
+        /// <param name="x">The cbdd node.</param>
+        /// <returns>The index of the new low child.</returns>
+        private DDIndex ExpandLowChild(CBDDNode x)
+        {
+            return (x.NextVariable == x.Variable + 1) ? x.Low : this.Manager.Allocate(new CBDDNode(x.Variable + 1, x.NextVariable, x.Low, x.High));
+        }
+
+        /// <summary>
+        /// Gets the "level" for the node, where the maximum
+        /// value is used for constants.
+        /// </summary>
+        /// <param name="idx">The node index.</param>
+        /// <param name="node">The node.</param>
+        /// <returns></returns>
+        private int Level(DDIndex idx, BDDNode node)
+        {
+            return idx.IsConstant() ? int.MaxValue : node.Variable;
         }
     }
 }

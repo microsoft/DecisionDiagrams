@@ -40,6 +40,11 @@ namespace DecisionDiagramTests
         internal bool QuantifiersSupported { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the replace operation is supported.
+        /// </summary>
+        internal bool ReplaceSupported { get; set; }
+
+        /// <summary>
         /// Gets or sets the zero value.
         /// </summary>
         internal DD Zero { get; set; }
@@ -1675,23 +1680,79 @@ namespace DecisionDiagramTests
         }
 
         /// <summary>
+        /// Test replace with random.
+        /// </summary>
+        [TestMethod]
+        public void TestsQuanfiersRandom()
+        {
+            if (QuantifiersSupported)
+            {
+                var manager = new DDManager<T>(this.Factory, 8, 8, true);
+
+                var variables = new VarBool<T>[]
+                {
+                    manager.CreateBool(),
+                    manager.CreateBool(),
+                    manager.CreateBool(),
+                    manager.CreateBool(),
+                    manager.CreateBool(),
+                    manager.CreateBool(),
+                    manager.CreateBool(),
+                    manager.CreateBool(),
+                    manager.CreateBool(),
+                    manager.CreateBool(),
+                };
+
+                // create the dd of all variables
+                var x = manager.True();
+                foreach (var v in variables)
+                {
+                    x = manager.And(x, v.Id());
+                }
+
+                for (int i = 0; i < numRandomTests; i++)
+                {
+                    // randomly select some subset of 5 to quantify away
+                    var vars = new Variable<T>[5];
+                    for (int j = 0; j < 5; j++)
+                    {
+                        vars[j] = variables[this.Rnd.Next(0, 10)];
+                    }
+
+                    var variableSet = manager.CreateVariableSet(vars);
+
+                    // create the expected result
+                    var y = manager.True();
+                    foreach (var v in variables)
+                    {
+                        if (!vars.Contains(v))
+                        {
+                            y = manager.And(y, v.Id());
+                        }
+                    }
+
+                    var z = manager.Exists(x, variableSet);
+
+                    Assert.AreEqual(y, z);
+                }
+            }
+        }
+
+        /// <summary>
         /// Test that quantification works when adding new variables.
         /// </summary>
         [TestMethod]
         public void TestVariableSetHasCorrectVariables()
         {
-            if (QuantifiersSupported)
-            {
-                var manager = new DDManager<T>(this.Factory, 8, 8, true);
-                var a = manager.CreateBool();
-                var b = manager.CreateBool();
-                _ = manager.CreateBool();
-                _ = manager.CreateBool();
-                var variableSet = manager.CreateVariableSet(new Variable<T>[] { a, b });
-                Assert.AreEqual(2, variableSet.Variables.Length);
-                Assert.IsTrue(variableSet.Variables.Contains(a));
-                Assert.IsTrue(variableSet.Variables.Contains(b));
-            }
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            _ = manager.CreateBool();
+            _ = manager.CreateBool();
+            var variableSet = manager.CreateVariableSet(new Variable<T>[] { a, b });
+            Assert.AreEqual(2, variableSet.Variables.Length);
+            Assert.IsTrue(variableSet.Variables.Contains(a));
+            Assert.IsTrue(variableSet.Variables.Contains(b));
         }
 
         /// <summary>
@@ -1786,7 +1847,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplaceWithLater()
         {
-            if (QuantifiersSupported)
+            if (ReplaceSupported)
             {
                 var manager = new DDManager<T>(this.Factory, 8, 8, true);
                 var a = manager.CreateBool();
@@ -1808,7 +1869,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplaceWithEarlier()
         {
-            if (QuantifiersSupported)
+            if (ReplaceSupported)
             {
                 var manager = new DDManager<T>(this.Factory, 8, 8, true);
                 var a = manager.CreateBool();
@@ -1830,7 +1891,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplaceWithNegation()
         {
-            if (QuantifiersSupported)
+            if (ReplaceSupported)
             {
                 var manager = new DDManager<T>(this.Factory, 8, 8, true);
                 var a = manager.CreateBool();
@@ -1852,7 +1913,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplaceWithXor()
         {
-            if (QuantifiersSupported)
+            if (ReplaceSupported)
             {
                 var manager = new DDManager<T>(this.Factory, 8, 8, true);
                 var a = manager.CreateBool();
@@ -1884,7 +1945,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplaceAllVariables()
         {
-            if (QuantifiersSupported)
+            if (ReplaceSupported)
             {
                 var manager = new DDManager<T>(this.Factory, 8, 8, true);
                 var a = manager.CreateBool();
@@ -1913,7 +1974,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplaceWithMultiple()
         {
-            if (QuantifiersSupported)
+            if (ReplaceSupported)
             {
                 var manager = new DDManager<T>(this.Factory, 8, 8, true);
                 var a = manager.CreateBool();
@@ -1937,7 +1998,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplaceWithMultiple2()
         {
-            if (QuantifiersSupported)
+            if (ReplaceSupported)
             {
                 var manager = new DDManager<T>(this.Factory, 8, 8, true);
                 var a = manager.CreateBool();
@@ -1961,7 +2022,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplacingWithSameVariable()
         {
-            if (QuantifiersSupported)
+            if (ReplaceSupported)
             {
                 var manager = new DDManager<T>(this.Factory, 8, 8, true);
                 var a = manager.CreateBool();
@@ -1981,7 +2042,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplacingVariablesCommutes()
         {
-            if (QuantifiersSupported)
+            if (ReplaceSupported)
             {
                 var manager = new DDManager<T>(this.Factory, 8, 8, true);
                 var a = manager.CreateInt8();
