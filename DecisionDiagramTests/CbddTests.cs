@@ -23,7 +23,6 @@ namespace DecisionDiagramTests
         {
             this.Factory = new CBDDNodeFactory();
             this.Manager = new DDManager<CBDDNode>(this.Factory, 16, gcMinCutoff: 4);
-            this.QuantifiersSupported = false;
             this.BaseInitialize();
         }
 

@@ -35,11 +35,6 @@ namespace DecisionDiagramTests
         internal DDManager<T> Manager { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether quantification is supported.
-        /// </summary>
-        internal bool QuantifiersSupported { get; set; }
-
-        /// <summary>
         /// Gets or sets the zero value.
         /// </summary>
         internal DD Zero { get; set; }
@@ -508,57 +503,14 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void ExistentialQuantification()
         {
-            if (this.QuantifiersSupported)
+            this.RandomTest((a, b) =>
             {
-                this.RandomTest((a, b) =>
-                {
-                    var without = this.Manager.And(a, b);
-                    var all = this.Manager.And(without, this.Manager.And(this.VarA, this.VarB));
-                    var variableSet = this.Manager.CreateVariableSet(new Variable<T>[] { this.Va, this.Vb });
-                    var project = this.Manager.Exists(all, variableSet);
-                    Assert.AreEqual(without, project);
-                });
-            }
-        }
-
-        /// <summary>
-        /// Test existential quantification.
-        /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException), "Expected NotSupportedException.")]
-        public void ExistentialQuantificationNotSupported()
-        {
-            if (!this.QuantifiersSupported)
-            {
-                var all = this.Manager.And(this.VarC, this.Manager.And(this.VarA, this.VarB));
+                var without = this.Manager.And(a, b);
+                var all = this.Manager.And(without, this.Manager.And(this.VarA, this.VarB));
                 var variableSet = this.Manager.CreateVariableSet(new Variable<T>[] { this.Va, this.Vb });
-                _ = this.Manager.Exists(all, variableSet);
-            }
-            else
-            {
-                throw new NotSupportedException();
-            }
-        }
-
-        /// <summary>
-        /// Test variable replacement.
-        /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException), "Expected NotSupportedException.")]
-        public void ReplacementNotSupported()
-        {
-            if (!this.QuantifiersSupported)
-            {
-                var all = this.Manager.And(this.VarC, this.Manager.And(this.VarA, this.VarB));
-                var map = new Dictionary<Variable<T>, Variable<T>>();
-                map[this.Vc] = this.Vb;
-                var variableMap = this.Manager.CreateVariableMap(map);
-                _ = this.Manager.Replace(all, variableMap);
-            }
-            else
-            {
-                throw new NotSupportedException();
-            }
+                var project = this.Manager.Exists(all, variableSet);
+                Assert.AreEqual(without, project);
+            });
         }
 
         /// <summary>
@@ -567,15 +519,12 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void ForallQuantification()
         {
-            if (this.QuantifiersSupported)
-            {
-                var bc = this.Manager.Or(this.VarB, this.VarC);
-                var x = this.Manager.Ite(this.VarA, bc, this.Var16);
-                var variableSet = this.Manager.CreateVariableSet(new Variable<T>[] { this.Va });
-                x = this.Manager.Forall(x, variableSet);
-                var y = this.Manager.And(bc, this.Var16);
-                Assert.AreEqual(x, y);
-            }
+            var bc = this.Manager.Or(this.VarB, this.VarC);
+            var x = this.Manager.Ite(this.VarA, bc, this.Var16);
+            var variableSet = this.Manager.CreateVariableSet(new Variable<T>[] { this.Va });
+            x = this.Manager.Forall(x, variableSet);
+            var y = this.Manager.And(bc, this.Var16);
+            Assert.AreEqual(x, y);
         }
 
         /// <summary>
@@ -1603,16 +1552,13 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestExistsNewVariable()
         {
-            if (QuantifiersSupported)
-            {
-                var manager = new DDManager<T>(this.Factory, 8, 8, true);
-                var x = manager.CreateBool();
-                var variableSet = manager.CreateVariableSet(new Variable<T>[] { x });
-                var y = manager.CreateBool();
-                var z = manager.And(x.Id(), y.Id());
-                var y2 = manager.Exists(z, variableSet);
-                Assert.AreEqual(y.Id(), y2);
-            }
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var x = manager.CreateBool();
+            var variableSet = manager.CreateVariableSet(new Variable<T>[] { x });
+            var y = manager.CreateBool();
+            var z = manager.And(x.Id(), y.Id());
+            var y2 = manager.Exists(z, variableSet);
+            Assert.AreEqual(y.Id(), y2);
         }
 
         /// <summary>
@@ -1621,17 +1567,14 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestExistsAnyIndex()
         {
-            if (QuantifiersSupported)
-            {
-                var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
 
-                for (int i = 0; i < 10000; i++)
-                {
-                    var x = manager.CreateBool();
-                    var variableSet = manager.CreateVariableSet(new Variable<T>[] { x });
-                    var e = manager.Exists(x.Id(), variableSet);
-                    Assert.AreEqual(manager.True(), e, $"{i}");
-                }
+            for (int i = 0; i < 10000; i++)
+            {
+                var x = manager.CreateBool();
+                var variableSet = manager.CreateVariableSet(new Variable<T>[] { x });
+                var e = manager.Exists(x.Id(), variableSet);
+                Assert.AreEqual(manager.True(), e, $"{i}");
             }
         }
 
@@ -1641,16 +1584,13 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestExistsMultipleVariables()
         {
-            if (QuantifiersSupported)
-            {
-                var manager = new DDManager<T>(this.Factory, 8, 8, true);
-                var a = manager.CreateInt32();
-                var b = manager.CreateBool();
-                var variableSet = manager.CreateVariableSet(new Variable<T>[] { b });
-                var x = manager.And(a.Eq(9), b.Id());
-                var y = manager.Exists(x, variableSet);
-                Assert.AreEqual(a.Eq(9), y);
-            }
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var a = manager.CreateInt32();
+            var b = manager.CreateBool();
+            var variableSet = manager.CreateVariableSet(new Variable<T>[] { b });
+            var x = manager.And(a.Eq(9), b.Id());
+            var y = manager.Exists(x, variableSet);
+            Assert.AreEqual(a.Eq(9), y);
         }
 
         /// <summary>
@@ -1659,18 +1599,71 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestExistsEarlyCutoff()
         {
-            if (QuantifiersSupported)
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            var c = manager.CreateBool();
+            var d = manager.CreateBool();
+            var f1 = manager.And(c.Id(), d.Id());
+            var f2 = manager.And(a.Id(), manager.And(b.Id(), f1));
+            var variableSet = manager.CreateVariableSet(new Variable<T>[] { a, b });
+            var f3 = manager.Exists(f2, variableSet);
+            Assert.AreEqual(f1, f3);
+        }
+
+        /// <summary>
+        /// Test replace with random.
+        /// </summary>
+        [TestMethod]
+        public void TestsQuanfiersRandom()
+        {
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+
+            var variables = new VarBool<T>[]
             {
-                var manager = new DDManager<T>(this.Factory, 8, 8, true);
-                var a = manager.CreateBool();
-                var b = manager.CreateBool();
-                var c = manager.CreateBool();
-                var d = manager.CreateBool();
-                var f1 = manager.And(c.Id(), d.Id());
-                var f2 = manager.And(a.Id(), manager.And(b.Id(), f1));
-                var variableSet = manager.CreateVariableSet(new Variable<T>[] { a, b });
-                var f3 = manager.Exists(f2, variableSet);
-                Assert.AreEqual(f1, f3);
+                manager.CreateBool(),
+                manager.CreateBool(),
+                manager.CreateBool(),
+                manager.CreateBool(),
+                manager.CreateBool(),
+                manager.CreateBool(),
+                manager.CreateBool(),
+                manager.CreateBool(),
+                manager.CreateBool(),
+                manager.CreateBool(),
+            };
+
+            // create the dd of all variables
+            var x = manager.True();
+            foreach (var v in variables)
+            {
+                x = manager.And(x, v.Id());
+            }
+
+            for (int i = 0; i < numRandomTests; i++)
+            {
+                // randomly select some subset of 5 to quantify away
+                var vars = new Variable<T>[5];
+                for (int j = 0; j < 5; j++)
+                {
+                    vars[j] = variables[this.Rnd.Next(0, 10)];
+                }
+
+                var variableSet = manager.CreateVariableSet(vars);
+
+                // create the expected result
+                var y = manager.True();
+                foreach (var v in variables)
+                {
+                    if (!vars.Contains(v))
+                    {
+                        y = manager.And(y, v.Id());
+                    }
+                }
+
+                var z = manager.Exists(x, variableSet);
+
+                Assert.AreEqual(y, z);
             }
         }
 
@@ -1680,18 +1673,61 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestVariableSetHasCorrectVariables()
         {
-            if (QuantifiersSupported)
-            {
-                var manager = new DDManager<T>(this.Factory, 8, 8, true);
-                var a = manager.CreateBool();
-                var b = manager.CreateBool();
-                _ = manager.CreateBool();
-                _ = manager.CreateBool();
-                var variableSet = manager.CreateVariableSet(new Variable<T>[] { a, b });
-                Assert.AreEqual(2, variableSet.Variables.Length);
-                Assert.IsTrue(variableSet.Variables.Contains(a));
-                Assert.IsTrue(variableSet.Variables.Contains(b));
-            }
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            _ = manager.CreateBool();
+            _ = manager.CreateBool();
+            var variableSet = manager.CreateVariableSet(new Variable<T>[] { a, b });
+            Assert.AreEqual(2, variableSet.Variables.Length);
+            Assert.IsTrue(variableSet.Variables.Contains(a));
+            Assert.IsTrue(variableSet.Variables.Contains(b));
+        }
+
+        /// <summary>
+        /// Test that variable set lookup works after allocating new variables.
+        /// </summary>
+        [TestMethod]
+        public void TestVariableSetAfterNewVariables1()
+        {
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            var variableSet = manager.CreateVariableSet(new Variable<T>[] { a, b });
+            var c = manager.CreateBool();
+            var d = manager.CreateBool();
+            var x = manager.And(c.Id(), d.Id());
+            var y = manager.And(a.Id(), manager.And(b.Id(), x));
+            var z = manager.Exists(y, variableSet);
+            Assert.AreEqual(x, z);
+        }
+
+        /// <summary>
+        /// Test that variable set lookup works after allocating new variables.
+        /// </summary>
+        [TestMethod]
+        public void TestVariableSetAfterNewVariables2()
+        {
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var variableSet = manager.CreateVariableSet(new Variable<T>[] { });
+            var a = manager.CreateBool().Id();
+            var x = manager.Exists(a, variableSet);
+            Assert.AreEqual(a, x);
+        }
+
+        /// <summary>
+        /// Test that variable set equality works.
+        /// </summary>
+        [TestMethod]
+        public void TestVariableSetEquality()
+        {
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            var c = manager.CreateInt8();
+            var variableSet1 = manager.CreateVariableSet(new Variable<T>[] { a, b, c });
+            var variableSet2 = manager.CreateVariableSet(new Variable<T>[] { c, b, a });
+            Assert.AreEqual(variableSet1.AsIndex, variableSet2.AsIndex);
         }
 
         /// <summary>
@@ -1700,17 +1736,14 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestVariableMapHasCorrectValues()
         {
-            if (QuantifiersSupported)
-            {
-                var manager = new DDManager<T>(this.Factory, 8, 8, true);
-                var a = manager.CreateInt16();
-                var b = manager.CreateInt16();
-                var map = new Dictionary<Variable<T>, Variable<T>>();
-                map.Add(a, b);
-                var m = manager.CreateVariableMap(map);
-                Assert.AreEqual(1, m.Mapping.Count);
-                Assert.AreEqual(b, m.Mapping[a]);
-            }
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var a = manager.CreateInt16();
+            var b = manager.CreateInt16();
+            var map = new Dictionary<Variable<T>, Variable<T>>();
+            map.Add(a, b);
+            var m = manager.CreateVariableMap(map);
+            Assert.AreEqual(1, m.Mapping.Count);
+            Assert.AreEqual(b, m.Mapping[a]);
         }
 
         /// <summary>
@@ -1729,25 +1762,86 @@ namespace DecisionDiagramTests
         }
 
         /// <summary>
+        /// Test replacing with a an empty map.
+        /// </summary>
+        [TestMethod]
+        public void TestReplaceWithEmpty()
+        {
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            var c = manager.CreateBool();
+            var f1 = manager.And(a.Id(), b.Id());
+            var map = new Dictionary<Variable<T>, Variable<T>>();
+            var variableMap = manager.CreateVariableMap(map);
+            var f2 = manager.Replace(f1, variableMap);
+            Assert.AreEqual(f1, f2);
+        }
+
+        /// <summary>
+        /// Test replacing for a constant.
+        /// </summary>
+        [TestMethod]
+        public void TestReplaceWithConstant()
+        {
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var variableMap = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>>());
+            var x = manager.Replace(manager.True(), variableMap);
+            var y = manager.Replace(manager.False(), variableMap);
+            Assert.AreEqual(manager.True(), x);
+            Assert.AreEqual(manager.False(), y);
+        }
+
+        /// <summary>
+        /// Test replacing with a map made before new variables are added.
+        /// </summary>
+        [TestMethod]
+        public void TestReplaceWithEmptyAfterNewVariables()
+        {
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var variableMap = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>>());
+            var a = manager.CreateBool().Id();
+            var x = manager.Replace(a, variableMap);
+            Assert.AreEqual(a, x);
+        }
+
+        /// <summary>
+        /// Test replacing a variable in the middle of a chain.
+        /// </summary>
+        [TestMethod]
+        public void TestReplaceSequence()
+        {
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            var c = manager.CreateBool();
+            var d = manager.CreateBool();
+            var e = manager.CreateBool();
+            var f1 = manager.And(a.Id(), manager.And(b.Id(), manager.And(c.Id(), d.Id())));
+            var f2 = manager.And(a.Id(), manager.And(b.Id(), manager.And(e.Id(), d.Id())));
+            var map = new Dictionary<Variable<T>, Variable<T>> { { c, e } };
+            var variableMap = manager.CreateVariableMap(map);
+            var f3 = manager.Replace(f1, variableMap);
+            Assert.AreEqual(f2, f3);
+        }
+
+        /// <summary>
         /// Test replacing with a variable later in the ordering.
         /// </summary>
         [TestMethod]
         public void TestReplaceWithLater()
         {
-            if (QuantifiersSupported)
-            {
-                var manager = new DDManager<T>(this.Factory, 8, 8, true);
-                var a = manager.CreateBool();
-                var b = manager.CreateBool();
-                var c = manager.CreateBool();
-                var f1 = manager.And(a.Id(), b.Id());
-                var f2 = manager.And(c.Id(), b.Id());
-                var map = new Dictionary<Variable<T>, Variable<T>>();
-                map[a] = c;
-                var variableMap = manager.CreateVariableMap(map);
-                var f3 = manager.Replace(f1, variableMap);
-                Assert.AreEqual(f2, f3);
-            }
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            var c = manager.CreateBool();
+            var f1 = manager.And(a.Id(), b.Id());
+            var f2 = manager.And(c.Id(), b.Id());
+            var map = new Dictionary<Variable<T>, Variable<T>>();
+            map[a] = c;
+            var variableMap = manager.CreateVariableMap(map);
+            var f3 = manager.Replace(f1, variableMap);
+            Assert.AreEqual(f2, f3);
         }
 
         /// <summary>
@@ -1756,20 +1850,17 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplaceWithEarlier()
         {
-            if (QuantifiersSupported)
-            {
-                var manager = new DDManager<T>(this.Factory, 8, 8, true);
-                var a = manager.CreateBool();
-                var b = manager.CreateBool();
-                var c = manager.CreateBool();
-                var f1 = manager.And(c.Id(), b.Id());
-                var f2 = manager.And(a.Id(), b.Id());
-                var map = new Dictionary<Variable<T>, Variable<T>>();
-                map[c] = a;
-                var variableMap = manager.CreateVariableMap(map);
-                var f3 = manager.Replace(f1, variableMap);
-                Assert.AreEqual(f2, f3);
-            }
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            var c = manager.CreateBool();
+            var f1 = manager.And(c.Id(), b.Id());
+            var f2 = manager.And(a.Id(), b.Id());
+            var map = new Dictionary<Variable<T>, Variable<T>>();
+            map[c] = a;
+            var variableMap = manager.CreateVariableMap(map);
+            var f3 = manager.Replace(f1, variableMap);
+            Assert.AreEqual(f2, f3);
         }
 
         /// <summary>
@@ -1778,20 +1869,17 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplaceWithNegation()
         {
-            if (QuantifiersSupported)
-            {
-                var manager = new DDManager<T>(this.Factory, 8, 8, true);
-                var a = manager.CreateBool();
-                var b = manager.CreateBool();
-                var c = manager.CreateBool();
-                var f1 = manager.Not(manager.And(c.Id(), b.Id()));
-                var f2 = manager.Not(manager.And(a.Id(), b.Id()));
-                var map = new Dictionary<Variable<T>, Variable<T>>();
-                map[c] = a;
-                var variableMap = manager.CreateVariableMap(map);
-                var f3 = manager.Replace(f1, variableMap);
-                Assert.AreEqual(f2, f3);
-            }
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            var c = manager.CreateBool();
+            var f1 = manager.Not(manager.And(c.Id(), b.Id()));
+            var f2 = manager.Not(manager.And(a.Id(), b.Id()));
+            var map = new Dictionary<Variable<T>, Variable<T>>();
+            map[c] = a;
+            var variableMap = manager.CreateVariableMap(map);
+            var f3 = manager.Replace(f1, variableMap);
+            Assert.AreEqual(f2, f3);
         }
 
         /// <summary>
@@ -1800,30 +1888,27 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplaceWithXor()
         {
-            if (QuantifiersSupported)
-            {
-                var manager = new DDManager<T>(this.Factory, 8, 8, true);
-                var a = manager.CreateBool();
-                var b = manager.CreateBool();
-                var c = manager.CreateBool();
-                var fab = manager.Or(manager.And(a.Id(), b.Id()), manager.And(manager.Not(a.Id()), manager.Not(b.Id())));
-                var fac = manager.Or(manager.And(a.Id(), c.Id()), manager.And(manager.Not(a.Id()), manager.Not(c.Id())));
-                var fbc = manager.Or(manager.And(b.Id(), c.Id()), manager.And(manager.Not(b.Id()), manager.Not(c.Id())));
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            var c = manager.CreateBool();
+            var fab = manager.Or(manager.And(a.Id(), b.Id()), manager.And(manager.Not(a.Id()), manager.Not(b.Id())));
+            var fac = manager.Or(manager.And(a.Id(), c.Id()), manager.And(manager.Not(a.Id()), manager.Not(c.Id())));
+            var fbc = manager.Or(manager.And(b.Id(), c.Id()), manager.And(manager.Not(b.Id()), manager.Not(c.Id())));
 
-                var m1 = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>> { { a, b } });
-                var m2 = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>> { { b, a } });
-                var m3 = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>> { { a, c } });
-                var m4 = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>> { { c, a } });
-                var m5 = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>> { { b, c } });
-                var m6 = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>> { { c, b } });
+            var m1 = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>> { { a, b } });
+            var m2 = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>> { { b, a } });
+            var m3 = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>> { { a, c } });
+            var m4 = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>> { { c, a } });
+            var m5 = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>> { { b, c } });
+            var m6 = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>> { { c, b } });
 
-                Assert.AreEqual(fbc, manager.Replace(fab, m3));
-                Assert.AreEqual(fac, manager.Replace(fab, m5));
-                Assert.AreEqual(fbc, manager.Replace(fac, m1));
-                Assert.AreEqual(fab, manager.Replace(fac, m6));
-                Assert.AreEqual(fac, manager.Replace(fbc, m2));
-                Assert.AreEqual(fab, manager.Replace(fbc, m4));
-            }
+            Assert.AreEqual(fbc, manager.Replace(fab, m3));
+            Assert.AreEqual(fac, manager.Replace(fab, m5));
+            Assert.AreEqual(fbc, manager.Replace(fac, m1));
+            Assert.AreEqual(fab, manager.Replace(fac, m6));
+            Assert.AreEqual(fac, manager.Replace(fbc, m2));
+            Assert.AreEqual(fab, manager.Replace(fbc, m4));
         }
 
         /// <summary>
@@ -1832,27 +1917,24 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplaceAllVariables()
         {
-            if (QuantifiersSupported)
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            var c = manager.CreateBool();
+            var d = manager.CreateBool();
+            var e = manager.CreateBool();
+            var f = manager.CreateBool();
+            var f1 = manager.Or(a.Id(), manager.And(b.Id(), manager.Not(c.Id())));
+            var f2 = manager.Or(f.Id(), manager.And(e.Id(), manager.Not(d.Id())));
+
+            var m = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>>
             {
-                var manager = new DDManager<T>(this.Factory, 8, 8, true);
-                var a = manager.CreateBool();
-                var b = manager.CreateBool();
-                var c = manager.CreateBool();
-                var d = manager.CreateBool();
-                var e = manager.CreateBool();
-                var f = manager.CreateBool();
-                var f1 = manager.Or(a.Id(), manager.And(b.Id(), manager.Not(c.Id())));
-                var f2 = manager.Or(f.Id(), manager.And(e.Id(), manager.Not(d.Id())));
+                { a, f },
+                { b, e },
+                { c, d },
+            });
 
-                var m = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>>
-                {
-                    { a, f },
-                    { b, e },
-                    { c, d },
-                });
-
-                Assert.AreEqual(f2, manager.Replace(f1, m));
-            }
+            Assert.AreEqual(f2, manager.Replace(f1, m));
         }
 
         /// <summary>
@@ -1861,22 +1943,19 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplaceWithMultiple()
         {
-            if (QuantifiersSupported)
-            {
-                var manager = new DDManager<T>(this.Factory, 8, 8, true);
-                var a = manager.CreateBool();
-                var b = manager.CreateBool();
-                var c = manager.CreateBool();
-                var d = manager.CreateBool();
-                var f1 = manager.Or(a.Id(), b.Id());
-                var f2 = manager.Or(c.Id(), d.Id());
-                var map = new Dictionary<Variable<T>, Variable<T>>();
-                map[a] = c;
-                map[b] = d;
-                var variableMap = manager.CreateVariableMap(map);
-                var f3 = manager.Replace(f1, variableMap);
-                Assert.AreEqual(f2, f3);
-            }
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            var c = manager.CreateBool();
+            var d = manager.CreateBool();
+            var f1 = manager.Or(a.Id(), b.Id());
+            var f2 = manager.Or(c.Id(), d.Id());
+            var map = new Dictionary<Variable<T>, Variable<T>>();
+            map[a] = c;
+            map[b] = d;
+            var variableMap = manager.CreateVariableMap(map);
+            var f3 = manager.Replace(f1, variableMap);
+            Assert.AreEqual(f2, f3);
         }
 
         /// <summary>
@@ -1885,22 +1964,19 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplaceWithMultiple2()
         {
-            if (QuantifiersSupported)
-            {
-                var manager = new DDManager<T>(this.Factory, 8, 8, true);
-                var a = manager.CreateBool();
-                var b = manager.CreateInt16();
-                var c = manager.CreateBool();
-                var d = manager.CreateInt16();
-                var f1 = manager.And(a.Id(), b.Eq(9));
-                var f2 = manager.And(c.Id(), d.Eq(9));
-                var map = new Dictionary<Variable<T>, Variable<T>>();
-                map[a] = c;
-                map[b] = d;
-                var variableMap = manager.CreateVariableMap(map);
-                var f3 = manager.Replace(f1, variableMap);
-                Assert.AreEqual(f2, f3);
-            }
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var a = manager.CreateBool();
+            var b = manager.CreateInt16();
+            var c = manager.CreateBool();
+            var d = manager.CreateInt16();
+            var f1 = manager.And(a.Id(), b.Eq(9));
+            var f2 = manager.And(c.Id(), d.Eq(9));
+            var map = new Dictionary<Variable<T>, Variable<T>>();
+            map[a] = c;
+            map[b] = d;
+            var variableMap = manager.CreateVariableMap(map);
+            var f3 = manager.Replace(f1, variableMap);
+            Assert.AreEqual(f2, f3);
         }
 
         /// <summary>
@@ -1909,18 +1985,15 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplacingWithSameVariable()
         {
-            if (QuantifiersSupported)
-            {
-                var manager = new DDManager<T>(this.Factory, 8, 8, true);
-                var a = manager.CreateBool();
-                var b = manager.CreateInt16();
-                var f1 = manager.And(a.Id(), b.Eq(9));
-                var map = new Dictionary<Variable<T>, Variable<T>>();
-                map[b] = b;
-                var variableMap = manager.CreateVariableMap(map);
-                var f2 = manager.Replace(f1, variableMap);
-                Assert.AreEqual(f1, f2);
-            }
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var a = manager.CreateBool();
+            var b = manager.CreateInt16();
+            var f1 = manager.And(a.Id(), b.Eq(9));
+            var map = new Dictionary<Variable<T>, Variable<T>>();
+            map[b] = b;
+            var variableMap = manager.CreateVariableMap(map);
+            var f2 = manager.Replace(f1, variableMap);
+            Assert.AreEqual(f1, f2);
         }
 
         /// <summary>
@@ -1929,38 +2002,103 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplacingVariablesCommutes()
         {
-            if (QuantifiersSupported)
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var a = manager.CreateInt8();
+            var b = manager.CreateInt8();
+            var c = manager.CreateInt8();
+
+            for (int i = 0; i < numRandomTests; i++)
             {
-                var manager = new DDManager<T>(this.Factory, 8, 8, true);
-                var a = manager.CreateInt8();
-                var b = manager.CreateInt8();
-                var c = manager.CreateInt8();
+                var value1 = (byte)this.Rnd.Next(0, 255);
+                var value2 = (byte)this.Rnd.Next(0, 255);
+                var value3 = (byte)this.Rnd.Next(0, 255);
+                var value4 = (byte)this.Rnd.Next(0, 255);
 
-                for (int i = 0; i < numRandomTests; i++)
+                var x = manager.Not(manager.Or(a.Eq(value1), a.Eq(value2)));
+                var y = manager.Not(manager.Or(c.Eq(value3), c.Eq(value4)));
+
+                var f1 = manager.Not(manager.And(x, y));
+
+                var map1 = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>> { { a, b } });
+                var map2 = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>> { { b, a } });
+
+                var f2 = manager.Replace(manager.Replace(f1, map1), map2);
+
+                var map3 = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>> { { c, b } });
+                var map4 = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>> { { b, c } });
+
+                var f3 = manager.Replace(manager.Replace(f1, map3), map4);
+
+                Assert.AreEqual(f1, f2);
+                Assert.AreEqual(f1, f3);
+            }
+        }
+
+        /// <summary>
+        /// Test replace with random.
+        /// </summary>
+        [TestMethod]
+        public void TestReplacingVariablesRandom()
+        {
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+
+            var variables = new VarBool<T>[]
+            {
+                manager.CreateBool(),
+                manager.CreateBool(),
+                manager.CreateBool(),
+                manager.CreateBool(),
+                manager.CreateBool(),
+                manager.CreateBool(),
+                manager.CreateBool(),
+                manager.CreateBool(),
+                manager.CreateBool(),
+                manager.CreateBool(),
+            };
+
+            for (int i = 0; i < numRandomTests; i++)
+            {
+                var map = new Dictionary<Variable<T>, Variable<T>>();
+                var keyIndices = new HashSet<int>();
+
+                // select variables to replace
+                for (int j = 0; j < 4; j++)
                 {
-                    var value1 = (byte)this.Rnd.Next(0, 255);
-                    var value2 = (byte)this.Rnd.Next(0, 255);
-                    var value3 = (byte)this.Rnd.Next(0, 255);
-                    var value4 = (byte)this.Rnd.Next(0, 255);
-
-                    var x = manager.Not(manager.Or(a.Eq(value1), a.Eq(value2)));
-                    var y = manager.Not(manager.Or(c.Eq(value3), c.Eq(value4)));
-
-                    var f1 = manager.Not(manager.And(x, y));
-
-                    var map1 = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>> { { a, b } });
-                    var map2 = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>> { { b, a } });
-
-                    var f2 = manager.Replace(manager.Replace(f1, map1), map2);
-
-                    var map3 = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>> { { c, b } });
-                    var map4 = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>> { { b, c } });
-
-                    var f3 = manager.Replace(manager.Replace(f1, map3), map4);
-
-                    Assert.AreEqual(f1, f2);
-                    Assert.AreEqual(f1, f3);
+                    var idx = this.Rnd.Next(0, 10);
+                    keyIndices.Add(idx);
                 }
+
+                // replace each variable with a new variable
+                var valueIndices = new HashSet<int>();
+                foreach (var index in keyIndices)
+                {
+                    int newIdx;
+                    do
+                    {
+                        newIdx = this.Rnd.Next(0, 10);
+                    } while (keyIndices.Contains(newIdx) || valueIndices.Contains(newIdx));
+
+                    valueIndices.Add(newIdx);
+                    map[variables[index]] = variables[newIdx];
+                }
+
+                var original = manager.True();
+                var replaced = manager.True();
+
+                foreach (var key in map.Keys)
+                {
+                    original = manager.And(original, ((VarBool<T>)key).Id());
+                }
+
+                foreach (var value in map.Values)
+                {
+                    replaced = manager.And(replaced, ((VarBool<T>)value).Id());
+                }
+
+                var mapping = manager.CreateVariableMap(map);
+                var x = manager.Replace(original, mapping);
+
+                Assert.AreEqual(replaced, x, $"{i}");
             }
         }
 

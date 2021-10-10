@@ -14,10 +14,8 @@ namespace DecisionDiagrams
     public class CBDDNodeFactory : IDDNodeFactory<CBDDNode>
     {
         /// <summary>
-        /// Gets or sets the manager object. We call
-        /// back into the manager recursively
-        /// The manager takes care of caching and
-        /// ensuring canonicity.
+        /// Gets or sets the manager object. We call back into the manager recursively.
+        /// The manager takes care of caching and ensuring canonicity.
         /// </summary>
         public DDManager<CBDDNode> Manager { get; set; }
 
@@ -121,7 +119,19 @@ namespace DecisionDiagrams
         /// <returns>The resulting function.</returns>
         public DDIndex Exists(DDIndex xid, CBDDNode x, VariableSet<CBDDNode> variables)
         {
-            throw new System.NotSupportedException();
+            if (x.Variable > variables.MaxIndex)
+            {
+                return xid;
+            }
+
+            var lo = this.Manager.Exists(ExpandLowChild(x), variables);
+            var hi = this.Manager.Exists(x.High, variables);
+            if (variables.Contains(x.Variable))
+            {
+                return this.Manager.Or(lo, hi);
+            }
+
+            return this.Manager.Allocate(new CBDDNode(x.Variable, x.Variable + 1, lo, hi));
         }
 
         /// <summary>
@@ -134,7 +144,58 @@ namespace DecisionDiagrams
         /// <returns>A new formula with the susbtitution.</returns>
         public DDIndex Replace(DDIndex xid, CBDDNode x, VariableMap<CBDDNode> variableMap)
         {
-            throw new System.NotSupportedException();
+            if (x.Variable > variableMap.MaxIndex)
+            {
+                return xid;
+            }
+
+            var lo = this.Manager.Replace(ExpandLowChild(x), variableMap);
+            var hi = this.Manager.Replace(x.High, variableMap);
+
+            var level = variableMap.Get(x.Variable);
+            return RepairOrder(level, lo, hi);
+        }
+
+        /// <summary>
+        /// Returns a new formula that repairs the order after a substitution.
+        /// </summary>
+        /// <param name="level">Variable level of the new node.</param>
+        /// <param name="lo">The node's lo branch.</param>
+        /// <param name="hi">The node's hi branch.</param>
+        /// <returns></returns>
+        private DDIndex RepairOrder(int level, DDIndex lo, DDIndex hi)
+        {
+            var loNode = this.Manager.MemoryPool[lo.GetPosition()];
+            var hiNode = this.Manager.MemoryPool[hi.GetPosition()];
+
+            loNode = lo.IsComplemented() ? Flip(loNode) : loNode;
+            hiNode = hi.IsComplemented() ? Flip(hiNode) : hiNode;
+
+            var loLevel = Level(lo, loNode);
+            var hiLevel = Level(hi, hiNode);
+
+            if (level < loLevel && level < hiLevel)
+            {
+                return this.Manager.Allocate(new CBDDNode(level, level + 1, lo, hi));
+            }
+            else if (loLevel < hiLevel)
+            {
+                var l = RepairOrder(level, ExpandLowChild(loNode), hi);
+                var h = RepairOrder(level, loNode.High, hi);
+                return this.Manager.Allocate(new CBDDNode(loNode.Variable, loNode.Variable + 1, l, h));
+            }
+            else if (loLevel > hiLevel)
+            {
+                var l = RepairOrder(level, lo, ExpandLowChild(hiNode));
+                var h = RepairOrder(level, lo, hiNode.High);
+                return this.Manager.Allocate(new CBDDNode(hiNode.Variable, hiNode.Variable + 1, l, h));
+            }
+            else
+            {
+                var l = RepairOrder(level, ExpandLowChild(loNode), ExpandLowChild(hiNode));
+                var h = RepairOrder(level, loNode.High, hiNode.High);
+                return this.Manager.Allocate(new CBDDNode(loNode.Variable,  loNode.Variable + 1, l, h));
+            }
         }
 
         /// <summary>
@@ -223,6 +284,28 @@ namespace DecisionDiagrams
             {
                 assignment.Add(node.Variable, hi);
             }
+        }
+
+        /// <summary>
+        /// Expand the low child to the next variable if in a chain.
+        /// </summary>
+        /// <param name="x">The cbdd node.</param>
+        /// <returns>The index of the new low child.</returns>
+        private DDIndex ExpandLowChild(CBDDNode x)
+        {
+            return (x.NextVariable == x.Variable + 1) ? x.Low : this.Manager.Allocate(new CBDDNode(x.Variable + 1, x.NextVariable, x.Low, x.High));
+        }
+
+        /// <summary>
+        /// Gets the "level" for the node, where the maximum
+        /// value is used for constants.
+        /// </summary>
+        /// <param name="idx">The node index.</param>
+        /// <param name="node">The node.</param>
+        /// <returns></returns>
+        private int Level(DDIndex idx, CBDDNode node)
+        {
+            return idx.IsConstant() ? int.MaxValue : node.Variable;
         }
     }
 }
