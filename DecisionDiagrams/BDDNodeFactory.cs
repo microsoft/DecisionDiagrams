@@ -183,7 +183,6 @@ namespace DecisionDiagrams
             var hi = this.Manager.Replace(x.High, variableMap);
 
             var level = variableMap.Get(x.Variable);
-            level = level < 0 ? x.Variable : level;
             return RepairOrder(level, lo, hi);
         }
 

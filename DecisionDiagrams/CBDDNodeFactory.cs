@@ -14,10 +14,8 @@ namespace DecisionDiagrams
     public class CBDDNodeFactory : IDDNodeFactory<CBDDNode>
     {
         /// <summary>
-        /// Gets or sets the manager object. We call
-        /// back into the manager recursively
-        /// The manager takes care of caching and
-        /// ensuring canonicity.
+        /// Gets or sets the manager object. We call back into the manager recursively.
+        /// The manager takes care of caching and ensuring canonicity.
         /// </summary>
         public DDManager<CBDDNode> Manager { get; set; }
 
@@ -146,7 +144,58 @@ namespace DecisionDiagrams
         /// <returns>A new formula with the susbtitution.</returns>
         public DDIndex Replace(DDIndex xid, CBDDNode x, VariableMap<CBDDNode> variableMap)
         {
-            throw new System.NotSupportedException();
+            if (x.Variable > variableMap.MaxIndex)
+            {
+                return xid;
+            }
+
+            var lo = this.Manager.Replace(ExpandLowChild(x), variableMap);
+            var hi = this.Manager.Replace(x.High, variableMap);
+
+            var level = variableMap.Get(x.Variable);
+            return RepairOrder(level, lo, hi);
+        }
+
+        /// <summary>
+        /// Returns a new formula that repairs the order after a substitution.
+        /// </summary>
+        /// <param name="level">Variable level of the new node.</param>
+        /// <param name="lo">The node's lo branch.</param>
+        /// <param name="hi">The node's hi branch.</param>
+        /// <returns></returns>
+        private DDIndex RepairOrder(int level, DDIndex lo, DDIndex hi)
+        {
+            var loNode = this.Manager.MemoryPool[lo.GetPosition()];
+            var hiNode = this.Manager.MemoryPool[hi.GetPosition()];
+
+            loNode = lo.IsComplemented() ? Flip(loNode) : loNode;
+            hiNode = hi.IsComplemented() ? Flip(hiNode) : hiNode;
+
+            var loLevel = Level(lo, loNode);
+            var hiLevel = Level(hi, hiNode);
+
+            if (level < loLevel && level < hiLevel)
+            {
+                return this.Manager.Allocate(new CBDDNode(level, level + 1, lo, hi));
+            }
+            else if (loLevel < hiLevel)
+            {
+                var l = RepairOrder(level, ExpandLowChild(loNode), hi);
+                var h = RepairOrder(level, loNode.High, hi);
+                return this.Manager.Allocate(new CBDDNode(loNode.Variable, loNode.Variable + 1, l, h));
+            }
+            else if (loLevel > hiLevel)
+            {
+                var l = RepairOrder(level, lo, ExpandLowChild(hiNode));
+                var h = RepairOrder(level, lo, hiNode.High);
+                return this.Manager.Allocate(new CBDDNode(hiNode.Variable, hiNode.Variable + 1, l, h));
+            }
+            else
+            {
+                var l = RepairOrder(level, ExpandLowChild(loNode), ExpandLowChild(hiNode));
+                var h = RepairOrder(level, loNode.High, hiNode.High);
+                return this.Manager.Allocate(new CBDDNode(loNode.Variable,  loNode.Variable + 1, l, h));
+            }
         }
 
         /// <summary>
@@ -254,7 +303,7 @@ namespace DecisionDiagrams
         /// <param name="idx">The node index.</param>
         /// <param name="node">The node.</param>
         /// <returns></returns>
-        private int Level(DDIndex idx, BDDNode node)
+        private int Level(DDIndex idx, CBDDNode node)
         {
             return idx.IsConstant() ? int.MaxValue : node.Variable;
         }

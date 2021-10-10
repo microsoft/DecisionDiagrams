@@ -23,8 +23,6 @@ namespace DecisionDiagramTests
         {
             this.Factory = new BDDNodeFactory();
             this.Manager = new DDManager<BDDNode>(this.Factory, 16, gcMinCutoff: 4);
-            this.QuantifiersSupported = true;
-            this.ReplaceSupported = true;
             this.BaseInitialize();
         }
 
