@@ -4,8 +4,10 @@
 
 namespace DecisionDiagrams
 {
+    using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
+    using System.Runtime.CompilerServices;
 
     /// <summary>
     /// Implementation of a CBDD node factory that creates CBDD nodes that
@@ -22,7 +24,7 @@ namespace DecisionDiagrams
         /// <summary>
         /// Gets or sets a value indicating whether the factory supports ite.
         /// </summary>
-        public bool SupportsIte { get; } = false;
+        public bool SupportsIte { get; } = true;
 
         /// <summary>
         /// The logical conjunction of two BDDs as the
@@ -103,10 +105,85 @@ namespace DecisionDiagrams
         /// <param name="hid">The h index.</param>
         /// <param name="h">The h node.</param>
         /// <returns>The ite of the three nodes.</returns>
-        [ExcludeFromCodeCoverage]
         public DDIndex Ite(DDIndex fid, CBDDNode f, DDIndex gid, CBDDNode g, DDIndex hid, CBDDNode h)
         {
-            throw new System.NotSupportedException();
+            var flevel = Level(fid, f);
+            var glevel = Level(gid, g);
+            var hlevel = Level(hid, h);
+
+            var t = Math.Min(Math.Min(flevel, glevel), hlevel);
+            var b = Math.Min(Math.Min(GetLowerBound(t, fid, f), GetLowerBound(t, gid, g)), GetLowerBound(t, hid, h));
+
+            // Console.WriteLine($"t: {t}, b: {b}");
+
+            GetCofactors(b, fid, f, out var flo, out var fhi);
+            GetCofactors(b, gid, g, out var glo, out var ghi);
+            GetCofactors(b, hid, h, out var hlo, out var hhi);
+
+            // Console.WriteLine($"co-f: {this.Manager.Display(flow)} -- {this.Manager.Display(fhigh)}");
+            // Console.WriteLine($"co-g: {this.Manager.Display(glow)} -- {this.Manager.Display(ghigh)}");
+            // Console.WriteLine($"co-h: {this.Manager.Display(hlow)} -- {this.Manager.Display(hhigh)}");
+
+            var newLo = this.Manager.IteRecursive(flo, glo, hlo);
+            var newHi = this.Manager.IteRecursive(fhi, ghi, hhi);
+
+            // Console.WriteLine($"newLo: {this.Manager.Display(newLo)}");
+            // Console.WriteLine($"newHi: {this.Manager.Display(newHi)}");
+            // Console.WriteLine($"creating: t: {t}, b: {b} ^");
+
+            return Manager.Allocate(new CBDDNode(t, b, newLo, newHi));
+        }
+
+        /// <summary>
+        /// Gets the cofactors for the ITE operation.
+        /// </summary>
+        /// <param name="b">The bottom common index.</param>
+        /// <param name="xid">The DD index.</param>
+        /// <param name="x">The DD node.</param>
+        /// <param name="lo">The out parameter for the lo cofactor.</param>
+        /// <param name="hi">The out parameter for the hi cofactor.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void GetCofactors(int b, DDIndex xid, CBDDNode x, out DDIndex lo, out DDIndex hi)
+        {
+            if (x.Variable > b - 1)
+            {
+                lo = xid;
+                hi = xid;
+            }
+            else if (x.NextVariable == b)
+            {
+                lo = x.Low;
+                hi = x.High;
+            }
+            else
+            {
+                lo = Manager.Allocate(new CBDDNode(b, x.NextVariable, x.Low, x.High));
+                hi = x.High;
+            }
+        }
+
+        /// <summary>
+        /// Gets the lower bound for a node to determine where to split.
+        /// </summary>
+        /// <param name="t">The minimum top variable index.</param>
+        /// <param name="xid">The DD index.</param>
+        /// <param name="x">The DD node.</param>
+        /// <returns>The lower bound.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private int GetLowerBound(int t, DDIndex xid, CBDDNode x)
+        {
+            if (x.Variable == t)
+            {
+                return x.NextVariable;
+            }
+            else if (xid.IsConstant())
+            {
+                return int.MaxValue;
+            }
+            else
+            {
+                return x.Variable;
+            }
         }
 
         /// <summary>

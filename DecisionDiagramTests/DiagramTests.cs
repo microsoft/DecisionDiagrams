@@ -22,7 +22,7 @@ namespace DecisionDiagramTests
         /// <summary>
         /// How many random inputs to generate per test.
         /// </summary>
-        private static int numRandomTests = 400;
+        private static int numRandomTests = 1000;
 
         /// <summary>
         /// Gets or sets the decision diagram factory.
@@ -362,10 +362,38 @@ namespace DecisionDiagramTests
         {
             this.RandomTest((a, b) =>
             {
+                Console.WriteLine("================");
+                Console.WriteLine("a: " + this.Manager.Display(a));
+                Console.WriteLine("---");
+                Console.WriteLine("b: " + this.Manager.Display(b));
                 var x = this.Manager.Ite(a, b, this.Manager.False());
                 var y = this.Manager.And(a, b);
+                Console.WriteLine("expected: " + this.Manager.Display(y));
+                Console.WriteLine("actual: " + this.Manager.Display(x));
                 Assert.AreEqual(x, y);
             });
+        }
+
+        /// <summary>
+        /// Test ite basic reduction.
+        /// </summary>
+        [TestMethod]
+        public void IteBasic()
+        {
+            var inputs = new List<(DD, DD, DD)>();
+            for (int i = 0; i < 100000; i++)
+            {
+                inputs.Add((this.RandomDD(9), this.RandomDD(9), this.RandomDD(9)));
+            }
+
+            var t = System.Diagnostics.Stopwatch.StartNew();
+            foreach (var (a, b, c) in inputs)
+            {
+                // this.Manager.Or(this.Manager.And(a, b), this.Manager.And(this.Manager.Not(a), c));
+                this.Manager.Ite(a, b, c);
+            }
+
+            Console.WriteLine($"total time: {t.ElapsedMilliseconds}");
         }
 
         /// <summary>
@@ -2171,7 +2199,7 @@ namespace DecisionDiagramTests
         /// <returns>Returns a random literal.</returns>
         private DD RandomDD()
         {
-            return this.RandomDD(3);
+            return this.RandomDD(5);
         }
 
         /// <summary>
