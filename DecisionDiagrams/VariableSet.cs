@@ -32,7 +32,7 @@ namespace DecisionDiagrams
         /// <summary>
         /// Gets the manager object.
         /// </summary>
-        internal DDManager<T> Manager { get; }
+        public int ManagerId { get; }
 
         /// <summary>
         /// Gets the DD representing the variables for efficient
@@ -52,7 +52,7 @@ namespace DecisionDiagrams
         /// <param name="variables">The variables.</param>
         internal VariableSet(DDManager<T> manager, Variable<T>[] variables)
         {
-            this.Manager = manager;
+            this.ManagerId = manager.Uid;
             this.AsIndex = DDIndex.True;
             this.Variables = variables;
 
