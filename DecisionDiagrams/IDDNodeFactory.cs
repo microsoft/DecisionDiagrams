@@ -21,11 +21,6 @@ namespace DecisionDiagrams
         DDManager<T> Manager { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the factory supports ite.
-        /// </summary>
-        bool SupportsIte { get; }
-
-        /// <summary>
         /// Create the node representing the identity function.
         /// </summary>
         /// <param name="variable">The variable index.</param>

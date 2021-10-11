@@ -6,7 +6,6 @@ namespace DecisionDiagrams
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using System.Runtime.CompilerServices;
 
     /// <summary>
@@ -20,11 +19,6 @@ namespace DecisionDiagrams
         /// The manager takes care of caching and ensuring canonicity.
         /// </summary>
         public DDManager<CBDDNode> Manager { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the factory supports ite.
-        /// </summary>
-        public bool SupportsIte { get; } = true;
 
         /// <summary>
         /// The logical conjunction of two BDDs as the
@@ -112,25 +106,17 @@ namespace DecisionDiagrams
             var hlevel = Level(hid, h);
 
             var t = Math.Min(Math.Min(flevel, glevel), hlevel);
-            var b = Math.Min(Math.Min(GetLowerBound(t, fid, f), GetLowerBound(t, gid, g)), GetLowerBound(t, hid, h));
-
-            // Console.WriteLine($"t: {t}, b: {b}");
+            var bf = f.Variable == t ? f.NextVariable : flevel;
+            var bg = g.Variable == t ? g.NextVariable : glevel;
+            var bh = h.Variable == t ? h.NextVariable : hlevel;
+            var b = Math.Min(Math.Min(bf, bg), bh);
 
             GetCofactors(b, fid, f, out var flo, out var fhi);
             GetCofactors(b, gid, g, out var glo, out var ghi);
             GetCofactors(b, hid, h, out var hlo, out var hhi);
 
-            // Console.WriteLine($"co-f: {this.Manager.Display(flow)} -- {this.Manager.Display(fhigh)}");
-            // Console.WriteLine($"co-g: {this.Manager.Display(glow)} -- {this.Manager.Display(ghigh)}");
-            // Console.WriteLine($"co-h: {this.Manager.Display(hlow)} -- {this.Manager.Display(hhigh)}");
-
-            var newLo = this.Manager.IteRecursive(flo, glo, hlo);
-            var newHi = this.Manager.IteRecursive(fhi, ghi, hhi);
-
-            // Console.WriteLine($"newLo: {this.Manager.Display(newLo)}");
-            // Console.WriteLine($"newHi: {this.Manager.Display(newHi)}");
-            // Console.WriteLine($"creating: t: {t}, b: {b} ^");
-
+            var newLo = this.Manager.Ite(flo, glo, hlo);
+            var newHi = this.Manager.Ite(fhi, ghi, hhi);
             return Manager.Allocate(new CBDDNode(t, b, newLo, newHi));
         }
 
@@ -145,7 +131,7 @@ namespace DecisionDiagrams
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void GetCofactors(int b, DDIndex xid, CBDDNode x, out DDIndex lo, out DDIndex hi)
         {
-            if (x.Variable > b - 1)
+            if (x.Variable >= b)
             {
                 lo = xid;
                 hi = xid;
@@ -159,30 +145,6 @@ namespace DecisionDiagrams
             {
                 lo = Manager.Allocate(new CBDDNode(b, x.NextVariable, x.Low, x.High));
                 hi = x.High;
-            }
-        }
-
-        /// <summary>
-        /// Gets the lower bound for a node to determine where to split.
-        /// </summary>
-        /// <param name="t">The minimum top variable index.</param>
-        /// <param name="xid">The DD index.</param>
-        /// <param name="x">The DD node.</param>
-        /// <returns>The lower bound.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int GetLowerBound(int t, DDIndex xid, CBDDNode x)
-        {
-            if (x.Variable == t)
-            {
-                return x.NextVariable;
-            }
-            else if (xid.IsConstant())
-            {
-                return int.MaxValue;
-            }
-            else
-            {
-                return x.Variable;
             }
         }
 

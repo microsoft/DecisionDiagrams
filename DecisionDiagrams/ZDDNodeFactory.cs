@@ -11,11 +11,6 @@ namespace DecisionDiagrams
     public class ZDDNodeFactory : BDDNodeFactory
     {
         /// <summary>
-        /// Gets or sets a value indicating whether the factory supports ite.
-        /// </summary>
-        public new bool SupportsIte { get; } = false;
-
-        /// <summary>
         /// Reduction rules for a ZBDD.
         /// </summary>
         /// <param name="node">The node to reduce.</param>

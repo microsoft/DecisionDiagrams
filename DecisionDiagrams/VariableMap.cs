@@ -40,7 +40,12 @@ namespace DecisionDiagrams
         /// <summary>
         /// Gets the variables in the set.
         /// </summary>
-        internal int[] variableArray { get; }
+        internal int[] VariableArray { get; }
+
+        /// <summary>
+        /// Gets the manager object.
+        /// </summary>
+        internal DDManager<T> Manager { get; }
 
         /// <summary>
         /// Gets the variable pairings.
@@ -52,9 +57,9 @@ namespace DecisionDiagrams
         /// </summary>
         /// <param name="manager">The manager object.</param>
         /// <param name="mapping">The mapping to add.</param>
-        /// <param name="numVariables">The number of variables.</param>
-        internal VariableMap(DDManager<T> manager, Dictionary<Variable<T>, Variable<T>> mapping, int numVariables)
+        internal VariableMap(DDManager<T> manager, Dictionary<Variable<T>, Variable<T>> mapping)
         {
+            this.Manager = manager;
             this.Id = Interlocked.Increment(ref nextId);
             this.IdIndex = new DDIndex(this.Id, false);
             this.Mapping = mapping;
@@ -77,11 +82,11 @@ namespace DecisionDiagrams
                 }
             }
 
-            this.variableArray = new int[this.MaxIndex - this.MinIndex + 1];
+            this.VariableArray = new int[this.MaxIndex - this.MinIndex + 1];
 
-            for (int i = 0; i < this.variableArray.Length; i++)
+            for (int i = 0; i < this.VariableArray.Length; i++)
             {
-                this.variableArray[i] = i + this.MinIndex;
+                this.VariableArray[i] = i + this.MinIndex;
             }
 
             foreach (var keyValuePair in mapping)
@@ -93,7 +98,7 @@ namespace DecisionDiagrams
                 {
                     var keyIndex = variable1.Indices[i];
                     var valueIndex = variable2.Indices[i];
-                    this.variableArray[keyIndex - this.MinIndex] = valueIndex;
+                    this.VariableArray[keyIndex - this.MinIndex] = valueIndex;
                 }
             }
         }
@@ -111,7 +116,7 @@ namespace DecisionDiagrams
             }
 
             var index = variable - this.MinIndex;
-            return this.variableArray[index];
+            return this.VariableArray[index];
         }
     }
 }

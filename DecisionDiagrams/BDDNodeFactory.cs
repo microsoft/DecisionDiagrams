@@ -21,11 +21,6 @@ namespace DecisionDiagrams
         public DDManager<BDDNode> Manager { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the factory supports ite.
-        /// </summary>
-        public bool SupportsIte { get; } = true;
-
-        /// <summary>
         /// The logical conjunction of two BDDs as the
         /// standard BDD "apply" operation.
         /// </summary>
@@ -77,20 +72,20 @@ namespace DecisionDiagrams
             {
                 if (flevel == hlevel)
                 {
-                    var x = this.Manager.IteRecursive(f.Low, g.Low, h.Low);
-                    var y = this.Manager.IteRecursive(f.High, g.High, h.High);
+                    var x = this.Manager.Ite(f.Low, g.Low, h.Low);
+                    var y = this.Manager.Ite(f.High, g.High, h.High);
                     return this.Manager.Allocate(new BDDNode(f.Variable, x, y));
                 }
                 else if (flevel < hlevel)
                 {
-                    var x = this.Manager.IteRecursive(f.Low, g.Low, hid);
-                    var y = this.Manager.IteRecursive(f.High, g.High, hid);
+                    var x = this.Manager.Ite(f.Low, g.Low, hid);
+                    var y = this.Manager.Ite(f.High, g.High, hid);
                     return this.Manager.Allocate(new BDDNode(f.Variable, x, y));
                 }
                 else
                 {
-                    var x = this.Manager.IteRecursive(fid, gid, h.Low);
-                    var y = this.Manager.IteRecursive(fid, gid, h.High);
+                    var x = this.Manager.Ite(fid, gid, h.Low);
+                    var y = this.Manager.Ite(fid, gid, h.High);
                     return this.Manager.Allocate(new BDDNode(h.Variable, x, y));
                 }
             }
@@ -98,20 +93,20 @@ namespace DecisionDiagrams
             {
                 if (flevel == hlevel)
                 {
-                    var x = this.Manager.IteRecursive(f.Low, gid, h.Low);
-                    var y = this.Manager.IteRecursive(f.High, gid, h.High);
+                    var x = this.Manager.Ite(f.Low, gid, h.Low);
+                    var y = this.Manager.Ite(f.High, gid, h.High);
                     return this.Manager.Allocate(new BDDNode(f.Variable, x, y));
                 }
                 else if (flevel < hlevel)
                 {
-                    var x = this.Manager.IteRecursive(f.Low, gid, hid);
-                    var y = this.Manager.IteRecursive(f.High, gid, hid);
+                    var x = this.Manager.Ite(f.Low, gid, hid);
+                    var y = this.Manager.Ite(f.High, gid, hid);
                     return this.Manager.Allocate(new BDDNode(f.Variable, x, y));
                 }
                 else
                 {
-                    var x = this.Manager.IteRecursive(fid, gid, h.Low);
-                    var y = this.Manager.IteRecursive(fid, gid, h.High);
+                    var x = this.Manager.Ite(fid, gid, h.Low);
+                    var y = this.Manager.Ite(fid, gid, h.High);
                     return this.Manager.Allocate(new BDDNode(h.Variable, x, y));
                 }
             }
@@ -119,21 +114,20 @@ namespace DecisionDiagrams
             {
                 if (glevel == hlevel)
                 {
-                    var x = this.Manager.IteRecursive(fid, g.Low, h.Low);
-                    var y = this.Manager.IteRecursive(fid, g.High, h.High);
+                    var x = this.Manager.Ite(fid, g.Low, h.Low);
+                    var y = this.Manager.Ite(fid, g.High, h.High);
+                    return this.Manager.Allocate(new BDDNode(g.Variable, x, y));
+                }
+                else if (glevel < hlevel)
+                {
+                    var x = this.Manager.Ite(fid, g.Low, hid);
+                    var y = this.Manager.Ite(fid, g.High, hid);
                     return this.Manager.Allocate(new BDDNode(g.Variable, x, y));
                 }
                 else
-                if (glevel < hlevel)
                 {
-                    var x = this.Manager.IteRecursive(fid, g.Low, hid);
-                    var y = this.Manager.IteRecursive(fid, g.High, hid);
-                    return this.Manager.Allocate(new BDDNode(g.Variable, x, y));
-                }
-                else
-                {
-                    var x = this.Manager.IteRecursive(fid, gid, h.Low);
-                    var y = this.Manager.IteRecursive(fid, gid, h.High);
+                    var x = this.Manager.Ite(fid, gid, h.Low);
+                    var y = this.Manager.Ite(fid, gid, h.High);
                     return this.Manager.Allocate(new BDDNode(h.Variable, x, y));
                 }
             }
