@@ -30,6 +30,11 @@ namespace DecisionDiagrams
         internal int MaxIndex { get; } = -1;
 
         /// <summary>
+        /// Gets the manager object.
+        /// </summary>
+        internal DDManager<T> Manager { get; }
+
+        /// <summary>
         /// Gets the DD representing the variables for efficient
         /// caching and comparison purposes.
         /// </summary>
@@ -47,6 +52,7 @@ namespace DecisionDiagrams
         /// <param name="variables">The variables.</param>
         internal VariableSet(DDManager<T> manager, Variable<T>[] variables)
         {
+            this.Manager = manager;
             this.AsIndex = DDIndex.True;
             this.Variables = variables;
 

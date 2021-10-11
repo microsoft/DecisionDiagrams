@@ -22,7 +22,7 @@ namespace DecisionDiagramTests
         /// <summary>
         /// How many random inputs to generate per test.
         /// </summary>
-        private static int numRandomTests = 400;
+        private static int numRandomTests = 1000;
 
         /// <summary>
         /// Gets or sets the decision diagram factory.
@@ -366,6 +366,56 @@ namespace DecisionDiagramTests
                 var y = this.Manager.And(a, b);
                 Assert.AreEqual(x, y);
             });
+        }
+
+        /// <summary>
+        /// Test ite works with first variable index and constant.
+        /// </summary>
+        [TestMethod]
+        public void IteBasic1()
+        {
+            var manager = new DDManager<CBDDNode>(new CBDDNodeFactory());
+            var a = manager.CreateBool().Id();
+            var result = manager.Ite(a, a, manager.False());
+            Assert.AreEqual(a, result);
+        }
+
+        /// <summary>
+        /// Test ite works with first variable index and constant.
+        /// </summary>
+        [TestMethod]
+        public void IteBasic2()
+        {
+            var manager = new DDManager<CBDDNode>(new CBDDNodeFactory());
+            var a = manager.CreateBool().Id();
+            var result = manager.Ite(a, manager.False(), manager.Not(a));
+            Assert.AreEqual(manager.Not(a), result);
+        }
+
+        /// <summary>
+        /// Test ite works with first variable index and constant.
+        /// </summary>
+        [TestMethod]
+        public void IteBasic3()
+        {
+            var manager = new DDManager<CBDDNode>(new CBDDNodeFactory());
+            var a = manager.CreateBool().Id();
+            var b = manager.CreateBool().Id();
+            var result = manager.Ite(a, b, manager.False());
+            Assert.AreEqual(manager.And(a, b), result);
+        }
+
+        /// <summary>
+        /// Test ite works with first variable index and constant.
+        /// </summary>
+        [TestMethod]
+        public void IteBasic4()
+        {
+            var manager = new DDManager<CBDDNode>(new CBDDNodeFactory());
+            var a = manager.CreateBool().Id();
+            var b = manager.CreateBool().Id();
+            var result = manager.Ite(a, manager.False(), b);
+            Assert.AreEqual(manager.And(manager.Not(a), b), result);
         }
 
         /// <summary>
@@ -1509,9 +1559,9 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestVariable()
         {
-            Assert.AreEqual(this.Manager.Variable(this.VarA), 0);
-            Assert.AreEqual(this.Manager.Variable(this.VarB), 1);
-            Assert.AreEqual(this.Manager.Variable(this.Manager.Or(this.VarA, this.VarB)), 0);
+            Assert.AreEqual(this.Manager.Variable(this.VarA), 1);
+            Assert.AreEqual(this.Manager.Variable(this.VarB), 2);
+            Assert.AreEqual(this.Manager.Variable(this.Manager.Or(this.VarA, this.VarB)), 1);
         }
 
         /// <summary>
@@ -2171,7 +2221,7 @@ namespace DecisionDiagramTests
         /// <returns>Returns a random literal.</returns>
         private DD RandomDD()
         {
-            return this.RandomDD(3);
+            return this.RandomDD(5);
         }
 
         /// <summary>
@@ -2188,16 +2238,22 @@ namespace DecisionDiagramTests
 
             var d = maxDepth - 1;
 
-            switch (this.Rnd.Next(0, 5))
+            switch (this.Rnd.Next(0, 11))
             {
                 case 0:
-                    return this.Manager.Or(this.RandomDD(d), this.RandomDD(d));
                 case 1:
-                    return this.Manager.And(this.RandomDD(d), this.RandomDD(d));
+                    return this.Manager.Or(this.RandomDD(d), this.RandomDD(d));
                 case 2:
-                    return this.Manager.Not(this.RandomDD(d));
                 case 3:
+                    return this.Manager.And(this.RandomDD(d), this.RandomDD(d));
+                case 4:
+                case 5:
+                    return this.Manager.Not(this.RandomDD(d));
+                case 6:
+                case 7:
                     return this.Manager.Implies(this.RandomDD(d), this.RandomDD(d));
+                case 8:
+                    return this.Manager.True();
                 default:
                     return this.RandomLiteral();
             }

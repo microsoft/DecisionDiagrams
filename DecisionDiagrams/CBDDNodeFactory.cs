@@ -4,8 +4,9 @@
 
 namespace DecisionDiagrams
 {
+    using System;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
+    using System.Runtime.CompilerServices;
 
     /// <summary>
     /// Implementation of a CBDD node factory that creates CBDD nodes that
@@ -18,11 +19,6 @@ namespace DecisionDiagrams
         /// The manager takes care of caching and ensuring canonicity.
         /// </summary>
         public DDManager<CBDDNode> Manager { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the factory supports ite.
-        /// </summary>
-        public bool SupportsIte { get; } = false;
 
         /// <summary>
         /// The logical conjunction of two BDDs as the
@@ -103,10 +99,53 @@ namespace DecisionDiagrams
         /// <param name="hid">The h index.</param>
         /// <param name="h">The h node.</param>
         /// <returns>The ite of the three nodes.</returns>
-        [ExcludeFromCodeCoverage]
         public DDIndex Ite(DDIndex fid, CBDDNode f, DDIndex gid, CBDDNode g, DDIndex hid, CBDDNode h)
         {
-            throw new System.NotSupportedException();
+            var flevel = Level(fid, f);
+            var glevel = Level(gid, g);
+            var hlevel = Level(hid, h);
+
+            var t = Math.Min(Math.Min(flevel, glevel), hlevel);
+            var bf = f.Variable == t ? f.NextVariable : flevel;
+            var bg = g.Variable == t ? g.NextVariable : glevel;
+            var bh = h.Variable == t ? h.NextVariable : hlevel;
+            var b = Math.Min(Math.Min(bf, bg), bh);
+
+            GetCofactors(b, fid, f, out var flo, out var fhi);
+            GetCofactors(b, gid, g, out var glo, out var ghi);
+            GetCofactors(b, hid, h, out var hlo, out var hhi);
+
+            var newLo = this.Manager.Ite(flo, glo, hlo);
+            var newHi = this.Manager.Ite(fhi, ghi, hhi);
+            return Manager.Allocate(new CBDDNode(t, b, newLo, newHi));
+        }
+
+        /// <summary>
+        /// Gets the cofactors for the ITE operation.
+        /// </summary>
+        /// <param name="b">The bottom common index.</param>
+        /// <param name="xid">The DD index.</param>
+        /// <param name="x">The DD node.</param>
+        /// <param name="lo">The out parameter for the lo cofactor.</param>
+        /// <param name="hi">The out parameter for the hi cofactor.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void GetCofactors(int b, DDIndex xid, CBDDNode x, out DDIndex lo, out DDIndex hi)
+        {
+            if (x.Variable >= b)
+            {
+                lo = xid;
+                hi = xid;
+            }
+            else if (x.NextVariable == b)
+            {
+                lo = x.Low;
+                hi = x.High;
+            }
+            else
+            {
+                lo = Manager.Allocate(new CBDDNode(b, x.NextVariable, x.Low, x.High));
+                hi = x.High;
+            }
         }
 
         /// <summary>

@@ -236,7 +236,7 @@ namespace DecisionDiagrams
         /// <returns>The variable map.</returns>
         public VariableMap<T> CreateVariableMap(Dictionary<Variable<T>, Variable<T>> variables)
         {
-            return new VariableMap<T>(this, variables, this.numVariables);
+            return new VariableMap<T>(this, variables);
         }
 
         /// <summary>
@@ -326,6 +326,7 @@ namespace DecisionDiagrams
         public DD Exists(DD x, VariableSet<T> variables)
         {
             this.Check(x.ManagerId);
+            this.Check(variables.Manager.Uid);
             this.CheckForCollection();
             return this.FromIndex(this.Exists(x.Index, variables));
         }
@@ -339,6 +340,7 @@ namespace DecisionDiagrams
         public DD Replace(DD x, VariableMap<T> variableMap)
         {
             this.Check(x.ManagerId);
+            this.Check(variableMap.Manager.Uid);
             this.CheckForCollection();
             return this.FromIndex(this.Replace(x.Index, variableMap));
         }
@@ -1378,76 +1380,6 @@ namespace DecisionDiagrams
         }
 
         /// <summary>
-        /// Compute the ite of three functions.
-        /// </summary>
-        /// <param name="f">The guard.</param>
-        /// <param name="g">The true case.</param>
-        /// <param name="h">The false case.</param>
-        /// <returns>The logical "ite".</returns>
-        internal DDIndex IteRecursive(DDIndex f, DDIndex g, DDIndex h)
-        {
-            if (this.iteCache == null)
-            {
-                this.iteCache = CreateCache3();
-            }
-
-            if (f.IsOne())
-            {
-                return g;
-            }
-
-            if (f.IsZero())
-            {
-                return h;
-            }
-
-            if (g.Equals(h))
-            {
-                return g;
-            }
-
-            if (g.IsOne() && h.IsZero())
-            {
-                return f;
-            }
-
-            if (g.IsZero() && h.IsOne())
-            {
-                return f.Flip();
-            }
-
-            var fidx = f.GetPosition();
-            var gidx = g.GetPosition();
-            var hidx = h.GetPosition();
-
-            var arg = new OperationArg3(f, g, h);
-            var hash = arg.GetHashCode() & 0x7FFFFFFF;
-
-            // Look for result in the cache
-            int index = hash & this.cacheMask;
-            OperationResult3 result = this.iteCache[index];
-            if (result.Arg.Equals(arg))
-            {
-                return result.Result;
-            }
-
-            T fnode = this.memoryPool[fidx];
-            T gnode = this.memoryPool[gidx];
-            T hnode = this.memoryPool[hidx];
-            fnode = f.IsComplemented() ? this.factory.Flip(fnode) : fnode;
-            gnode = g.IsComplemented() ? this.factory.Flip(gnode) : gnode;
-            hnode = h.IsComplemented() ? this.factory.Flip(hnode) : hnode;
-
-            var res = this.factory.Ite(f, fnode, g, gnode, h, hnode);
-
-            // insert the result into the cache
-            OperationResult3 oresult = new OperationResult3 { Arg = arg, Result = res };
-            this.iteCache[index] = oresult;
-
-            return res;
-        }
-
-        /// <summary>
         /// Compute the exists of a function.
         /// </summary>
         /// <param name="x">The input function.</param>
@@ -1565,33 +1497,73 @@ namespace DecisionDiagrams
         }
 
         /// <summary>
-        /// Compute the implies of two functions.
-        /// </summary>
-        /// <param name="x">The first function.</param>
-        /// <param name="y">The second function.</param>
-        /// <returns>The logical "implies".</returns>
-        internal DDIndex Implies(DDIndex x, DDIndex y)
-        {
-            return this.Or(this.Not(x), y);
-        }
-
-        /// <summary>
         /// Compute the ite of two functions.
         /// </summary>
-        /// <param name="x">The guard function.</param>
-        /// <param name="y">The then function.</param>
-        /// <param name="z">The else function.</param>
+        /// <param name="f">The guard function.</param>
+        /// <param name="g">The then function.</param>
+        /// <param name="h">The else function.</param>
         /// <returns>The logical "ite".</returns>
-        internal DDIndex Ite(DDIndex x, DDIndex y, DDIndex z)
+        internal DDIndex Ite(DDIndex f, DDIndex g, DDIndex h)
         {
-            if (this.factory.SupportsIte)
+            if (this.iteCache == null)
             {
-                return this.IteRecursive(x, y, z);
+                this.iteCache = CreateCache3();
             }
-            else
+
+            if (f.IsOne())
             {
-                return this.And(this.Implies(x, y), this.Implies(this.Not(x), z));
+                return g;
             }
+
+            if (f.IsZero())
+            {
+                return h;
+            }
+
+            if (g.Equals(h))
+            {
+                return g;
+            }
+
+            if (g.IsOne() && h.IsZero())
+            {
+                return f;
+            }
+
+            if (g.IsZero() && h.IsOne())
+            {
+                return f.Flip();
+            }
+
+            var fidx = f.GetPosition();
+            var gidx = g.GetPosition();
+            var hidx = h.GetPosition();
+
+            var arg = new OperationArg3(f, g, h);
+            var hash = arg.GetHashCode() & 0x7FFFFFFF;
+
+            // Look for result in the cache
+            int index = hash & this.cacheMask;
+            OperationResult3 result = this.iteCache[index];
+            if (result.Arg.Equals(arg))
+            {
+                return result.Result;
+            }
+
+            T fnode = this.memoryPool[fidx];
+            T gnode = this.memoryPool[gidx];
+            T hnode = this.memoryPool[hidx];
+            fnode = f.IsComplemented() ? this.factory.Flip(fnode) : fnode;
+            gnode = g.IsComplemented() ? this.factory.Flip(gnode) : gnode;
+            hnode = h.IsComplemented() ? this.factory.Flip(hnode) : hnode;
+
+            var res = this.factory.Ite(f, fnode, g, gnode, h, hnode);
+
+            // insert the result into the cache
+            OperationResult3 oresult = new OperationResult3 { Arg = arg, Result = res };
+            this.iteCache[index] = oresult;
+
+            return res;
         }
 
         /// <summary>
@@ -1941,6 +1913,7 @@ namespace DecisionDiagrams
         /// <returns>A collection of allocated variables where the individual bits are interleaved.</returns>
         private int[][] CreateSequentialVariables(int startIndex, int variableCount, int interleaved = 1)
         {
+            startIndex++;
             var totalBits = interleaved * variableCount;
             int[][] result = new int[interleaved][];
 

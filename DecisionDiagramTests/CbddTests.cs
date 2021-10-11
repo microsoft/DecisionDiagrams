@@ -43,7 +43,7 @@ namespace DecisionDiagramTests
         public void TestDisplay()
         {
             var dd = this.Manager.Or(this.VarA, this.VarB);
-            Assert.AreEqual(this.Manager.Display(dd), "(0:2 ? true : false)");
+            Assert.AreEqual(this.Manager.Display(dd), "(1:2 ? true : false)");
         }
     }
 }
