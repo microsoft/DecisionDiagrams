@@ -45,7 +45,7 @@ namespace DecisionDiagrams
         /// <summary>
         /// Gets the manager object.
         /// </summary>
-        internal DDManager<T> Manager { get; }
+        public int ManagerId { get; }
 
         /// <summary>
         /// Gets the variable pairings.
@@ -59,7 +59,7 @@ namespace DecisionDiagrams
         /// <param name="mapping">The mapping to add.</param>
         internal VariableMap(DDManager<T> manager, Dictionary<Variable<T>, Variable<T>> mapping)
         {
-            this.Manager = manager;
+            this.ManagerId = manager.Uid;
             this.Id = Interlocked.Increment(ref nextId);
             this.IdIndex = new DDIndex(this.Id, false);
             this.Mapping = mapping;

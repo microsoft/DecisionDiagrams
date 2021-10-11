@@ -326,7 +326,7 @@ namespace DecisionDiagrams
         public DD Exists(DD x, VariableSet<T> variables)
         {
             this.Check(x.ManagerId);
-            this.Check(variables.Manager.Uid);
+            this.Check(variables.ManagerId);
             this.CheckForCollection();
             return this.FromIndex(this.Exists(x.Index, variables));
         }
@@ -340,7 +340,7 @@ namespace DecisionDiagrams
         public DD Replace(DD x, VariableMap<T> variableMap)
         {
             this.Check(x.ManagerId);
-            this.Check(variableMap.Manager.Uid);
+            this.Check(variableMap.ManagerId);
             this.CheckForCollection();
             return this.FromIndex(this.Replace(x.Index, variableMap));
         }

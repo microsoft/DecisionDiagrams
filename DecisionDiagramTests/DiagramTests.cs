@@ -1778,6 +1778,29 @@ namespace DecisionDiagramTests
             var variableSet1 = manager.CreateVariableSet(new Variable<T>[] { a, b, c });
             var variableSet2 = manager.CreateVariableSet(new Variable<T>[] { c, b, a });
             Assert.AreEqual(variableSet1.AsIndex, variableSet2.AsIndex);
+            Assert.AreEqual(variableSet1.ManagerId, variableSet2.ManagerId);
+        }
+
+        /// <summary>
+        /// Test that variable set Inequality works.
+        /// </summary>
+        [TestMethod]
+        public void TestVariableSetInEquality()
+        {
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            var c = manager.CreateInt8();
+            var variableSet1 = manager.CreateVariableSet(new Variable<T>[] { a, b, c });
+            var variableSet2 = manager.CreateVariableSet(new Variable<T>[] { a, b });
+            var variableSet3 = manager.CreateVariableSet(new Variable<T>[] { });
+            var variableSet4 = manager.CreateVariableSet(new Variable<T>[] { a });
+            var variableSet5 = manager.CreateVariableSet(new Variable<T>[] { b });
+
+            Assert.AreNotEqual(variableSet1.AsIndex, variableSet2.AsIndex);
+            Assert.AreNotEqual(variableSet2.AsIndex, variableSet3.AsIndex);
+            Assert.AreNotEqual(variableSet3.AsIndex, variableSet4.AsIndex);
+            Assert.AreNotEqual(variableSet4.AsIndex, variableSet5.AsIndex);
         }
 
         /// <summary>
