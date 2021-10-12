@@ -21,6 +21,9 @@ A simple use of the library is shown shown below:
 // create a manager that uses chain-reduced binary decision diagrams
 var manager = new DDManager<CBDDNode>(new CBDDNodeFactory());
 
+// alternatively using traditional BDDs
+var manager2 = new DDManager<BDDNode>(new BDDNodeFactory());
+
 // allocate three variables, two booleans and one 32-bit integer
 // the internal ordering will match the order allocated from the manager.
 var a = manager.CreateBool();
@@ -43,9 +46,8 @@ int valuec = assignment.Get(c);   // valuec = 1
 You can find more detailed examples in the tests.
 
 # Implementation
-The library is based on the cache-optimized implementation of decision diagrams [here](https://research.ibm.com/haifa/projects/verification/SixthSense/papers/bdd_iwls_01.pdf), and implements three variants: 
+The library is based on the cache-optimized implementation of decision diagrams [here](https://research.ibm.com/haifa/projects/verification/SixthSense/papers/bdd_iwls_01.pdf), and implements two variants: 
 - Binary decision diagrams ([link](https://en.wikipedia.org/wiki/Binary_decision_diagram))
-- Zero-suppressed binary decision diagrams ([link](https://en.wikipedia.org/wiki/Zero-suppressed_decision_diagram))
 - Chain-reduced binary decision diagrams ([link](https://link.springer.com/content/pdf/10.1007%2F978-3-319-89960-2_5.pdf))
 
 ### Data representation
@@ -58,10 +60,10 @@ The `DD` reference table uses `WeakReference` wrappers to integrate with the .NE
 By hashconsing nodes in the unique table, the library ensures that two boolean functions are equal if and only if their pointers (indices) are equal. The unique table maintains all nodes and is periodically resized when out of memory. For performance reasons, we ensure that this table is always a power of two size. This makes allocating new space a bit inflexible (harder to use all memory) but in return makes all operations faster. To compensate for this inflexible allocation scheme, the library becomes more reluctant to resize the table as the number of nodes grows.
 
 ### Optimizations
-The library makes use of "complement edges" (a single bit packed into the node id), which determines whether the formula represented by the node is negated. This ensures that all negation operations take constant time and also reduces memory consumption since a formula and its negation share the same representation. The implementation also includes a compressed node type `CBDDNode` which can offer large memory savings in many cases.
+The library makes use of "complement edges" (a single bit packed into the node id), which determines whether the formula represented by the node is negated. This ensures that all negation operations take constant time and also reduces memory consumption since a formula and its negation share the same representation. The implementation also includes a compressed node type `CBDDNode` which should offer lower memory use and often higher performance.
 
 ### Operations
-Internally, the manager only supports a single operation: and, but then leverages free negation to support other operations efficiently. This does make some operations such as ite and iff more costly, but can improve cache behavior since there is now only a single operation cache. Because "and" is commutative, the cache can further order the arguments to avoid redundant entries. Currently, the library does not support dynamic variable reordering as well as a number of operations such as functional composition.
+Internally, the manager supports several operations: conjunction, existential quantification, if-then-else and then leverages free negation to support other operations efficiently. It also leverages commutativity of conjunction + disjunction to further reduce memory by ordering the arguments to avoid redundant entries. Currently, the library does not support dynamic variable reordering as well as a number of operations such as functional composition.
 
 # Contributing
 
