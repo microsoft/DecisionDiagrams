@@ -21,11 +21,6 @@ namespace DecisionDiagrams
         public DDManager<CBDDNode> Manager { get; set; }
 
         /// <summary>
-        /// Gets a value indicating whether the factory supports complement edges.
-        /// </summary>
-        public bool SupportsComplement { get; } = true;
-
-        /// <summary>
         /// The logical conjunction of two BDDs as the
         /// standard BDD "apply" operation.
         /// </summary>
@@ -337,7 +332,12 @@ namespace DecisionDiagrams
         /// <returns>The index of the new low child.</returns>
         private DDIndex ExpandLowChild(CBDDNode x)
         {
-            return (x.NextVariable == x.Variable + 1) ? x.Low : this.Manager.Allocate(new CBDDNode(x.Variable + 1, x.NextVariable, x.Low, x.High));
+            if (x.NextVariable == x.Variable + 1)
+            {
+                return x.Low;
+            }
+
+            return this.Manager.Allocate(new CBDDNode(x.Variable + 1, x.NextVariable, x.Low, x.High));
         }
 
         /// <summary>
