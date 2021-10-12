@@ -22,7 +22,7 @@ namespace DecisionDiagramTests
         /// <summary>
         /// How many random inputs to generate per test.
         /// </summary>
-        private static int numRandomTests = 1000;
+        private static int numRandomTests = 2000;
 
         /// <summary>
         /// Gets or sets the decision diagram factory.
@@ -374,7 +374,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void IteBasic1()
         {
-            var manager = new DDManager<CBDDNode>(new CBDDNodeFactory());
+            var manager = new DDManager<T>(this.Factory);
             var a = manager.CreateBool().Id();
             var result = manager.Ite(a, a, manager.False());
             Assert.AreEqual(a, result);
@@ -386,7 +386,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void IteBasic2()
         {
-            var manager = new DDManager<CBDDNode>(new CBDDNodeFactory());
+            var manager = new DDManager<T>(this.Factory);
             var a = manager.CreateBool().Id();
             var result = manager.Ite(a, manager.False(), manager.Not(a));
             Assert.AreEqual(manager.Not(a), result);
@@ -398,7 +398,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void IteBasic3()
         {
-            var manager = new DDManager<CBDDNode>(new CBDDNodeFactory());
+            var manager = new DDManager<T>(this.Factory);
             var a = manager.CreateBool().Id();
             var b = manager.CreateBool().Id();
             var result = manager.Ite(a, b, manager.False());
@@ -411,7 +411,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void IteBasic4()
         {
-            var manager = new DDManager<CBDDNode>(new CBDDNodeFactory());
+            var manager = new DDManager<T>(this.Factory);
             var a = manager.CreateBool().Id();
             var b = manager.CreateBool().Id();
             var result = manager.Ite(a, manager.False(), b);
@@ -1551,6 +1551,24 @@ namespace DecisionDiagramTests
             Assert.AreEqual(64, manager.CreateInt64().NumBits);
             Assert.AreEqual(7, manager.CreateInt(7).NumBits);
             Assert.AreEqual(19, manager.CreateInt(19).NumBits);
+        }
+
+        /// <summary>
+        /// Test that the number of variables is correct.
+        /// </summary>
+        [TestMethod]
+        public void TestNumVariables()
+        {
+            var manager = new DDManager<T>(this.Factory);
+            manager.CreateBool();
+            manager.CreateBool();
+
+            Assert.AreEqual(2, manager.NumVariables);
+
+            manager.CreateInt8();
+            manager.CreateInt16();
+
+            Assert.AreEqual(26, manager.NumVariables);
         }
 
         /// <summary>

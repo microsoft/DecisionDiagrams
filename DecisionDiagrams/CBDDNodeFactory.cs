@@ -21,6 +21,11 @@ namespace DecisionDiagrams
         public DDManager<CBDDNode> Manager { get; set; }
 
         /// <summary>
+        /// Gets a value indicating whether the factory supports complement edges.
+        /// </summary>
+        public bool SupportsComplement { get; } = true;
+
+        /// <summary>
         /// The logical conjunction of two BDDs as the
         /// standard BDD "apply" operation.
         /// </summary>

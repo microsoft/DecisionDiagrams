@@ -21,6 +21,11 @@ namespace DecisionDiagrams
         DDManager<T> Manager { get; set; }
 
         /// <summary>
+        /// Gets a value indicating whether the factory supports complement edges.
+        /// </summary>
+        bool SupportsComplement { get; }
+
+        /// <summary>
         /// Create the node representing the identity function.
         /// </summary>
         /// <param name="variable">The variable index.</param>
