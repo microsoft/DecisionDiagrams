@@ -212,12 +212,14 @@ namespace DecisionDiagrams
         public ushort Uid { get; }
 
         /// <summary>
+        /// Gets the number of allocated variables for this manager.
+        /// </summary>
+        public int NumVariables { get => this.numVariables; }
+
+        /// <summary>
         /// Gets the underlying memory pool.
         /// </summary>
-        internal T[] MemoryPool
-        {
-            get { return this.memoryPool; }
-        }
+        internal T[] MemoryPool { get => this.memoryPool; }
 
         /// <summary>
         /// Creates a new variable set.
@@ -1309,14 +1311,17 @@ namespace DecisionDiagrams
         /// </summary>
         /// <param name="x">The input function.</param>
         /// <returns>The function's negation.</returns>
+        [ExcludeFromCodeCoverage] // all implementations support complement for now
         internal DDIndex Not(DDIndex x)
         {
             if (this.factory.SupportsComplement)
             {
                 return x.Flip();
             }
-
-            return this.Ite(x, DDIndex.False, DDIndex.True);
+            else
+            {
+                return this.Ite(x, DDIndex.False, DDIndex.True);
+            }
         }
 
         /// <summary>

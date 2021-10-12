@@ -22,7 +22,7 @@ namespace DecisionDiagramTests
         /// <summary>
         /// How many random inputs to generate per test.
         /// </summary>
-        private static int numRandomTests = 1000;
+        private static int numRandomTests = 2000;
 
         /// <summary>
         /// Gets or sets the decision diagram factory.
@@ -1551,6 +1551,24 @@ namespace DecisionDiagramTests
             Assert.AreEqual(64, manager.CreateInt64().NumBits);
             Assert.AreEqual(7, manager.CreateInt(7).NumBits);
             Assert.AreEqual(19, manager.CreateInt(19).NumBits);
+        }
+
+        /// <summary>
+        /// Test that the number of variables is correct.
+        /// </summary>
+        [TestMethod]
+        public void TestNumVariables()
+        {
+            var manager = new DDManager<T>(this.Factory);
+            manager.CreateBool();
+            manager.CreateBool();
+
+            Assert.AreEqual(2, manager.NumVariables);
+
+            manager.CreateInt8();
+            manager.CreateInt16();
+
+            Assert.AreEqual(26, manager.NumVariables);
         }
 
         /// <summary>

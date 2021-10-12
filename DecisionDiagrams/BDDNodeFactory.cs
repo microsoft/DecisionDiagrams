@@ -23,7 +23,7 @@ namespace DecisionDiagrams
         /// <summary>
         /// Gets a value indicating whether the factory supports complement edges.
         /// </summary>
-        public virtual bool SupportsComplement { get; } = true;
+        public bool SupportsComplement { get; } = true;
 
         /// <summary>
         /// The logical conjunction of two BDDs as the
@@ -235,7 +235,7 @@ namespace DecisionDiagrams
         /// </summary>
         /// <param name="node">The old node.</param>
         /// <returns>A copy of the node with the children flipped.</returns>
-        public virtual BDDNode Flip(BDDNode node)
+        public BDDNode Flip(BDDNode node)
         {
             return new BDDNode(node.Variable, node.Low.Flip(), node.High.Flip());
         }
@@ -256,7 +256,7 @@ namespace DecisionDiagrams
         /// <param name="node">The node to reduce.</param>
         /// <param name="result">The modified node.</param>
         /// <returns>If there was a reduction.</returns>
-        public virtual bool Reduce(BDDNode node, out DDIndex result)
+        public bool Reduce(BDDNode node, out DDIndex result)
         {
             result = DDIndex.False;
             if (node.Low.Equals(node.High))
