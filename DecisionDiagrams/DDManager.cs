@@ -353,7 +353,7 @@ namespace DecisionDiagrams
         /// <returns>The existential quantification.</returns>
         public DD Forall(DD x, VariableSet<T> variables)
         {
-            return this.FromIndex(this.Exists(x.Index.Flip(), variables).Flip());
+            return this.FromIndex(this.Not(this.Exists(this.Not(x.Index), variables)));
         }
 
         /// <summary>
@@ -1276,7 +1276,7 @@ namespace DecisionDiagrams
         internal DDIndex Allocate(T node)
         {
             bool flipResult = false;
-            if (node.Low.IsComplemented())
+            if (this.factory.SupportsComplement && node.Low.IsComplemented())
             {
                 node = this.factory.Flip(node);
                 flipResult = true;
@@ -1311,7 +1311,12 @@ namespace DecisionDiagrams
         /// <returns>The function's negation.</returns>
         internal DDIndex Not(DDIndex x)
         {
-            return x.Flip();
+            if (this.factory.SupportsComplement)
+            {
+                return x.Flip();
+            }
+
+            return this.Ite(x, DDIndex.False, DDIndex.True);
         }
 
         /// <summary>
@@ -1368,8 +1373,14 @@ namespace DecisionDiagrams
 
             T lo = this.memoryPool[xidx];
             T hi = this.memoryPool[yidx];
-            lo = x.IsComplemented() ? this.factory.Flip(lo) : lo;
-            hi = y.IsComplemented() ? this.factory.Flip(hi) : hi;
+
+            // complement if needed
+            if (this.factory.SupportsComplement)
+            {
+                lo = x.IsComplemented() ? this.factory.Flip(lo) : lo;
+                hi = y.IsComplemented() ? this.factory.Flip(hi) : hi;
+            }
+
             var res = this.factory.And(x, lo, y, hi);
 
             // insert the result into the cache
@@ -1410,7 +1421,13 @@ namespace DecisionDiagrams
             }
 
             T node = this.memoryPool[xidx];
-            node = x.IsComplemented() ? this.factory.Flip(node) : node;
+
+            // complement if needed
+            if (this.factory.SupportsComplement)
+            {
+                node = x.IsComplemented() ? this.factory.Flip(node) : node;
+            }
+
             var res = this.factory.Exists(x, node, variables);
 
             // insert the result into the cache
@@ -1452,7 +1469,13 @@ namespace DecisionDiagrams
             }
 
             T node = this.memoryPool[xidx];
-            node = x.IsComplemented() ? this.factory.Flip(node) : node;
+
+            // complement if needed
+            if (this.factory.SupportsComplement)
+            {
+                node = x.IsComplemented() ? this.factory.Flip(node) : node;
+            }
+
             var res = this.factory.Replace(x, node, variableMap);
 
             // insert the result into the cache
@@ -1530,7 +1553,7 @@ namespace DecisionDiagrams
                 return f;
             }
 
-            if (g.IsZero() && h.IsOne())
+            if (this.factory.SupportsComplement && g.IsZero() && h.IsOne())
             {
                 return f.Flip();
             }
@@ -1553,9 +1576,14 @@ namespace DecisionDiagrams
             T fnode = this.memoryPool[fidx];
             T gnode = this.memoryPool[gidx];
             T hnode = this.memoryPool[hidx];
-            fnode = f.IsComplemented() ? this.factory.Flip(fnode) : fnode;
-            gnode = g.IsComplemented() ? this.factory.Flip(gnode) : gnode;
-            hnode = h.IsComplemented() ? this.factory.Flip(hnode) : hnode;
+
+            // complement if needed
+            if (this.factory.SupportsComplement)
+            {
+                fnode = f.IsComplemented() ? this.factory.Flip(fnode) : fnode;
+                gnode = g.IsComplemented() ? this.factory.Flip(gnode) : gnode;
+                hnode = h.IsComplemented() ? this.factory.Flip(hnode) : hnode;
+            }
 
             var res = this.factory.Ite(f, fnode, g, gnode, h, hnode);
 

@@ -374,7 +374,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void IteBasic1()
         {
-            var manager = new DDManager<CBDDNode>(new CBDDNodeFactory());
+            var manager = new DDManager<T>(this.Factory);
             var a = manager.CreateBool().Id();
             var result = manager.Ite(a, a, manager.False());
             Assert.AreEqual(a, result);
@@ -386,7 +386,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void IteBasic2()
         {
-            var manager = new DDManager<CBDDNode>(new CBDDNodeFactory());
+            var manager = new DDManager<T>(this.Factory);
             var a = manager.CreateBool().Id();
             var result = manager.Ite(a, manager.False(), manager.Not(a));
             Assert.AreEqual(manager.Not(a), result);
@@ -398,7 +398,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void IteBasic3()
         {
-            var manager = new DDManager<CBDDNode>(new CBDDNodeFactory());
+            var manager = new DDManager<T>(this.Factory);
             var a = manager.CreateBool().Id();
             var b = manager.CreateBool().Id();
             var result = manager.Ite(a, b, manager.False());
@@ -411,7 +411,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void IteBasic4()
         {
-            var manager = new DDManager<CBDDNode>(new CBDDNodeFactory());
+            var manager = new DDManager<T>(this.Factory);
             var a = manager.CreateBool().Id();
             var b = manager.CreateBool().Id();
             var result = manager.Ite(a, manager.False(), b);

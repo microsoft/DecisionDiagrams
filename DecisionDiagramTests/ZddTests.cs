@@ -39,5 +39,33 @@ namespace DecisionDiagramTests
             var assignment = manager.Sat(constraint);
             Assert.AreEqual(assignment.Get(x), 54);
         }
+
+        /// <summary>
+        /// Test satisfiabililty with hidden nodes.
+        /// </summary>
+        [TestMethod]
+        public void TestSatWithHiddenEdges()
+        {
+            var factory = new ZDDNodeFactory();
+            var manager = new DDManager<BDDNode>(factory, 16);
+
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            var c = manager.CreateBool();
+            var d = manager.CreateBool();
+
+            var c1 = a.Id();
+            var c2 = manager.Not(b.Id());
+            var c3 = c.Id();
+            var c4 = manager.Not(d.Id());
+
+            var f = manager.And(c1, manager.And(c2, manager.And(c3, c4)));
+            var assignment = manager.Sat(f);
+
+            Assert.IsTrue(assignment.Get(a));
+            Assert.IsFalse(assignment.Get(b));
+            Assert.IsTrue(assignment.Get(c));
+            Assert.IsFalse(assignment.Get(d));
+        }
     }
 }

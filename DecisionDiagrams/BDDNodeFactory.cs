@@ -21,6 +21,11 @@ namespace DecisionDiagrams
         public DDManager<BDDNode> Manager { get; set; }
 
         /// <summary>
+        /// Gets a value indicating whether the factory supports complement edges.
+        /// </summary>
+        public virtual bool SupportsComplement { get; } = true;
+
+        /// <summary>
         /// The logical conjunction of two BDDs as the
         /// standard BDD "apply" operation.
         /// </summary>
@@ -192,8 +197,11 @@ namespace DecisionDiagrams
             var loNode = this.Manager.MemoryPool[lo.GetPosition()];
             var hiNode = this.Manager.MemoryPool[hi.GetPosition()];
 
-            loNode = lo.IsComplemented() ? Flip(loNode) : loNode;
-            hiNode = hi.IsComplemented() ? Flip(hiNode) : hiNode;
+            if (this.SupportsComplement)
+            {
+                loNode = lo.IsComplemented() ? Flip(loNode) : loNode;
+                hiNode = hi.IsComplemented() ? Flip(hiNode) : hiNode;
+            }
 
             var loLevel = Level(lo, loNode);
             var hiLevel = Level(hi, hiNode);
@@ -227,7 +235,7 @@ namespace DecisionDiagrams
         /// </summary>
         /// <param name="node">The old node.</param>
         /// <returns>A copy of the node with the children flipped.</returns>
-        public BDDNode Flip(BDDNode node)
+        public virtual BDDNode Flip(BDDNode node)
         {
             return new BDDNode(node.Variable, node.Low.Flip(), node.High.Flip());
         }

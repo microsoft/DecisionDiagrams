@@ -4,12 +4,30 @@
 
 namespace DecisionDiagrams
 {
+    using System.Diagnostics.CodeAnalysis;
+
     /// <summary>
     /// Implementation of a factory for ZDDs.
     /// Extends BDDs with a new type of reduction rule.
     /// </summary>
     public class ZDDNodeFactory : BDDNodeFactory
     {
+        /// <summary>
+        /// Gets a value indicating whether the factory supports complement edges.
+        /// </summary>
+        public override bool SupportsComplement { get; } = false;
+
+        /// <summary>
+        /// Create a new node with children flipped.
+        /// </summary>
+        /// <param name="node">The old node.</param>
+        /// <returns>A copy of the node with the children flipped.</returns>
+        [ExcludeFromCodeCoverage]
+        public override BDDNode Flip(BDDNode node)
+        {
+            throw new System.NotSupportedException();
+        }
+
         /// <summary>
         /// Reduction rules for a ZBDD.
         /// </summary>
