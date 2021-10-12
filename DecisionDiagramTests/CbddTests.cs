@@ -30,7 +30,7 @@ namespace DecisionDiagramTests
         /// Test node count is correct.
         /// </summary>
         [TestMethod]
-        public override void NodeCountCorrect()
+        public override void TestNodeCountCorrect()
         {
             var dd = this.Manager.Or(this.VarA, this.VarB);
             Assert.AreEqual(3, this.Manager.NodeCount(dd));

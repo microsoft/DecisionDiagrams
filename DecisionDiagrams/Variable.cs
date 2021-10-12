@@ -285,7 +285,7 @@ namespace DecisionDiagrams
                 var id1 = this.Manager.IdIdx(v1);
                 var id2 = this.Manager.IdIdx(v2);
                 var bothPos = this.Manager.And(id1, id2);
-                var bothNeg = this.Manager.And(id1.Flip(), id2.Flip());
+                var bothNeg = this.Manager.And(this.Manager.Not(id1), this.Manager.Not(id2));
                 x = this.Manager.And(x, this.Manager.Or(bothPos, bothNeg));
             }
 

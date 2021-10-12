@@ -225,7 +225,7 @@ namespace DecisionDiagramTests
         /// Test checking for constants.
         /// </summary>
         [TestMethod]
-        public void Constants()
+        public void TestConstants()
         {
             Assert.IsTrue(this.Zero.IsFalse());
             Assert.IsTrue(this.One.IsTrue());
@@ -237,7 +237,7 @@ namespace DecisionDiagramTests
         /// Test for basic logical identities.
         /// </summary>
         [TestMethod]
-        public void Identities()
+        public void TestIdentities()
         {
             Assert.AreEqual(this.Zero, this.Manager.And(this.Zero, this.VarA));
             Assert.AreEqual(this.Zero, this.Manager.And(this.VarA, this.Zero));
@@ -253,7 +253,7 @@ namespace DecisionDiagramTests
         /// Check idempotence of And and Or.
         /// </summary>
         [TestMethod]
-        public void Idempotence()
+        public void TestIdempotence()
         {
             this.RandomTest((a, b) => Assert.AreEqual(a, this.Manager.Or(a, a)));
         }
@@ -262,7 +262,7 @@ namespace DecisionDiagramTests
         /// Test commutativity of and.
         /// </summary>
         [TestMethod]
-        public void CommutativityAnd()
+        public void TestCommutativityAnd()
         {
             this.RandomTest((a, b) => Assert.AreEqual(this.Manager.And(a, b), this.Manager.And(b, a)));
         }
@@ -271,7 +271,7 @@ namespace DecisionDiagramTests
         /// Test commutativity of or.
         /// </summary>
         [TestMethod]
-        public void CommutativityOr()
+        public void TestCommutativityOr()
         {
             this.RandomTest((a, b) => Assert.AreEqual(this.Manager.Or(a, b), this.Manager.Or(b, a)));
         }
@@ -280,7 +280,7 @@ namespace DecisionDiagramTests
         /// Test distributivity of and + or.
         /// </summary>
         [TestMethod]
-        public void Distributivity1()
+        public void TestDistributivity1()
         {
             this.RandomTest((a, b, c) =>
             {
@@ -294,7 +294,7 @@ namespace DecisionDiagramTests
         /// Test double negation does nothing.
         /// </summary>
         [TestMethod]
-        public void NegationIdempotence()
+        public void TestNegationIdempotence()
         {
             this.RandomTest((a) =>
             {
@@ -306,7 +306,7 @@ namespace DecisionDiagramTests
         /// Test negation for constants.
         /// </summary>
         [TestMethod]
-        public void NegationConstant()
+        public void TestNegationConstant()
         {
             Assert.AreEqual(this.Zero, this.Manager.Not(this.One));
             Assert.AreEqual(this.One, this.Manager.Not(this.Zero));
@@ -316,7 +316,7 @@ namespace DecisionDiagramTests
         /// Test DeMorgan's equivalence.
         /// </summary>
         [TestMethod]
-        public void DeMorgan()
+        public void TestDeMorgan()
         {
             this.RandomTest((a, b) =>
             {
@@ -330,7 +330,7 @@ namespace DecisionDiagramTests
         /// Test DeMorgan's equivalence.
         /// </summary>
         [TestMethod]
-        public void Iff()
+        public void TestIff()
         {
             this.RandomTest((a, b) =>
             {
@@ -344,7 +344,7 @@ namespace DecisionDiagramTests
         /// Test DeMorgan's equivalence.
         /// </summary>
         [TestMethod]
-        public void Implies()
+        public void TestImplies()
         {
             this.RandomTest((a, b) =>
             {
@@ -358,7 +358,7 @@ namespace DecisionDiagramTests
         /// Test ite equivalence.
         /// </summary>
         [TestMethod]
-        public void IteEquiv1()
+        public void TestIteEquiv1()
         {
             this.RandomTest((a, b) =>
             {
@@ -372,7 +372,7 @@ namespace DecisionDiagramTests
         /// Test ite works with first variable index and constant.
         /// </summary>
         [TestMethod]
-        public void IteBasic1()
+        public void TestIteBasic1()
         {
             var manager = new DDManager<T>(this.Factory);
             var a = manager.CreateBool().Id();
@@ -384,7 +384,7 @@ namespace DecisionDiagramTests
         /// Test ite works with first variable index and constant.
         /// </summary>
         [TestMethod]
-        public void IteBasic2()
+        public void TestIteBasic2()
         {
             var manager = new DDManager<T>(this.Factory);
             var a = manager.CreateBool().Id();
@@ -396,7 +396,7 @@ namespace DecisionDiagramTests
         /// Test ite works with first variable index and constant.
         /// </summary>
         [TestMethod]
-        public void IteBasic3()
+        public void TestIteBasic3()
         {
             var manager = new DDManager<T>(this.Factory);
             var a = manager.CreateBool().Id();
@@ -409,7 +409,7 @@ namespace DecisionDiagramTests
         /// Test ite works with first variable index and constant.
         /// </summary>
         [TestMethod]
-        public void IteBasic4()
+        public void TestIteBasic4()
         {
             var manager = new DDManager<T>(this.Factory);
             var a = manager.CreateBool().Id();
@@ -422,7 +422,7 @@ namespace DecisionDiagramTests
         /// Test ite equivalence.
         /// </summary>
         [TestMethod]
-        public void IteExpanded()
+        public void TestIteExpanded()
         {
             this.RandomTest((a, b, c) =>
             {
@@ -438,7 +438,7 @@ namespace DecisionDiagramTests
         /// Test ite equivalence.
         /// </summary>
         [TestMethod]
-        public void IteEquiv2()
+        public void TestIteEquiv2()
         {
             this.RandomTest((a, b) =>
             {
@@ -452,7 +452,7 @@ namespace DecisionDiagramTests
         /// Test ite equivalence.
         /// </summary>
         [TestMethod]
-        public void IteEquiv3()
+        public void TestIteEquiv3()
         {
             this.RandomTest((a, b) =>
             {
@@ -466,7 +466,7 @@ namespace DecisionDiagramTests
         /// Test ite equivalence.
         /// </summary>
         [TestMethod]
-        public void IteEquiv4()
+        public void TestIteEquiv4()
         {
             this.RandomTest((a, b) =>
             {
@@ -482,7 +482,7 @@ namespace DecisionDiagramTests
         /// Test ite equivalence.
         /// </summary>
         [TestMethod]
-        public void IteEquiv5()
+        public void TestIteEquiv5()
         {
             this.RandomTest((a, b) =>
             {
@@ -496,7 +496,7 @@ namespace DecisionDiagramTests
         /// Test ite equivalence.
         /// </summary>
         [TestMethod]
-        public void IteEquiv6()
+        public void TestIteEquiv6()
         {
             this.RandomTest((a, b) =>
             {
@@ -510,7 +510,7 @@ namespace DecisionDiagramTests
         /// Test ite equivalence.
         /// </summary>
         [TestMethod]
-        public void IteEquiv7()
+        public void TestIteEquiv7()
         {
             this.RandomTest((a, b) =>
             {
@@ -523,7 +523,7 @@ namespace DecisionDiagramTests
         /// Test ite equivalence.
         /// </summary>
         [TestMethod]
-        public void IteEquiv8()
+        public void TestIteEquiv8()
         {
             this.RandomTest((a, b) =>
             {
@@ -537,7 +537,7 @@ namespace DecisionDiagramTests
         /// Test ite equivalence.
         /// </summary>
         [TestMethod]
-        public void IteEquiv9()
+        public void TestIteEquiv9()
         {
             this.RandomTest((a, b) =>
             {
@@ -551,7 +551,7 @@ namespace DecisionDiagramTests
         /// Test existential quantification.
         /// </summary>
         [TestMethod]
-        public void ExistentialQuantification()
+        public void TestExistentialQuantification()
         {
             this.RandomTest((a, b) =>
             {
@@ -567,7 +567,7 @@ namespace DecisionDiagramTests
         /// Test universal quantification.
         /// </summary>
         [TestMethod]
-        public void ForallQuantification()
+        public void TestForallQuantification()
         {
             var bc = this.Manager.Or(this.VarB, this.VarC);
             var x = this.Manager.Ite(this.VarA, bc, this.Var16);
@@ -581,7 +581,7 @@ namespace DecisionDiagramTests
         /// Test variable equality.
         /// </summary>
         [TestMethod]
-        public void VariableEquals()
+        public void TestVariableEquals()
         {
             Assert.AreEqual(this.Vb, this.Vb);
             Assert.AreEqual(this.V16, this.V16);
@@ -634,29 +634,11 @@ namespace DecisionDiagramTests
             }
         }
 
-        /*  some odd behavior with GC.Collect() in unit testing mode
-        /// <summary>
-        /// Test that garbage collection collects nodes when released.
-        /// </summary>
-        [TestMethod]
-        public void GarbageCollection1()
-        {
-            this.Manager.GarbageCollect();
-            var countBefore = this.Manager.NodeCount();
-            var foo = this.Manager.And(this.Manager.Or(this.VarA, this.VarB), this.VarD);
-            foo = null;
-            GC.Collect();
-            this.Manager.GarbageCollect();
-            var countAfter = this.Manager.NodeCount();
-            Assert.AreEqual(countAfter, countBefore);
-        }
-        */
-
         /// <summary>
         /// Test that garbage collection updates Ids.
         /// </summary>
         [TestMethod]
-        public void GarbageCollection2()
+        public void TestGarbageCollection()
         {
             var foo1 = this.Manager.And(this.Manager.Or(this.VarA, this.VarB), this.VarD);
             var bar = this.Manager.Or(this.VarA, this.VarD);
@@ -694,10 +676,51 @@ namespace DecisionDiagramTests
         }
 
         /// <summary>
-        /// Test satisfiability.
+        /// Test satisfiability returns the right values.
         /// </summary>
         [TestMethod]
-        public void TestSatisfiability1()
+        public void TestSatisfiabilityCorrect()
+        {
+            var manager = new DDManager<T>(this.Factory, 16);
+
+            var variables = new VarBool<T>[6];
+            for (int i = 0; i < 6; i++)
+            {
+                variables[i] = manager.CreateBool();
+            }
+
+            for (int i = 0; i < numRandomTests; i++)
+            {
+                var dd = manager.True();
+                var expected = new bool[6];
+                for (int j = 0; j < 6; j++)
+                {
+                    if (this.Rnd.Next(0, 2) == 0)
+                    {
+                        expected[j] = true;
+                        dd = manager.And(dd, variables[j].Id());
+                    }
+                    else
+                    {
+                        expected[j] = false;
+                        dd = manager.And(dd, manager.Not(variables[j].Id()));
+                    }
+                }
+
+                var assignment = manager.Sat(dd);
+
+                for (int j = 0; j < 6; j++)
+                {
+                    Assert.AreEqual(expected[j], assignment.Get(variables[j]), $"{i}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Test satisfiability works with integer values.
+        /// </summary>
+        [TestMethod]
+        public void TestSatisfiabilityWithIntegers()
         {
             var all = this.Manager.And(this.Var8, this.Manager.And(this.Var16, this.Manager.And(this.Var32, this.Manager.And(this.Var64, this.Var128))));
             Assignment<T> assignment = this.Manager.Sat(all);
@@ -1008,7 +1031,7 @@ namespace DecisionDiagramTests
         /// Test bitvector addition.
         /// </summary>
         [TestMethod]
-        public void BitvectorAddition()
+        public void TestBitvectorAddition()
         {
             var bv8 = this.Manager.CreateBitvector(this.V8);
             var bv16 = this.Manager.CreateBitvector(this.V16);
@@ -1080,7 +1103,7 @@ namespace DecisionDiagramTests
         /// Test bitvector subtraction.
         /// </summary>
         [TestMethod]
-        public void BitvectorSubtraction()
+        public void TestBitvectorSubtraction()
         {
             var bv8 = this.Manager.CreateBitvector(this.V8);
             var bv16 = this.Manager.CreateBitvector(this.V16);
@@ -1125,10 +1148,27 @@ namespace DecisionDiagramTests
         }
 
         /// <summary>
+        /// Test bitvector operations work with signed values.
+        /// </summary>
+        [TestMethod]
+        public void TestBitvectorSigned()
+        {
+            var x = this.Manager.CreateBitvector(this.V32);
+            var y = this.Manager.CreateBitvector(-10);
+            var z = this.Manager.CreateBitvector(-20);
+
+            var a = this.Manager.LessOrEqualSigned(x, y);
+            var b = this.Manager.And(a, this.Manager.GreaterOrEqualSigned(x, z));
+
+            Assert.AreEqual(int.MinValue, this.Manager.Sat(a).Get(this.V32));
+            Assert.AreEqual(-20, this.Manager.Sat(b).Get(this.V32));
+        }
+
+        /// <summary>
         /// Test bitvector less than or equal.
         /// </summary>
         [TestMethod]
-        public void BitvectorInequalities()
+        public void TestBitvectorInequalities()
         {
             for (int i = 0; i < numRandomTests; i++)
             {
@@ -1183,7 +1223,7 @@ namespace DecisionDiagramTests
         /// Test variable to domain.
         /// </summary>
         [TestMethod]
-        public void VariableToDomain()
+        public void TestVariableToDomain()
         {
             var domain = this.V8.CreateDomain();
             var bits = domain.GetBits();
@@ -1194,7 +1234,7 @@ namespace DecisionDiagramTests
         /// Test least significant bit first.
         /// </summary>
         [TestMethod]
-        public void LeastSignificantBitFirst()
+        public void TestLeastSignificantBitFirst()
         {
             var v = this.Manager.CreateInt8(Variable<T>.BitOrder.LSB_FIRST);
             var dd = v.Eq(4);
@@ -1206,7 +1246,7 @@ namespace DecisionDiagramTests
         /// Test node count is correct.
         /// </summary>
         [TestMethod]
-        public virtual void NodeCountCorrect()
+        public virtual void TestNodeCountCorrect()
         {
             var dd = this.Manager.Or(this.VarA, this.VarB);
             Assert.AreEqual(4, this.Manager.NodeCount(dd));
@@ -1217,7 +1257,7 @@ namespace DecisionDiagramTests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
-        public void MismatchedBitvectorSizes()
+        public void TestMismatchedBitvectorSizes()
         {
             var bv1 = this.Manager.CreateBitvector((byte)3);
             var bv2 = this.Manager.CreateBitvector((short)3);
@@ -1228,7 +1268,7 @@ namespace DecisionDiagramTests
         /// Test invalid to use different length bitvectors.
         /// </summary>
         [TestMethod]
-        public void BitvectorFromArray()
+        public void TestBitvectorFromArray()
         {
             var bv1 = this.Manager.CreateBitvector(new DD[] { this.VarA, this.VarB, this.One });
             bv1[2] = this.VarC;
@@ -1244,7 +1284,7 @@ namespace DecisionDiagramTests
         /// Test invalid to use different length bitvectors.
         /// </summary>
         [TestMethod]
-        public void ManagerNodeCount()
+        public void TestManagerNodeCount()
         {
             var count = this.Manager.NodeCount();
             Assert.IsTrue(count > 0);
@@ -1254,7 +1294,7 @@ namespace DecisionDiagramTests
         /// Test bitvector shift right.
         /// </summary>
         [TestMethod]
-        public void BitvectorShiftRight()
+        public void TestBitvectorShiftRight()
         {
             var bv8 = this.Manager.CreateBitvector(this.V8);
 
@@ -1274,7 +1314,7 @@ namespace DecisionDiagramTests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentException), "Expected ArgumentException.")]
-        public void BitvectorShiftRightException1()
+        public void TestBitvectorShiftRightException1()
         {
             var bv = this.Manager.CreateBitvector((byte)0);
             var _ = this.Manager.ShiftRight(bv, -1);
@@ -1285,7 +1325,7 @@ namespace DecisionDiagramTests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentException), "Expected ArgumentException.")]
-        public void BitvectorShiftRightException2()
+        public void TestBitvectorShiftRightException2()
         {
             var bv = this.Manager.CreateBitvector((byte)0);
             var _ = this.Manager.ShiftRight(bv, 9);
@@ -1295,7 +1335,7 @@ namespace DecisionDiagramTests
         /// Test bitvector shift left.
         /// </summary>
         [TestMethod]
-        public void BitvectorShiftLeft()
+        public void TestBitvectorShiftLeft()
         {
             var bv8 = this.Manager.CreateBitvector(this.V8);
 
@@ -1315,7 +1355,7 @@ namespace DecisionDiagramTests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentException), "Expected ArgumentException.")]
-        public void BitvectorShiftLeftException1()
+        public void TestBitvectorShiftLeftException1()
         {
             var bv = this.Manager.CreateBitvector((byte)0);
             _ = this.Manager.ShiftLeft(bv, -1);
@@ -1326,7 +1366,7 @@ namespace DecisionDiagramTests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentException), "Expected ArgumentException.")]
-        public void BitvectorShiftLeftException2()
+        public void TestBitvectorShiftLeftException2()
         {
             var bv = this.Manager.CreateBitvector((byte)0);
             _ = this.Manager.ShiftLeft(bv, 9);
@@ -1336,7 +1376,7 @@ namespace DecisionDiagramTests
         /// Test bitvector ite.
         /// </summary>
         [TestMethod]
-        public void BitvectorIte()
+        public void TestBitvectorIte()
         {
             var bv32 = this.Manager.CreateBitvector(this.V32);
 
@@ -1355,7 +1395,7 @@ namespace DecisionDiagramTests
         /// Test bitvector or.
         /// </summary>
         [TestMethod]
-        public void BitvectorOr()
+        public void TestBitvectorOr()
         {
             var bv32 = this.Manager.CreateBitvector(this.V32);
 
@@ -1376,7 +1416,7 @@ namespace DecisionDiagramTests
         /// Test bitvector and.
         /// </summary>
         [TestMethod]
-        public void BitvectorAnd()
+        public void TestBitvectorAnd()
         {
             var bv32 = this.Manager.CreateBitvector(this.V32);
 
@@ -1397,7 +1437,7 @@ namespace DecisionDiagramTests
         /// Test bitvector xor.
         /// </summary>
         [TestMethod]
-        public void BitvectorXor()
+        public void TestBitvectorXor()
         {
             var bv32 = this.Manager.CreateBitvector(this.V32);
 
@@ -1418,7 +1458,7 @@ namespace DecisionDiagramTests
         /// Test bitvector negation.
         /// </summary>
         [TestMethod]
-        public void BitvectorNot()
+        public void TestBitvectorNot()
         {
             var bv32 = this.Manager.CreateBitvector(this.V32);
 
