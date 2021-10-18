@@ -1927,6 +1927,11 @@ namespace DecisionDiagrams
         /// <returns>A collection of allocated variables where the individual bits are interleaved.</returns>
         private int[][] CreateSequentialVariables(int startIndex, int variableCount, int interleaved = 1)
         {
+            if (startIndex + variableCount > this.factory.MaxVariables)
+            {
+                throw new InvalidOperationException($"Exceeded the maximum variable count of {this.factory.MaxVariables}");
+            }
+
             startIndex++;
             var totalBits = interleaved * variableCount;
             int[][] result = new int[interleaved][];

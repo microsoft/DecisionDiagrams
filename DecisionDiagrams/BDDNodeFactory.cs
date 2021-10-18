@@ -26,6 +26,11 @@ namespace DecisionDiagrams
         public bool SupportsComplement { get; } = true;
 
         /// <summary>
+        /// Gets the maximum number of variables allowed by the manager.
+        /// </summary>
+        public long MaxVariables { get; } = (long)(1U << 31) - 1;
+
+        /// <summary>
         /// The logical conjunction of two BDDs as the
         /// standard BDD "apply" operation.
         /// </summary>
