@@ -21,6 +21,11 @@ namespace DecisionDiagrams
         public DDManager<CBDDNode> Manager { get; set; }
 
         /// <summary>
+        /// Gets the maximum number of variables allowed by the manager.
+        /// </summary>
+        public long MaxVariables { get; } = (long)(1U << 15) - 1;
+
+        /// <summary>
         /// The logical conjunction of two BDDs as the
         /// standard BDD "apply" operation.
         /// </summary>

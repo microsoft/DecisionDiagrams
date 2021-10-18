@@ -2251,6 +2251,48 @@ namespace DecisionDiagramTests
         }
 
         /// <summary>
+        /// Test too many variables.
+        /// </summary>
+        [TestMethod]
+        public void TestTooManyVariablesOk()
+        {
+            var manager = new DDManager<T>(this.Factory, 8, 8, false);
+
+            if (this.Factory is CBDDNodeFactory)
+            {
+                for (int i = 0; i < 32767; i++)
+                {
+                    manager.CreateBool();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Test too many variables.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void TestTooManyVariablesException()
+        {
+            var manager = new DDManager<T>(this.Factory, 8, 8, false);
+
+            if (this.Factory is CBDDNodeFactory)
+            {
+                for (int i = 0; i < 32767; i++)
+                {
+                    var b = manager.CreateBool();
+                    Assert.AreEqual(i + 1, manager.Variable(b.Id()));
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+
+            manager.CreateBool();
+        }
+
+        /// <summary>
         /// Select a random literal.
         /// </summary>
         /// <returns>Returns a random literal.</returns>
