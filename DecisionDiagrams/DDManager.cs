@@ -1190,17 +1190,23 @@ namespace DecisionDiagrams
         /// Returns null if the function is "false".
         /// </summary>
         /// <param name="value">The function.</param>
+        /// <param name="variables">The variables to find assignments for. By default gets all variables.</param>
         /// <returns>The satisfying assignment.</returns>
-        public Assignment<T> Sat(DD value)
+        public Assignment<T> Sat(DD value, List<Variable<T>> variables = null)
         {
             if (value.IsFalse())
             {
                 return null;
             }
 
+            if (variables == null)
+            {
+                variables = this.variables;
+            }
+
             Assignment<T> assignment = new Assignment<T>();
-            var maps = this.SatInt(value);
-            foreach (Variable<T> var in this.variables)
+            var maps = this.SatInt(value, variables);
+            foreach (Variable<T> var in variables)
             {
                 switch (var.Type)
                 {
@@ -1956,8 +1962,9 @@ namespace DecisionDiagrams
         /// create results with the appropriate type.
         /// </summary>
         /// <param name="value">The function.</param>
+        /// <param name="variables">The variables to find an assignment for.</param>
         /// <returns>The satisfying assignment.</returns>
-        private ValueTuple<Dictionary<Variable<T>, long>, Dictionary<VarInt<T>, byte[]>> SatInt(DD value)
+        private ValueTuple<Dictionary<Variable<T>, long>, Dictionary<VarInt<T>, byte[]>> SatInt(DD value, List<Variable<T>> variables)
         {
             this.Check(value.ManagerId);
 
@@ -1968,8 +1975,10 @@ namespace DecisionDiagrams
             var ret = new Dictionary<Variable<T>, long>();
             var retInt = new Dictionary<VarInt<T>, byte[]>();
 
-            foreach (Variable<T> var in this.variables)
+            foreach (Variable<T> var in variables)
             {
+                Check(var.Manager.Uid);
+
                 var len = var.Indices.Length;
 
                 switch (var.Type)

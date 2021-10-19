@@ -750,6 +750,39 @@ namespace DecisionDiagramTests
         }
 
         /// <summary>
+        /// Test satisfiability for a subset of variables.
+        /// </summary>
+        [TestMethod]
+        public void TestSatisfiabilityForSubsetOfVariables()
+        {
+            var manager = new DDManager<T>(this.Factory);
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            var c = manager.CreateInt8();
+            var f = manager.And(a.Id(), manager.And(b.Id(), c.Eq(1)));
+            Assignment<T> assignment = manager.Sat(f, new List<Variable<T>> { a, c });
+
+            Assert.AreNotEqual(null, assignment);
+            Assert.AreEqual(true, assignment.Get(a));
+            Assert.AreEqual(1, assignment.Get(c));
+        }
+
+        /// <summary>
+        /// Test satisfiability for a subset of variables.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void TestSatisfiabilityForSubsetOfVariablesException()
+        {
+            var manager = new DDManager<T>(this.Factory);
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            var f = manager.And(a.Id(), b.Id());
+            Assignment<T> assignment = manager.Sat(f, new List<Variable<T>> { a });
+            assignment.Get(b);
+        }
+
+        /// <summary>
         /// Test satisfiability of false.
         /// </summary>
         [TestMethod]
@@ -2008,6 +2041,27 @@ namespace DecisionDiagramTests
             var map = new Dictionary<Variable<T>, Variable<T>> { { c, e } };
             var variableMap = manager.CreateVariableMap(map);
             Assert.AreEqual(f, manager.Replace(f, variableMap));
+        }
+
+        /// <summary>
+        /// Test replacing a variable in the middle of a chain.
+        /// </summary>
+        [TestMethod]
+        public void TestReplaceMissingLevel()
+        {
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            var c = manager.CreateBool();
+            var d = manager.CreateBool();
+            var e = manager.CreateBool();
+            var f = manager.CreateBool();
+            var g = manager.CreateBool();
+            var h1 = manager.And(a.Id(), manager.And(b.Id(), manager.And(d.Id(), e.Id())));
+            var h2 = manager.And(a.Id(), manager.And(b.Id(), manager.And(d.Id(), g.Id())));
+            var map = new Dictionary<Variable<T>, Variable<T>> { { c, f }, { e, g } };
+            var variableMap = manager.CreateVariableMap(map);
+            Assert.AreEqual(h2, manager.Replace(h1, variableMap));
         }
 
         /// <summary>

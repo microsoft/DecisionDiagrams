@@ -18,6 +18,11 @@ namespace DecisionDiagrams
         private static int nextId = 0;
 
         /// <summary>
+        /// Gets the smallest index in the map.
+        /// </summary>
+        internal int MinIndex { get; } = -1;
+
+        /// <summary>
         /// Gets the largest index in the map.
         /// </summary>
         internal int MaxIndex { get; } = -1;
@@ -68,6 +73,7 @@ namespace DecisionDiagrams
                 {
                     var keyIndex = variable1.Indices[i];
                     var valueIndex = variable2.Indices[i];
+                    this.MinIndex = this.MinIndex < 0 ? keyIndex : Math.Min(this.MinIndex, keyIndex);
                     this.MaxIndex = Math.Max(this.MaxIndex, keyIndex);
                     this.VariableMapping[keyIndex] = valueIndex;
                 }
@@ -81,6 +87,12 @@ namespace DecisionDiagrams
         /// <returns>The index mapped to. Negative if none.</returns>
         internal int Get(int variable)
         {
+            Console.WriteLine($"get: {variable}");
+            if (variable < this.MinIndex)
+            {
+                return variable;
+            }
+
             if (this.VariableMapping.TryGetValue(variable, out int newVariable))
             {
                 return newVariable;

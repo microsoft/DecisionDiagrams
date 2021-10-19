@@ -20,6 +20,11 @@ namespace DecisionDiagrams
         private HashSet<int> variables;
 
         /// <summary>
+        /// Gets the smallest index in the set.
+        /// </summary>
+        internal int MinIndex { get; } = -1;
+
+        /// <summary>
         /// Gets the largest index in the set.
         /// </summary>
         internal int MaxIndex { get; } = -1;
@@ -58,6 +63,7 @@ namespace DecisionDiagrams
                 for (int j = v.Indices.Length - 1; j >= 0; j--)
                 {
                     var variableIndex = v.Indices[j];
+                    this.MinIndex = this.MinIndex < 0 ? variableIndex : Math.Min(this.MinIndex, variableIndex);
                     this.MaxIndex = Math.Max(this.MaxIndex, variableIndex);
                     this.AsIndex = manager.And(this.AsIndex, manager.IdIdx(variableIndex));
                     this.variables.Add(variableIndex);
@@ -72,6 +78,11 @@ namespace DecisionDiagrams
         /// <returns>Whether the set contains that variable.</returns>
         internal bool Contains(int variable)
         {
+            if (variable < this.MinIndex)
+            {
+                return false;
+            }
+
             return this.variables.Contains(variable);
         }
     }
