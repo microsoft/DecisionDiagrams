@@ -5,7 +5,7 @@
 namespace DecisionDiagrams
 {
     using System;
-    using System.Collections;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Represents a set of variables.
@@ -17,12 +17,7 @@ namespace DecisionDiagrams
         /// <summary>
         /// The set of variables.
         /// </summary>
-        private BitArray variables;
-
-        /// <summary>
-        /// Gets the smallest index in the set.
-        /// </summary>
-        internal int MinIndex { get; } = -1;
+        private HashSet<int> variables;
 
         /// <summary>
         /// Gets the largest index in the set.
@@ -55,6 +50,7 @@ namespace DecisionDiagrams
             this.ManagerId = manager.Uid;
             this.AsIndex = DDIndex.True;
             this.Variables = variables;
+            this.variables = new HashSet<int>();
 
             for (int i = 0; i < variables.Length; i++)
             {
@@ -62,21 +58,9 @@ namespace DecisionDiagrams
                 for (int j = v.Indices.Length - 1; j >= 0; j--)
                 {
                     var variableIndex = v.Indices[j];
-                    this.MinIndex = this.MinIndex < 0 ? variableIndex : Math.Min(this.MinIndex, variableIndex);
                     this.MaxIndex = Math.Max(this.MaxIndex, variableIndex);
                     this.AsIndex = manager.And(this.AsIndex, manager.IdIdx(variableIndex));
-                }
-            }
-
-            this.variables = new BitArray(this.MaxIndex - this.MinIndex + 1);
-
-            for (int i = 0; i < variables.Length; i++)
-            {
-                var v = variables[i];
-                for (int j = v.Indices.Length - 1; j >= 0; j--)
-                {
-                    var variableIndex = v.Indices[j];
-                    this.variables.Set(variableIndex - this.MinIndex, true);
+                    this.variables.Add(variableIndex);
                 }
             }
         }
@@ -88,13 +72,7 @@ namespace DecisionDiagrams
         /// <returns>Whether the set contains that variable.</returns>
         internal bool Contains(int variable)
         {
-            if (variable < this.MinIndex)
-            {
-                return false;
-            }
-
-            var index = variable - this.MinIndex;
-            return this.variables.Get(index);
+            return this.variables.Contains(variable);
         }
     }
 }
