@@ -1720,6 +1720,42 @@ namespace DecisionDiagramTests
         }
 
         /// <summary>
+        /// Test that quantification works when adding new variables.
+        /// </summary>
+        [TestMethod]
+        public void TestExistsAlternatingVariables()
+        {
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            var c = manager.CreateBool();
+            var d = manager.CreateBool();
+            var f1 = manager.And(a.Id(), manager.And(b.Id(), manager.And(c.Id(), d.Id())));
+            var f2 = manager.And(a.Id(), c.Id());
+            var variableSet = manager.CreateVariableSet(new Variable<T>[] { b, d });
+            var f3 = manager.Exists(f1, variableSet);
+            Assert.AreEqual(f2, f3);
+        }
+
+        /// <summary>
+        /// Test that quantification works when adding new variables.
+        /// </summary>
+        [TestMethod]
+        public void TestExistsWithDontCareVariables()
+        {
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            var c = manager.CreateBool();
+            var d = manager.CreateBool();
+            var f1 = manager.And(a.Id(), manager.And(b.Id(), d.Id()));
+            var f2 = manager.And(a.Id(), d.Id());
+            var variableSet = manager.CreateVariableSet(new Variable<T>[] { b, c });
+            var f3 = manager.Exists(f1, variableSet);
+            Assert.AreEqual(f2, f3);
+        }
+
+        /// <summary>
         /// Test replace with random.
         /// </summary>
         [TestMethod]
@@ -1954,6 +1990,24 @@ namespace DecisionDiagramTests
             var variableMap = manager.CreateVariableMap(map);
             var f3 = manager.Replace(f1, variableMap);
             Assert.AreEqual(f2, f3);
+        }
+
+        /// <summary>
+        /// Test replacing a variable in the middle of a chain.
+        /// </summary>
+        [TestMethod]
+        public void TestReplaceSkippingLevel()
+        {
+            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            var c = manager.CreateBool();
+            var d = manager.CreateBool();
+            var e = manager.CreateBool();
+            var f = manager.And(a.Id(), manager.And(b.Id(), d.Id()));
+            var map = new Dictionary<Variable<T>, Variable<T>> { { c, e } };
+            var variableMap = manager.CreateVariableMap(map);
+            Assert.AreEqual(f, manager.Replace(f, variableMap));
         }
 
         /// <summary>

@@ -18,19 +18,9 @@ namespace DecisionDiagrams
         private static int nextId = 0;
 
         /// <summary>
-        /// Gets the smallest index in the map.
-        /// </summary>
-        internal int MinIndex { get; } = -1;
-
-        /// <summary>
         /// Gets the largest index in the map.
         /// </summary>
         internal int MaxIndex { get; } = -1;
-
-        /// <summary>
-        /// A unique id for the variable map.
-        /// </summary>
-        internal int Id { get; private set; }
 
         /// <summary>
         /// Gets the id as an index for caching.
@@ -40,7 +30,7 @@ namespace DecisionDiagrams
         /// <summary>
         /// Gets the variables in the set.
         /// </summary>
-        internal int[] VariableArray { get; }
+        internal Dictionary<int, int> VariableMapping { get; }
 
         /// <summary>
         /// Gets the manager object.
@@ -60,9 +50,9 @@ namespace DecisionDiagrams
         internal VariableMap(DDManager<T> manager, Dictionary<Variable<T>, Variable<T>> mapping)
         {
             this.ManagerId = manager.Uid;
-            this.Id = Interlocked.Increment(ref nextId);
-            this.IdIndex = new DDIndex(this.Id, false);
+            this.IdIndex = new DDIndex(Interlocked.Increment(ref nextId), false);
             this.Mapping = mapping;
+            this.VariableMapping = new Dictionary<int, int>();
 
             foreach (var keyValuePair in mapping)
             {
@@ -77,28 +67,9 @@ namespace DecisionDiagrams
                 for (int i = variable1.Indices.Length - 1; i >= 0; i--)
                 {
                     var keyIndex = variable1.Indices[i];
-                    this.MinIndex = this.MinIndex < 0 ? keyIndex : Math.Min(this.MinIndex, keyIndex);
-                    this.MaxIndex = Math.Max(this.MaxIndex, keyIndex);
-                }
-            }
-
-            this.VariableArray = new int[this.MaxIndex - this.MinIndex + 1];
-
-            for (int i = 0; i < this.VariableArray.Length; i++)
-            {
-                this.VariableArray[i] = i + this.MinIndex;
-            }
-
-            foreach (var keyValuePair in mapping)
-            {
-                var variable1 = keyValuePair.Key;
-                var variable2 = keyValuePair.Value;
-
-                for (int i = variable1.Indices.Length - 1; i >= 0; i--)
-                {
-                    var keyIndex = variable1.Indices[i];
                     var valueIndex = variable2.Indices[i];
-                    this.VariableArray[keyIndex - this.MinIndex] = valueIndex;
+                    this.MaxIndex = Math.Max(this.MaxIndex, keyIndex);
+                    this.VariableMapping[keyIndex] = valueIndex;
                 }
             }
         }
@@ -110,13 +81,12 @@ namespace DecisionDiagrams
         /// <returns>The index mapped to. Negative if none.</returns>
         internal int Get(int variable)
         {
-            if (variable < this.MinIndex)
+            if (this.VariableMapping.TryGetValue(variable, out int newVariable))
             {
-                return variable;
+                return newVariable;
             }
 
-            var index = variable - this.MinIndex;
-            return this.VariableArray[index];
+            return variable;
         }
     }
 }
