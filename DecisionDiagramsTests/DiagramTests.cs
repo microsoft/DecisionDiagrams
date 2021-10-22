@@ -768,6 +768,58 @@ namespace DecisionDiagramTests
         }
 
         /// <summary>
+        /// Test satisfiability for integer variables.
+        /// </summary>
+        [TestMethod]
+        public void TestSatisfiabilityForIntegers()
+        {
+            var manager = new DDManager<T>(this.Factory);
+            var x = manager.CreateInt32();
+            var y = manager.CreateInt32();
+
+            var rnd = new Random(0);
+            for (int i = 0; i < numRandomTests; i++)
+            {
+                var vx = rnd.Next();
+                var vy = rnd.Next();
+                var f = manager.And(x.Eq(vx), y.Eq(vy));
+                var assignment = manager.Sat(f);
+
+                Assert.AreEqual(vx, assignment.Get(x));
+                Assert.AreEqual(vy, assignment.Get(y));
+            }
+        }
+
+        /// <summary>
+        /// Test satisfiability for integer variables.
+        /// </summary>
+        [TestMethod]
+        public void TestSatisfiabilityForIntegersRange()
+        {
+            var manager = new DDManager<T>(this.Factory);
+            var x = manager.CreateInt32();
+
+            var rnd = new Random(0);
+            for (int i = 0; i < numRandomTests; i++)
+            {
+                var vxl = rnd.Next(0, 9);
+                var vxh = rnd.Next(0, 9);
+
+                if (vxl > vxh)
+                {
+                    var temp = vxl;
+                    vxl = vxh;
+                    vxh = temp;
+                }
+
+                var f = manager.And(x.LessOrEqual(vxh), x.GreaterOrEqual(vxl));
+                var assignment = manager.Sat(f);
+
+                Assert.AreEqual(vxl, assignment.Get(x), $"{i}");
+            }
+        }
+
+        /// <summary>
         /// Test satisfiability for a subset of variables.
         /// </summary>
         [TestMethod]
