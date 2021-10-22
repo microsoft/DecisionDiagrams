@@ -3,7 +3,7 @@
 ![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/rybecket/DecisionDiagrams/1)
 
 # Introduction 
-This project is an implementation for various variants of [binary decision diagrams](https://en.wikipedia.org/wiki/Binary_decision_diagram) that is used at Microsoft Research. It focuses on high performance, usability, and correctness. The library currently maintains 100% code coverage.
+This project is an implementation for various variants of [binary decision diagrams](https://en.wikipedia.org/wiki/Binary_decision_diagram) that is used at Microsoft Research. It focuses on high performance, usability, and correctness. The library maintains 100% test coverage.
 
 # Installation
 Just add the project to your visual studio solution or add the package from [nuget](https://www.nuget.org/packages/DecisionDiagrams).
@@ -64,6 +64,16 @@ The library makes use of "complement edges" (a single bit packed into the node i
 
 ### Operations
 Internally, the manager supports several operations: conjunction, existential quantification, if-then-else and then leverages free negation to support other operations efficiently. It also leverages commutativity of conjunction + disjunction to further reduce memory by ordering the arguments to avoid redundant entries. Currently, the library does not support dynamic variable reordering as well as a number of operations such as functional composition.
+
+# Performance
+
+The performance of the library should be comparable to other highly optimized BDD implementations. Below are the timings to solve the famous n-queens chess problem (how to arrange n queens on an n x n chess board such that none attack each other) compared to JavaBDD, which has a direct translation of the C-based BuDDy implementaiton into Java. The times are for a 64-bit Intel Core i7-8650U CPU @ 1.90GHz machine.
+
+| Implementation               | Language | n  | Time (seconds) | Peak live memory (MB) |
+| ---------------------------- | -------- | -- | -------------- | --------------------- |
+| DecisionDiagrams (BDDNode)   | C#       | 12 | 16s            | 207 MB                |
+| DecisionDiagrams (CBDDNode)  | C#       | 12 | 12s            | 104 MB                |
+| JavaBDD (BuDDy translation)  | Java     | 12 | 32s            | 214 MB                |
 
 # Contributing
 

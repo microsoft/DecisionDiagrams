@@ -5,7 +5,9 @@ VisualStudioVersion = 16.0.29709.97
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DecisionDiagrams", "DecisionDiagrams\DecisionDiagrams.csproj", "{379C16D4-D87C-4A11-9949-3B651C047CEF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DecisionDiagramTests", "DecisionDiagramTests\DecisionDiagramTests.csproj", "{48936F64-10D3-44A6-BB52-73F72B7EA7ED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DecisionDiagramsTests", "DecisionDiagramsTests\DecisionDiagramsTests.csproj", "{48936F64-10D3-44A6-BB52-73F72B7EA7ED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DecisionDiagramsBench", "DecisionDiagramsBench\DecisionDiagramsBench.csproj", "{D879580E-83A1-4A0C-9D08-7088D3FB864B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +33,14 @@ Global
 		{48936F64-10D3-44A6-BB52-73F72B7EA7ED}.Release|Any CPU.Build.0 = Release|Any CPU
 		{48936F64-10D3-44A6-BB52-73F72B7EA7ED}.Release|x64.ActiveCfg = Release|Any CPU
 		{48936F64-10D3-44A6-BB52-73F72B7EA7ED}.Release|x64.Build.0 = Release|Any CPU
+		{D879580E-83A1-4A0C-9D08-7088D3FB864B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D879580E-83A1-4A0C-9D08-7088D3FB864B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D879580E-83A1-4A0C-9D08-7088D3FB864B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D879580E-83A1-4A0C-9D08-7088D3FB864B}.Debug|x64.Build.0 = Debug|Any CPU
+		{D879580E-83A1-4A0C-9D08-7088D3FB864B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D879580E-83A1-4A0C-9D08-7088D3FB864B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D879580E-83A1-4A0C-9D08-7088D3FB864B}.Release|x64.ActiveCfg = Release|Any CPU
+		{D879580E-83A1-4A0C-9D08-7088D3FB864B}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
