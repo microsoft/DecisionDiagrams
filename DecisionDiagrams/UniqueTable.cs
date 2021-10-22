@@ -106,7 +106,7 @@ namespace DecisionDiagrams
                     break;
                 }
 
-                if (this.manager.LookupNodeByIndex(idx).Equals(key))
+                if (this.manager.MemoryPool[pos].Equals(key))
                 {
                     return idx;
                 }
