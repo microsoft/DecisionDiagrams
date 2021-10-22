@@ -87,7 +87,6 @@ namespace DecisionDiagrams
         /// <returns>The index mapped to. Negative if none.</returns>
         internal int Get(int variable)
         {
-            Console.WriteLine($"get: {variable}");
             if (variable < this.MinIndex)
             {
                 return variable;

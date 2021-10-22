@@ -321,12 +321,12 @@ namespace DecisionDiagrams
             {
                 for (int i = node.Variable; i < node.NextVariable; i++)
                 {
-                    assignment.Add(i, hi);
+                    assignment.Add(i, false);
                 }
             }
             else
             {
-                assignment.Add(node.Variable, hi);
+                assignment.Add(node.NextVariable - 1, true);
             }
         }
 
