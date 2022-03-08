@@ -57,6 +57,12 @@ namespace DecisionDiagrams
             this.Variables = variables;
             this.variables = new HashSet<int>();
 
+            var uniqueVariables = new HashSet<Variable<T>>(variables);
+            if (this.Variables.Length != uniqueVariables.Count)
+            {
+                throw new ArgumentException($"Duplicate variables provided to variable set.");
+            }
+
             for (int i = 0; i < variables.Length; i++)
             {
                 var v = variables[i];

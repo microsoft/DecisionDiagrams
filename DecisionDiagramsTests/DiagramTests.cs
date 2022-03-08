@@ -22,7 +22,7 @@ namespace DecisionDiagramTests
         /// <summary>
         /// How many random inputs to generate per test.
         /// </summary>
-        private static int numRandomTests = 2000;
+        private static int numRandomTests = 4000;
 
         /// <summary>
         /// Gets or sets the decision diagram factory.
@@ -1872,13 +1872,14 @@ namespace DecisionDiagramTests
             for (int i = 0; i < numRandomTests; i++)
             {
                 // randomly select some subset of 5 to quantify away
-                var vars = new Variable<T>[5];
+                var vars = new HashSet<Variable<T>>();
                 for (int j = 0; j < 5; j++)
                 {
-                    vars[j] = variables[this.Rnd.Next(0, 10)];
+                    var variable = variables[this.Rnd.Next(0, 10)];
+                    vars.Add(variable);
                 }
 
-                var variableSet = manager.CreateVariableSet(vars);
+                var variableSet = manager.CreateVariableSet(vars.ToArray());
 
                 // create the expected result
                 var y = manager.True();
@@ -2453,6 +2454,19 @@ namespace DecisionDiagramTests
         }
 
         /// <summary>
+        /// Test creating a variable set with duplicate variables throws an exception.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void TestSatWithDuplicateVariables()
+        {
+            var manager = new DDManager<T>(this.Factory, 8, 8, false);
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            manager.CreateVariableSet(new Variable<T>[] { a, b, a });
+        }
+
+        /// <summary>
         /// Select a random literal.
         /// </summary>
         /// <returns>Returns a random literal.</returns>
@@ -2504,7 +2518,7 @@ namespace DecisionDiagramTests
         /// <returns>Returns a random literal.</returns>
         private DD RandomDD()
         {
-            return this.RandomDD(5);
+            return this.RandomDD(7);
         }
 
         /// <summary>

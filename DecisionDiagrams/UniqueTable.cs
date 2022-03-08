@@ -124,6 +124,12 @@ namespace DecisionDiagrams
             index = this.count;
             this.count++;
             var value = this.manager.FreshNode(key);
+
+            if (value.IsConstant())
+            {
+                throw new Exception("BAD");
+            }
+
             this.entries[index] = new Entry { Next = this.buckets[targetBucket], Value = value };
             this.buckets[targetBucket] = index;
             return value;
@@ -163,7 +169,7 @@ namespace DecisionDiagrams
                     var entry = this.entries[i];
                     var ddindex = entry.Value;
                     var newPosition = forwardingAddresses[ddindex.GetPosition()];
-                    if (newPosition != 0 || ddindex.IsConstant())
+                    if (newPosition != 0)
                     {
                         values[newPosition] = new DDIndex(newPosition, ddindex.IsComplemented());
                     }
@@ -172,7 +178,7 @@ namespace DecisionDiagrams
                 }
             }
 
-            for (int i = 0; i < values.Length; i++)
+            for (int i = 1; i < values.Length; i++)
             {
                 table.AddUnchecked(this.manager.MemoryPool[i], values[i]);
             }
