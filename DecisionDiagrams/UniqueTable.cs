@@ -124,12 +124,6 @@ namespace DecisionDiagrams
             index = this.count;
             this.count++;
             var value = this.manager.FreshNode(key);
-
-            if (value.IsConstant())
-            {
-                throw new Exception("BAD");
-            }
-
             this.entries[index] = new Entry { Next = this.buckets[targetBucket], Value = value };
             this.buckets[targetBucket] = index;
             return value;

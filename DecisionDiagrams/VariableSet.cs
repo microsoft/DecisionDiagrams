@@ -38,7 +38,7 @@ namespace DecisionDiagrams
         /// Gets the DD representing the variables for efficient
         /// caching and comparison purposes.
         /// </summary>
-        public DDIndex AsIndex { get; private set; }
+        public DD Id { get; private set; }
 
         /// <summary>
         /// Gets the variables in the set.
@@ -53,7 +53,7 @@ namespace DecisionDiagrams
         internal VariableSet(DDManager<T> manager, Variable<T>[] variables)
         {
             this.ManagerId = manager.Uid;
-            this.AsIndex = DDIndex.True;
+            this.Id = manager.True();
             this.Variables = variables;
             this.variables = new HashSet<int>();
 
@@ -71,7 +71,7 @@ namespace DecisionDiagrams
                     var variableIndex = v.Indices[j];
                     this.MinIndex = this.MinIndex < 0 ? variableIndex : Math.Min(this.MinIndex, variableIndex);
                     this.MaxIndex = Math.Max(this.MaxIndex, variableIndex);
-                    this.AsIndex = manager.And(this.AsIndex, manager.IdIdx(variableIndex));
+                    this.Id = manager.And(this.Id, manager.FromIndex(manager.IdIdx(variableIndex)));
                     this.variables.Add(variableIndex);
                 }
             }

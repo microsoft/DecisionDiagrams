@@ -2,8 +2,6 @@
 // Copyright (c) Microsoft. All rights reserved.
 // </copyright>
 
-using System;
-
 namespace DecisionDiagrams
 {
     /// <summary>
@@ -11,6 +9,7 @@ namespace DecisionDiagrams
     /// </summary>
 #pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     public sealed class DD
+
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     {
         /// <summary>

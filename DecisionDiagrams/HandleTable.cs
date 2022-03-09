@@ -5,6 +5,7 @@
 namespace DecisionDiagrams
 {
     using System;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Simple fast implementation of a specialized dictionary
@@ -151,15 +152,14 @@ namespace DecisionDiagrams
                     var wref = entry.Value;
                     var position = index.GetPosition();
                     var newPosition = forwardingAddresses[position];
-                    if (newPosition != 0 || index.IsConstant())
+                    if (newPosition != 0 || position == 0)
                     {
                         var newIndex = new DDIndex(newPosition, index.IsComplemented());
                         if (wref.TryGetTarget(out DD target))
                         {
                             target.Index = newIndex;
+                            table.AddUnique(newIndex, wref);
                         }
-
-                        table.AddUnique(newIndex, wref);
                     }
 
                     i = entry.Next;

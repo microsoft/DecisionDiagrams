@@ -7,6 +7,7 @@ namespace DecisionDiagrams
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
+    using System.Threading;
 
     /// <summary>
     /// Manager class for decision diagrams. Does all the heavy
@@ -53,7 +54,7 @@ namespace DecisionDiagrams
         /// Unique manager ID that makes it possible to
         /// check if the user adds a node for the wrong manager.
         /// </summary>
-        private static ushort managerId = 0;
+        private static int nextManagerId = 0;
 
         /// <summary>
         /// Trigger point for a garbage collection.
@@ -189,7 +190,7 @@ namespace DecisionDiagrams
             var nodes = (uint)this.EnsurePowerOfTwo((int)Math.Max(numNodes, 16));
             var ratio = this.EnsurePowerOfTwo(cacheRatio);
             nodeFactory.Manager = this;
-            this.Uid = managerId++;
+            this.Uid = (ushort)Interlocked.Increment(ref nextManagerId);
             this.poolSize = nodes;
             this.cacheRatio = ratio;
             this.dynamicCache = dynamicCache;
@@ -226,7 +227,7 @@ namespace DecisionDiagrams
         /// </summary>
         /// <param name="variables">The variables.</param>
         /// <returns>The variable set.</returns>
-        public VariableSet<T> CreateVariableSet(Variable<T>[] variables)
+        public VariableSet<T> CreateVariableSet(params Variable<T>[] variables)
         {
             return new VariableSet<T>(this, variables);
         }
@@ -1375,6 +1376,9 @@ namespace DecisionDiagrams
                 return result.Result;
             }
 
+            // Console.WriteLine($"memory pool: {this.memoryPool.Length}");
+            // Console.WriteLine($"xidx: {xidx}");
+            // Console.WriteLine($"yidx: {yidx}");
             T lo = this.memoryPool[xidx];
             T hi = this.memoryPool[yidx];
 
@@ -1410,7 +1414,7 @@ namespace DecisionDiagrams
             }
 
             var xidx = x.GetPosition();
-            var arg = new OperationArg2(x, variables.AsIndex);
+            var arg = new OperationArg2(x, variables.Id.Index);
             var hash = arg.GetHashCode() & 0x7FFFFFFF;
 
             // Look for result in the cache
@@ -1700,22 +1704,27 @@ namespace DecisionDiagrams
         {
             PrintDebug($"[DD] Garbage collection: {this.index} / {this.memoryPool.Length}");
 
-            var initialNodeCount = this.index;
+            PrintDebug($"[DD] Garbage collection: unique table size before {this.uniqueTable.Count}");
+            PrintDebug($"[DD] Garbage collection: handle table size before {this.handleTable.Count}");
 
             // find all live external handles, mark those nodes
             this.handleTable.MarkAllLive();
 
             // recursively mark all nodes that are reachable
+            var numMarked = 0;
             for (int i = this.index - 1; i >= 1; i--)
             {
                 if (this.memoryPool[i].Mark)
                 {
+                    numMarked++;
                     var posl = this.memoryPool[i].Low.GetPosition();
                     var posh = this.memoryPool[i].High.GetPosition();
                     this.memoryPool[posl].Mark = true;
                     this.memoryPool[posh].Mark = true;
                 }
             }
+
+            PrintDebug($"[DD] Garbage collection: total live nodes {numMarked}");
 
             // compact all nodes by shifting left into unused spots.
             // preserves the order of node age, which is important.
@@ -1739,14 +1748,19 @@ namespace DecisionDiagrams
                 }
             }
 
+            PrintDebug($"[DD] Garbage collection: shifted {nextFree - 1} nodes");
+
             // rebuild the unique and handle tables now that indices are invalidated
             this.uniqueTable = this.uniqueTable.Rebuild(nextFree, forwardingAddresses);
             this.handleTable = this.handleTable.Rebuild(forwardingAddresses);
 
+            PrintDebug($"[DD] Garbage collection: unique table size now {this.uniqueTable.Count}");
+            PrintDebug($"[DD] Garbage collection: handle table size now {this.handleTable.Count}");
+
             // set the new free index
             this.index = nextFree;
 
-            var fractionRetained = this.index / (double)initialNodeCount;
+            var fractionRetained = this.index / (double)this.memoryPool.Length;
 
             PrintDebug($"[DD] Garbage collection finished: {100 * fractionRetained}% nodes remaining.");
 

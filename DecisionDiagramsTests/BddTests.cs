@@ -22,7 +22,6 @@ namespace DecisionDiagramTests
         public void Initialize()
         {
             this.Factory = new BDDNodeFactory();
-            this.Manager = new DDManager<BDDNode>(this.Factory, 16, gcMinCutoff: 4);
             this.BaseInitialize();
         }
 
@@ -32,8 +31,12 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestDisplay()
         {
-            var dd = this.Manager.Not(this.Manager.And(this.VarA, this.VarB));
-            Assert.AreEqual(this.Manager.Display(dd), "(1 ? (2 ? false : true) : true)");
+            var manager = this.GetManager();
+            var va = manager.CreateBool();
+            var vb = manager.CreateBool();
+
+            var dd = manager.Not(manager.And(va.Id(), vb.Id()));
+            Assert.AreEqual(manager.Display(dd), "(1 ? (2 ? false : true) : true)");
         }
     }
 }
