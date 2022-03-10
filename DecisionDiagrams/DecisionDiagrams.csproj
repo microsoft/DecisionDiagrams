@@ -15,7 +15,7 @@
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
     <PackageTags>binary decision diagrams diagram bdd bdds contraint solving verification</PackageTags>
     <PackageId>DecisionDiagrams</PackageId>
-    <Version>1.1.7</Version>
+    <Version>1.1.8</Version>
     <RepositoryUrl>https://github.com/microsoft/DecisionDiagrams</RepositoryUrl>
   </PropertyGroup>
 
@@ -37,10 +37,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|x64'">
     <CodeAnalysisRuleSet />
     <DefineConstants>DEBUG;TRACE</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
-    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
