@@ -56,6 +56,7 @@ namespace DecisionDiagramsBench
             {
                 for (int j = 0; j < this.boardSize; j++)
                 {
+                    // System.Console.WriteLine(GC.GetTotalMemory(true) / 1000 / 1000);
                     Console.WriteLine($"Adding position {i}, {j}");
                     Build(i, j);
                 }

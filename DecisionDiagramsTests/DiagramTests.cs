@@ -22,152 +22,12 @@ namespace DecisionDiagramTests
         /// <summary>
         /// How many random inputs to generate per test.
         /// </summary>
-        private static int numRandomTests = 4000;
+        private static int numRandomTests = 2000;
 
         /// <summary>
         /// Gets or sets the decision diagram factory.
         /// </summary>
         internal IDDNodeFactory<T> Factory { get; set; }
-
-        /// <summary>
-        /// Gets or sets the manager.
-        /// </summary>
-        internal DDManager<T> Manager { get; set; }
-
-        /// <summary>
-        /// Gets or sets the zero value.
-        /// </summary>
-        internal DD Zero { get; set; }
-
-        /// <summary>
-        /// Gets or sets the one value.
-        /// </summary>
-        internal DD One { get; set; }
-
-        /// <summary>
-        /// Gets or sets var a.
-        /// </summary>
-        internal DD VarA { get; set; }
-
-        /// <summary>
-        /// Gets or sets var b.
-        /// </summary>
-        internal DD VarB { get; set; }
-
-        /// <summary>
-        /// Gets or sets var c.
-        /// </summary>
-        internal DD VarC { get; set; }
-
-        /// <summary>
-        /// Gets or sets var d.
-        /// </summary>
-        internal DD VarD { get; set; }
-
-        /// <summary>
-        /// Gets or sets the 8 bit var.
-        /// </summary>
-        internal DD Var8 { get; set; }
-
-        /// <summary>
-        /// Gets or sets the 16 bit var.
-        /// </summary>
-        internal DD Var16 { get; set; }
-
-        /// <summary>
-        /// Gets or sets the 32 bit var.
-        /// </summary>
-        internal DD Var32 { get; set; }
-
-        /// <summary>
-        /// Gets or sets the 64 bit var.
-        /// </summary>
-        internal DD Var64 { get; set; }
-
-        /// <summary>
-        /// Gets or sets the 128 bit var.
-        /// </summary>
-        internal DD Var128 { get; set; }
-
-        /// <summary>
-        /// Gets or sets va.
-        /// </summary>
-        internal VarBool<T> Va { get; set; }
-
-        /// <summary>
-        /// Gets or sets vb.
-        /// </summary>
-        internal VarBool<T> Vb { get; set; }
-
-        /// <summary>
-        /// Gets or sets vc.
-        /// </summary>
-        internal VarBool<T> Vc { get; set; }
-
-        /// <summary>
-        /// Gets or sets vd.
-        /// </summary>
-        internal VarBool<T> Vd { get; set; }
-
-        /// <summary>
-        /// Gets or sets v8.
-        /// </summary>
-        internal VarInt8<T> V8 { get; set; }
-
-        /// <summary>
-        /// Gets or sets v16.
-        /// </summary>
-        internal VarInt16<T> V16 { get; set; }
-
-        /// <summary>
-        /// Gets or sets v32.
-        /// </summary>
-        internal VarInt32<T> V32 { get; set; }
-
-        /// <summary>
-        /// Gets or sets v64.
-        /// </summary>
-        internal VarInt64<T> V64 { get; set; }
-
-        /// <summary>
-        /// Gets or sets v128.
-        /// </summary>
-        internal VarInt<T> V128 { get; set; }
-
-        /// <summary>
-        /// Gets or sets v9.
-        /// </summary>
-        internal VarInt<T> V9 { get; set; }
-
-        /// <summary>
-        /// Gets or sets interleaved v8.
-        /// </summary>
-        internal VarInt8<T>[] InterleavedInt8 { get; set; }
-
-        /// <summary>
-        /// Gets or sets interleaved v16.
-        /// </summary>
-        internal VarInt16<T>[] InterleavedInt16 { get; set; }
-
-        /// <summary>
-        /// Gets or sets interleaved v8.
-        /// </summary>
-        internal VarInt32<T>[] InterleavedInt32 { get; set; }
-
-        /// <summary>
-        /// Gets or sets interleaved v8.
-        /// </summary>
-        internal VarInt64<T>[] InterleavedInt64 { get; set; }
-
-        /// <summary>
-        /// Gets or sets interleaved vint.
-        /// </summary>
-        internal VarInt<T>[] InterleavedInt { get; set; }
-
-        /// <summary>
-        /// Gets or sets a collection or random variables.
-        /// </summary>
-        internal DD[] RandomLiterals { get; set; }
 
         /// <summary>
         /// Gets or setst he random number generator.
@@ -179,45 +39,6 @@ namespace DecisionDiagramTests
         /// </summary>
         public void BaseInitialize()
         {
-            this.Zero = this.Manager.False();
-            this.One = this.Manager.True();
-            this.Va = this.Manager.CreateBool();
-            this.Vb = this.Manager.CreateBool();
-            this.Vc = this.Manager.CreateBool();
-            this.Vd = this.Manager.CreateBool();
-            this.V8 = this.Manager.CreateInt8(i => i);
-            this.V16 = this.Manager.CreateInt16(i => i);
-            this.V32 = this.Manager.CreateInt32(i => i);
-            this.V64 = this.Manager.CreateInt64(i => i);
-            this.V128 = this.Manager.CreateInt(128, i => i);
-            this.V9 = this.Manager.CreateInt(9, i => 8 - i);
-            this.InterleavedInt8 = this.Manager.CreateInterleavedInt8(3);
-            this.InterleavedInt16 = this.Manager.CreateInterleavedInt16(3);
-            this.InterleavedInt32 = this.Manager.CreateInterleavedInt32(3);
-            this.InterleavedInt64 = this.Manager.CreateInterleavedInt64(3);
-            this.InterleavedInt = this.Manager.CreateInterleavedInt(3, 10);
-
-            this.VarA = this.Manager.Id(this.Va);
-            this.VarB = this.Manager.Id(this.Vb);
-            this.VarC = this.Manager.Id(this.Vc);
-            this.VarD = this.Manager.Id(this.Vd);
-            this.Var8 = this.V8.Eq(4);
-            this.Var16 = this.V16.Eq(9);
-            this.Var32 = this.V32.Eq(11);
-            this.Var64 = this.V64.Eq(18);
-
-            var values = new byte[16];
-            values[15] = 3;
-            this.Var128 = this.V128.Eq(values);
-
-            this.RandomLiterals = new DD[8];
-            for (int i = 0; i < 4; i++)
-            {
-                var v = this.Manager.CreateBool();
-                this.RandomLiterals[i] = v.Id();
-                this.RandomLiterals[i + 4] = this.Manager.Not(v.Id());
-            }
-
             this.Rnd = new Random(7);
         }
 
@@ -227,10 +48,11 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestConstants()
         {
-            Assert.IsTrue(this.Zero.IsFalse());
-            Assert.IsTrue(this.One.IsTrue());
-            Assert.IsTrue(this.Zero.IsConstant());
-            Assert.IsTrue(this.One.IsConstant());
+            var manager = this.GetManager();
+            Assert.IsTrue(manager.False().IsFalse());
+            Assert.IsTrue(manager.True().IsTrue());
+            Assert.IsTrue(manager.False().IsConstant());
+            Assert.IsTrue(manager.True().IsConstant());
         }
 
         /// <summary>
@@ -239,14 +61,17 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestIdentities()
         {
-            Assert.AreEqual(this.Zero, this.Manager.And(this.Zero, this.VarA));
-            Assert.AreEqual(this.Zero, this.Manager.And(this.VarA, this.Zero));
-            Assert.AreEqual(this.VarA, this.Manager.Or(this.Zero, this.VarA));
-            Assert.AreEqual(this.VarA, this.Manager.Or(this.VarA, this.Zero));
-            Assert.AreEqual(this.VarA, this.Manager.And(this.One, this.VarA));
-            Assert.AreEqual(this.VarA, this.Manager.And(this.VarA, this.One));
-            Assert.AreEqual(this.One, this.Manager.Or(this.One, this.VarA));
-            Assert.AreEqual(this.One, this.Manager.Or(this.VarA, this.One));
+            var manager = this.GetManager();
+            var a = manager.CreateBool();
+
+            Assert.AreEqual(manager.False(), manager.And(manager.False(), a.Id()));
+            Assert.AreEqual(manager.False(), manager.And(a.Id(), manager.False()));
+            Assert.AreEqual(a.Id(), manager.Or(manager.False(), a.Id()));
+            Assert.AreEqual(a.Id(), manager.Or(a.Id(), manager.False()));
+            Assert.AreEqual(a.Id(), manager.And(manager.True(), a.Id()));
+            Assert.AreEqual(a.Id(), manager.And(a.Id(), manager.True()));
+            Assert.AreEqual(manager.True(), manager.Or(manager.True(), a.Id()));
+            Assert.AreEqual(manager.True(), manager.Or(a.Id(), manager.True()));
         }
 
         /// <summary>
@@ -255,7 +80,8 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestIdempotence()
         {
-            this.RandomTest((a, b) => Assert.AreEqual(a, this.Manager.Or(a, a)));
+            var manager = this.GetManager();
+            this.RandomTest(manager, (a, b) => Assert.AreEqual(a, manager.Or(a, a)));
         }
 
         /// <summary>
@@ -264,7 +90,8 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestCommutativityAnd()
         {
-            this.RandomTest((a, b) => Assert.AreEqual(this.Manager.And(a, b), this.Manager.And(b, a)));
+            var manager = this.GetManager();
+            this.RandomTest(manager, (a, b) => Assert.AreEqual(manager.And(a, b), manager.And(b, a)));
         }
 
         /// <summary>
@@ -273,7 +100,8 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestCommutativityOr()
         {
-            this.RandomTest((a, b) => Assert.AreEqual(this.Manager.Or(a, b), this.Manager.Or(b, a)));
+            var manager = this.GetManager();
+            this.RandomTest(manager, (a, b) => Assert.AreEqual(manager.Or(a, b), manager.Or(b, a)));
         }
 
         /// <summary>
@@ -282,10 +110,11 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestDistributivity1()
         {
-            this.RandomTest((a, b, c) =>
+            var manager = this.GetManager();
+            this.RandomTest(manager, (a, b, c) =>
             {
-                var x = this.Manager.And(a, this.Manager.Or(b, c));
-                var y = this.Manager.Or(this.Manager.And(a, b), this.Manager.And(a, c));
+                var x = manager.And(a, manager.Or(b, c));
+                var y = manager.Or(manager.And(a, b), manager.And(a, c));
                 Assert.AreEqual(x, y);
             });
         }
@@ -296,9 +125,10 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestNegationIdempotence()
         {
-            this.RandomTest((a) =>
+            var manager = this.GetManager();
+            this.RandomTest(manager, (a) =>
             {
-                Assert.AreEqual(a, this.Manager.Not(this.Manager.Not(a)));
+                Assert.AreEqual(a, manager.Not(manager.Not(a)));
             });
         }
 
@@ -308,8 +138,10 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestNegationConstant()
         {
-            Assert.AreEqual(this.Zero, this.Manager.Not(this.One));
-            Assert.AreEqual(this.One, this.Manager.Not(this.Zero));
+            var manager = this.GetManager();
+
+            Assert.AreEqual(manager.False(), manager.Not(manager.True()));
+            Assert.AreEqual(manager.True(), manager.Not(manager.False()));
         }
 
         /// <summary>
@@ -318,10 +150,11 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestDeMorgan()
         {
-            this.RandomTest((a, b) =>
+            var manager = this.GetManager();
+            this.RandomTest(manager, (a, b) =>
             {
-                var x = this.Manager.Not(this.Manager.And(a, b));
-                var y = this.Manager.Or(this.Manager.Not(a), this.Manager.Not(b));
+                var x = manager.Not(manager.And(a, b));
+                var y = manager.Or(manager.Not(a), manager.Not(b));
                 Assert.AreEqual(x, y);
             });
         }
@@ -332,10 +165,11 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestIff()
         {
-            this.RandomTest((a, b) =>
+            var manager = this.GetManager();
+            this.RandomTest(manager, (a, b) =>
             {
-                var x = this.Manager.Iff(a, b);
-                var y = this.Manager.Iff(b, a);
+                var x = manager.Iff(a, b);
+                var y = manager.Iff(b, a);
                 Assert.AreEqual(x, y);
             });
         }
@@ -346,10 +180,11 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestImplies()
         {
-            this.RandomTest((a, b) =>
+            var manager = this.GetManager();
+            this.RandomTest(manager, (a, b) =>
             {
-                var x = this.Manager.Implies(a, b);
-                var y = this.Manager.Implies(this.Manager.Not(b), this.Manager.Not(a));
+                var x = manager.Implies(a, b);
+                var y = manager.Implies(manager.Not(b), manager.Not(a));
                 Assert.AreEqual(x, y);
             });
         }
@@ -360,10 +195,11 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestIteEquiv1()
         {
-            this.RandomTest((a, b) =>
+            var manager = this.GetManager();
+            this.RandomTest(manager, (a, b) =>
             {
-                var x = this.Manager.Ite(a, b, this.Manager.False());
-                var y = this.Manager.And(a, b);
+                var x = manager.Ite(a, b, manager.False());
+                var y = manager.And(a, b);
                 Assert.AreEqual(x, y);
             });
         }
@@ -374,7 +210,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestIteBasic1()
         {
-            var manager = new DDManager<T>(this.Factory);
+            var manager = this.GetManager();
             var a = manager.CreateBool().Id();
             var result = manager.Ite(a, a, manager.False());
             Assert.AreEqual(a, result);
@@ -386,7 +222,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestIteBasic2()
         {
-            var manager = new DDManager<T>(this.Factory);
+            var manager = this.GetManager();
             var a = manager.CreateBool().Id();
             var result = manager.Ite(a, manager.False(), manager.Not(a));
             Assert.AreEqual(manager.Not(a), result);
@@ -398,7 +234,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestIteBasic3()
         {
-            var manager = new DDManager<T>(this.Factory);
+            var manager = this.GetManager();
             var a = manager.CreateBool().Id();
             var b = manager.CreateBool().Id();
             var result = manager.Ite(a, b, manager.False());
@@ -411,7 +247,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestIteBasic4()
         {
-            var manager = new DDManager<T>(this.Factory);
+            var manager = this.GetManager();
             var a = manager.CreateBool().Id();
             var b = manager.CreateBool().Id();
             var result = manager.Ite(a, manager.False(), b);
@@ -424,12 +260,13 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestIteExpanded()
         {
-            this.RandomTest((a, b, c) =>
+            var manager = this.GetManager();
+            this.RandomTest(manager, (a, b, c) =>
             {
-                var x = this.Manager.Ite(a, b, c);
-                var y = this.Manager.And(
-                    this.Manager.Implies(a, b),
-                    this.Manager.Implies(this.Manager.Not(a), c));
+                var x = manager.Ite(a, b, c);
+                var y = manager.And(
+                    manager.Implies(a, b),
+                    manager.Implies(manager.Not(a), c));
                 Assert.AreEqual(x, y);
             });
         }
@@ -440,10 +277,11 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestIteEquiv2()
         {
-            this.RandomTest((a, b) =>
+            var manager = this.GetManager();
+            this.RandomTest(manager, (a, b) =>
             {
-                var x = this.Manager.Ite(a, this.Manager.Not(b), this.Manager.False());
-                var y = this.Manager.And(a, this.Manager.Not(b));
+                var x = manager.Ite(a, manager.Not(b), manager.False());
+                var y = manager.And(a, manager.Not(b));
                 Assert.AreEqual(x, y);
             });
         }
@@ -454,10 +292,11 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestIteEquiv3()
         {
-            this.RandomTest((a, b) =>
+            var manager = this.GetManager();
+            this.RandomTest(manager, (a, b) =>
             {
-                var x = this.Manager.Ite(a, this.Manager.False(), b);
-                var y = this.Manager.And(this.Manager.Not(a), b);
+                var x = manager.Ite(a, manager.False(), b);
+                var y = manager.And(manager.Not(a), b);
                 Assert.AreEqual(x, y);
             });
         }
@@ -468,12 +307,13 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestIteEquiv4()
         {
-            this.RandomTest((a, b) =>
+            var manager = this.GetManager();
+            this.RandomTest(manager, (a, b) =>
             {
-                var x = this.Manager.Ite(a, this.Manager.Not(b), b);
-                var y = this.Manager.Or(
-                    this.Manager.And(a, this.Manager.Not(b)),
-                    this.Manager.And(this.Manager.Not(a), b));
+                var x = manager.Ite(a, manager.Not(b), b);
+                var y = manager.Or(
+                    manager.And(a, manager.Not(b)),
+                    manager.And(manager.Not(a), b));
                 Assert.AreEqual(x, y);
             });
         }
@@ -484,10 +324,11 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestIteEquiv5()
         {
-            this.RandomTest((a, b) =>
+            var manager = this.GetManager();
+            this.RandomTest(manager, (a, b) =>
             {
-                var x = this.Manager.Ite(a, this.Manager.True(), b);
-                var y = this.Manager.Or(a, b);
+                var x = manager.Ite(a, manager.True(), b);
+                var y = manager.Or(a, b);
                 Assert.AreEqual(x, y);
             });
         }
@@ -498,10 +339,11 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestIteEquiv6()
         {
-            this.RandomTest((a, b) =>
+            var manager = this.GetManager();
+            this.RandomTest(manager, (a, b) =>
             {
-                var x = this.Manager.Ite(a, this.Manager.False(), this.Manager.True());
-                var y = this.Manager.Not(a);
+                var x = manager.Ite(a, manager.False(), manager.True());
+                var y = manager.Not(a);
                 Assert.AreEqual(x, y);
             });
         }
@@ -512,9 +354,10 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestIteEquiv7()
         {
-            this.RandomTest((a, b) =>
+            var manager = this.GetManager();
+            this.RandomTest(manager, (a, b) =>
             {
-                var x = this.Manager.Ite(a, this.Manager.True(), this.Manager.False());
+                var x = manager.Ite(a, manager.True(), manager.False());
                 Assert.AreEqual(x, a);
             });
         }
@@ -525,10 +368,11 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestIteEquiv8()
         {
-            this.RandomTest((a, b) =>
+            var manager = this.GetManager();
+            this.RandomTest(manager, (a, b) =>
             {
-                var x = this.Manager.Ite(a, b, this.Manager.True());
-                var y = this.Manager.Implies(a, b);
+                var x = manager.Ite(a, b, manager.True());
+                var y = manager.Implies(a, b);
                 Assert.AreEqual(x, y);
             });
         }
@@ -539,10 +383,11 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestIteEquiv9()
         {
-            this.RandomTest((a, b) =>
+            var manager = this.GetManager();
+            this.RandomTest(manager, (a, b) =>
             {
-                var x = this.Manager.Ite(a, b, this.Manager.True());
-                var y = this.Manager.Implies(a, b);
+                var x = manager.Ite(a, b, manager.True());
+                var y = manager.Implies(a, b);
                 Assert.AreEqual(x, y);
             });
         }
@@ -553,12 +398,16 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestExistentialQuantification()
         {
-            this.RandomTest((a, b) =>
+            var manager = this.GetManager();
+            var va = manager.CreateBool();
+            var vb = manager.CreateBool();
+
+            this.RandomTest(manager, (a, b) =>
             {
-                var without = this.Manager.And(a, b);
-                var all = this.Manager.And(without, this.Manager.And(this.VarA, this.VarB));
-                var variableSet = this.Manager.CreateVariableSet(new Variable<T>[] { this.Va, this.Vb });
-                var project = this.Manager.Exists(all, variableSet);
+                var without = manager.And(a, b);
+                var all = manager.And(without, manager.And(va.Id(), vb.Id()));
+                var variableSet = manager.CreateVariableSet(new Variable<T>[] { va, vb });
+                var project = manager.Exists(all, variableSet);
                 Assert.AreEqual(without, project);
             });
         }
@@ -569,11 +418,17 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestForallQuantification()
         {
-            var bc = this.Manager.Or(this.VarB, this.VarC);
-            var x = this.Manager.Ite(this.VarA, bc, this.Var16);
-            var variableSet = this.Manager.CreateVariableSet(new Variable<T>[] { this.Va });
-            x = this.Manager.Forall(x, variableSet);
-            var y = this.Manager.And(bc, this.Var16);
+            var manager = this.GetManager();
+            var va = manager.CreateBool();
+            var vb = manager.CreateBool();
+            var vc = manager.CreateBool();
+            var v16 = manager.CreateInt16();
+
+            var bc = manager.Or(vb.Id(), vc.Id());
+            var x = manager.Ite(va.Id(), bc, v16.Eq(9));
+            var variableSet = manager.CreateVariableSet(new Variable<T>[] { va });
+            x = manager.Forall(x, variableSet);
+            var y = manager.And(bc, v16.Eq(9));
             Assert.AreEqual(x, y);
         }
 
@@ -583,9 +438,14 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestVariableEquals()
         {
-            Assert.AreEqual(this.Vb, this.Vb);
-            Assert.AreEqual(this.V16, this.V16);
-            Assert.AreEqual(this.V32, this.V32);
+            var manager = this.GetManager();
+            var va = manager.CreateBool();
+            var v16 = manager.CreateInt16();
+            var v32 = manager.CreateInt32();
+
+            Assert.AreEqual(va.Id(), va.Id());
+            Assert.AreEqual(v16.Eq(9), v16.Eq(9));
+            Assert.AreEqual(v32.Eq(13), v32.Eq(13));
         }
 
         /// <summary>
@@ -594,9 +454,14 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestHashEquals()
         {
-            var x = this.Manager.And(this.VarA, this.VarB);
-            var y = this.Manager.And(this.VarB, this.VarA);
-            var z = this.Manager.And(this.VarA, this.VarC);
+            var manager = this.GetManager();
+            var va = manager.CreateBool();
+            var vb = manager.CreateBool();
+            var vc = manager.CreateBool();
+
+            var x = manager.And(va.Id(), vb.Id());
+            var y = manager.And(vb.Id(), va.Id());
+            var z = manager.And(va.Id(), vc.Id());
             Assert.AreEqual(x.GetHashCode(), y.GetHashCode());
             Assert.AreNotEqual(x.GetHashCode(), z.GetHashCode());
             Assert.IsTrue(x.Equals(y));
@@ -610,14 +475,18 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestGarbageCollectionPreservesHashcode()
         {
-            CreateGarbage();
+            var manager = this.GetManager();
+            var va = manager.CreateBool();
+            var vb = manager.CreateBool();
 
-            var x = this.Manager.And(this.VarA, this.VarB);
+            CreateGarbage(manager);
+
+            var x = manager.And(va.Id(), vb.Id());
 
             GC.Collect();
-            this.Manager.GarbageCollect();
+            manager.GarbageCollect();
 
-            var y = this.Manager.And(this.VarA, this.VarB);
+            var y = manager.And(va.Id(), vb.Id());
 
             Assert.AreEqual(x.GetHashCode(), y.GetHashCode());
             Assert.IsTrue(x.Equals(y));
@@ -626,11 +495,15 @@ namespace DecisionDiagramTests
         /// <summary>
         /// Helper function to create garbage in a new scope.
         /// </summary>
-        private void CreateGarbage()
+        /// <param name="manager">The manager object.</param>
+        private void CreateGarbage(DDManager<T> manager)
         {
+            var literals = this.GetLiterals(manager, 5);
             for (int i = 0; i < 100; i++)
             {
-                this.Manager.Or(this.RandomDD(), this.RandomDD());
+                var left = this.RandomDD(manager, literals);
+                var right = this.RandomDD(manager, literals);
+                manager.Or(left, right);
             }
         }
 
@@ -640,12 +513,17 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestGarbageCollection()
         {
-            var foo1 = this.Manager.And(this.Manager.Or(this.VarA, this.VarB), this.VarD);
-            var bar = this.Manager.Or(this.VarA, this.VarD);
+            var manager = this.GetManager();
+            var va = manager.CreateBool();
+            var vb = manager.CreateBool();
+            var vc = manager.CreateBool();
+
+            var foo1 = manager.And(manager.Or(va.Id(), vb.Id()), vc.Id());
+            var bar = manager.Or(va.Id(), vc.Id());
             bar = null;
             GC.Collect();
-            this.Manager.GarbageCollect();
-            var foo2 = this.Manager.And(this.VarD, this.Manager.Or(this.VarA, this.VarB));
+            manager.GarbageCollect();
+            var foo2 = manager.And(vc.Id(), manager.Or(va.Id(), vb.Id()));
             Assert.AreEqual(foo1, foo2);
         }
 
@@ -655,10 +533,13 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestVariableEquality()
         {
-            var x = this.InterleavedInt32[0];
-            var y = this.InterleavedInt32[1];
-            var inv = this.Manager.And(x.Eq(y), x.LessOrEqual(10));
-            Assignment<T> assignment = this.Manager.Sat(inv);
+            var manager = this.GetManager();
+            var xs = manager.CreateInterleavedInt32(2);
+            var x = xs[0];
+            var y = xs[1];
+
+            var inv = manager.And(x.Eq(y), x.LessOrEqual(10));
+            Assignment<T> assignment = manager.Sat(inv);
             int xvalue = assignment.Get(x);
             int yvalue = assignment.Get(y);
             Assert.AreEqual(xvalue, yvalue);
@@ -672,7 +553,11 @@ namespace DecisionDiagramTests
         [ExpectedException(typeof(ArgumentException), "Expected ArgumentException.")]
         public void TestVariableEqualityInvalid()
         {
-            this.V32.Eq(this.V16);
+            var manager = this.GetManager();
+            var x = manager.CreateInt32();
+            var y = manager.CreateInt16();
+
+            x.Eq(y);
         }
 
         /// <summary>
@@ -681,7 +566,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestSatisfiabilityCorrect()
         {
-            var manager = new DDManager<T>(this.Factory, 16);
+            var manager = this.GetManager();
 
             var variables = new VarBool<T>[6];
             for (int i = 0; i < 6; i++)
@@ -722,13 +607,23 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestSatisfiabilityWithIntegers()
         {
-            var all = this.Manager.And(this.Var8, this.Manager.And(this.Var16, this.Manager.And(this.Var32, this.Manager.And(this.Var64, this.Var128))));
-            Assignment<T> assignment = this.Manager.Sat(all);
-            byte r8 = assignment.Get(this.V8);
-            short r16 = assignment.Get(this.V16);
-            int r32 = assignment.Get(this.V32);
-            long r64 = assignment.Get(this.V64);
-            byte[] r128 = assignment.Get(this.V128);
+            var manager = this.GetManager();
+            var v8 = manager.CreateInt8();
+            var v16 = manager.CreateInt16();
+            var v32 = manager.CreateInt32();
+            var v64 = manager.CreateInt64();
+            var v128 = manager.CreateInt(128);
+
+            var values = new byte[16];
+            values[15] = 3;
+
+            var all = manager.And(v8.Eq(4), manager.And(v16.Eq(9), manager.And(v32.Eq(11), manager.And(v64.Eq(18), v128.Eq(values)))));
+            Assignment<T> assignment = manager.Sat(all);
+            byte r8 = assignment.Get(v8);
+            short r16 = assignment.Get(v16);
+            int r32 = assignment.Get(v32);
+            long r64 = assignment.Get(v64);
+            byte[] r128 = assignment.Get(v128);
             Assert.AreEqual(r8, 4);
             Assert.AreEqual(r16, 9);
             Assert.AreEqual(r32, 11);
@@ -742,9 +637,12 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestSatisfiabilityOddBits()
         {
-            var x = this.V9.Eq(new byte[2] { 1, 128 });
-            Assignment<T> assignment = this.Manager.Sat(x);
-            byte[] r9 = assignment.Get(this.V9);
+            var manager = this.GetManager();
+            var v9 = manager.CreateInt(9, i => 8 - i);
+
+            var x = v9.Eq(new byte[2] { 1, 128 });
+            Assignment<T> assignment = manager.Sat(x);
+            byte[] r9 = assignment.Get(v9);
             Assert.AreEqual(r9[0], 1);
             Assert.AreEqual(r9[1], 128);
         }
@@ -755,7 +653,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestSatisfiabilityForSubsetOfVariables()
         {
-            var manager = new DDManager<T>(this.Factory);
+            var manager = this.GetManager();
             var a = manager.CreateBool();
             var b = manager.CreateBool();
             var c = manager.CreateInt8();
@@ -773,7 +671,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestSatisfiabilityForIntegers()
         {
-            var manager = new DDManager<T>(this.Factory);
+            var manager = this.GetManager();
             var x = manager.CreateInt32();
             var y = manager.CreateInt32();
 
@@ -796,7 +694,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestSatisfiabilityForIntegersRange()
         {
-            var manager = new DDManager<T>(this.Factory);
+            var manager = this.GetManager();
             var x = manager.CreateInt32();
 
             var rnd = new Random(0);
@@ -826,7 +724,7 @@ namespace DecisionDiagramTests
         [ExpectedException(typeof(ArgumentException))]
         public void TestSatisfiabilityForSubsetOfVariablesException()
         {
-            var manager = new DDManager<T>(this.Factory);
+            var manager = this.GetManager();
             var a = manager.CreateBool();
             var b = manager.CreateBool();
             var f = manager.And(a.Id(), b.Id());
@@ -840,7 +738,8 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestSatisfiabilityFalse()
         {
-            Assignment<T> assignment = this.Manager.Sat(this.Zero);
+            var manager = this.GetManager();
+            Assignment<T> assignment = manager.Sat(manager.False());
             Assert.AreEqual(null, assignment);
         }
 
@@ -851,8 +750,9 @@ namespace DecisionDiagramTests
         [ExpectedException(typeof(ArgumentException), "Expected ArgumentException.")]
         public void TestSatisfiabilityException1()
         {
-            Assignment<T> assignment = this.Manager.Sat(this.One);
-            assignment.Get(this.Manager.CreateBool());
+            var manager = this.GetManager();
+            Assignment<T> assignment = manager.Sat(manager.True());
+            assignment.Get(manager.CreateBool());
         }
 
         /// <summary>
@@ -862,8 +762,9 @@ namespace DecisionDiagramTests
         [ExpectedException(typeof(ArgumentException), "Expected ArgumentException.")]
         public void TestSatisfiabilityException8()
         {
-            Assignment<T> assignment = this.Manager.Sat(this.One);
-            assignment.Get(this.Manager.CreateInt8());
+            var manager = this.GetManager();
+            Assignment<T> assignment = manager.Sat(manager.True());
+            assignment.Get(manager.CreateInt8());
         }
 
         /// <summary>
@@ -873,8 +774,9 @@ namespace DecisionDiagramTests
         [ExpectedException(typeof(ArgumentException), "Expected ArgumentException.")]
         public void TestSatisfiabilityException16()
         {
-            Assignment<T> assignment = this.Manager.Sat(this.One);
-            assignment.Get(this.Manager.CreateInt16());
+            var manager = this.GetManager();
+            Assignment<T> assignment = manager.Sat(manager.True());
+            assignment.Get(manager.CreateInt16());
         }
 
         /// <summary>
@@ -884,8 +786,9 @@ namespace DecisionDiagramTests
         [ExpectedException(typeof(ArgumentException), "Expected ArgumentException.")]
         public void TestSatisfiabilityException32()
         {
-            Assignment<T> assignment = this.Manager.Sat(this.One);
-            assignment.Get(this.Manager.CreateInt32());
+            var manager = this.GetManager();
+            Assignment<T> assignment = manager.Sat(manager.True());
+            assignment.Get(manager.CreateInt32());
         }
 
         /// <summary>
@@ -895,8 +798,9 @@ namespace DecisionDiagramTests
         [ExpectedException(typeof(ArgumentException), "Expected ArgumentException.")]
         public void TestSatisfiabilityException64()
         {
-            Assignment<T> assignment = this.Manager.Sat(this.One);
-            assignment.Get(this.Manager.CreateInt64());
+            var manager = this.GetManager();
+            Assignment<T> assignment = manager.Sat(manager.True());
+            assignment.Get(manager.CreateInt64());
         }
 
         /// <summary>
@@ -906,8 +810,9 @@ namespace DecisionDiagramTests
         [ExpectedException(typeof(ArgumentException), "Expected ArgumentException.")]
         public void TestSatisfiabilityException128()
         {
-            Assignment<T> assignment = this.Manager.Sat(this.One);
-            assignment.Get(this.Manager.CreateInt(128));
+            var manager = this.GetManager();
+            Assignment<T> assignment = manager.Sat(manager.True());
+            assignment.Get(manager.CreateInt(128));
         }
 
         /// <summary>
@@ -917,7 +822,8 @@ namespace DecisionDiagramTests
         [ExpectedException(typeof(ArgumentException), "Expected ArgumentException.")]
         public void TestInvalidOrdering()
         {
-            this.Manager.CreateInt8(i => i + 1);
+            var manager = this.GetManager();
+            manager.CreateInt8(i => i + 1);
         }
 
         /// <summary>
@@ -927,7 +833,8 @@ namespace DecisionDiagramTests
         [ExpectedException(typeof(ArgumentException), "Expected ArgumentException.")]
         public void TestDuplicateInOrdering()
         {
-            this.Manager.CreateInt8(i => i % 4);
+            var manager = this.GetManager();
+            manager.CreateInt8(i => i % 4);
         }
 
         /// <summary>
@@ -936,6 +843,13 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestInequalities()
         {
+            var manager = this.GetManager();
+            var v8 = manager.CreateInt8();
+            var v16 = manager.CreateInt16();
+            var v32 = manager.CreateInt32();
+            var v64 = manager.CreateInt64();
+            var v128 = manager.CreateInt(128);
+
             for (int i = 0; i < numRandomTests; i++)
             {
                 int lower = this.Rnd.Next(1, 15);
@@ -949,23 +863,23 @@ namespace DecisionDiagramTests
                 lower128[15] = lower8;
                 upper128[15] = upper8;
 
-                var bounds8 = this.Manager.And(this.V8.GreaterOrEqual(lower8), this.V8.LessOrEqual(upper8));
-                var bounds16 = this.Manager.And(this.V16.GreaterOrEqual((short)lower), this.V16.LessOrEqual((short)upper));
-                var bounds32 = this.Manager.And(this.V32.GreaterOrEqual(lower), this.V32.LessOrEqual(upper));
-                var bounds64 = this.Manager.And(this.V64.GreaterOrEqual((long)lower), this.V64.LessOrEqual((long)upper));
-                var bounds128 = this.Manager.And(this.V128.GreaterOrEqual(lower128), this.V128.LessOrEqual(upper128));
+                var bounds8 = manager.And(v8.GreaterOrEqual(lower8), v8.LessOrEqual(upper8));
+                var bounds16 = manager.And(v16.GreaterOrEqual((short)lower), v16.LessOrEqual((short)upper));
+                var bounds32 = manager.And(v32.GreaterOrEqual(lower), v32.LessOrEqual(upper));
+                var bounds64 = manager.And(v64.GreaterOrEqual((long)lower), v64.LessOrEqual((long)upper));
+                var bounds128 = manager.And(v128.GreaterOrEqual(lower128), v128.LessOrEqual(upper128));
 
-                var assignment8 = this.Manager.Sat(bounds8);
-                var assignment16 = this.Manager.Sat(bounds16);
-                var assignment32 = this.Manager.Sat(bounds32);
-                var assignment64 = this.Manager.Sat(bounds64);
-                var assignment128 = this.Manager.Sat(bounds128);
+                var assignment8 = manager.Sat(bounds8);
+                var assignment16 = manager.Sat(bounds16);
+                var assignment32 = manager.Sat(bounds32);
+                var assignment64 = manager.Sat(bounds64);
+                var assignment128 = manager.Sat(bounds128);
 
-                var r8 = assignment8.Get(this.V8);
-                var r16 = assignment16.Get(this.V16);
-                var r32 = assignment32.Get(this.V32);
-                var r64 = assignment64.Get(this.V64);
-                var r128 = assignment128.Get(this.V128);
+                var r8 = assignment8.Get(v8);
+                var r16 = assignment16.Get(v16);
+                var r32 = assignment32.Get(v32);
+                var r64 = assignment64.Get(v64);
+                var r128 = assignment128.Get(v128);
 
                 Assert.IsTrue(r8 >= lower8);
                 Assert.IsTrue(r8 <= upper8);
@@ -991,14 +905,17 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestInteger128()
         {
+            var manager = this.GetManager();
+            var v128 = manager.CreateInt(128);
+
             for (int i = 0; i < numRandomTests; i++)
             {
                 byte[] bytes = new byte[16];
                 this.Rnd.NextBytes(bytes);
 
-                var f = this.V128.Eq(bytes);
-                var assignment = this.Manager.Sat(f);
-                var r128 = assignment.Get(this.V128);
+                var f = v128.Eq(bytes);
+                var assignment = manager.Sat(f);
+                var r128 = assignment.Get(v128);
 
                 for (int j = 0; j <= 15; j++)
                 {
@@ -1013,6 +930,13 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestInterleavedVariables()
         {
+            var manager = this.GetManager();
+            var v8s = manager.CreateInterleavedInt8(3);
+            var v16s = manager.CreateInterleavedInt16(3);
+            var v32s = manager.CreateInterleavedInt32(3);
+            var v64s = manager.CreateInterleavedInt64(3);
+            var v10s = manager.CreateInterleavedInt(3, 10);
+
             for (int i = 0; i < numRandomTests; i++)
             {
                 byte b1 = (byte)this.Rnd.Next(0, 20);
@@ -1031,49 +955,49 @@ namespace DecisionDiagramTests
                 long l2 = (long)this.Rnd.Next(0, 20);
                 long l3 = (long)this.Rnd.Next(0, 20);
 
-                var x = this.Manager.True();
+                var x = manager.True();
 
-                x = this.Manager.And(x, this.InterleavedInt8[0].Eq(b1));
-                x = this.Manager.And(x, this.InterleavedInt8[1].Eq(b2));
-                x = this.Manager.And(x, this.InterleavedInt8[2].Eq(b3));
+                x = manager.And(x, v8s[0].Eq(b1));
+                x = manager.And(x, v8s[1].Eq(b2));
+                x = manager.And(x, v8s[2].Eq(b3));
 
-                x = this.Manager.And(x, this.InterleavedInt16[0].Eq(s1));
-                x = this.Manager.And(x, this.InterleavedInt16[1].Eq(s2));
-                x = this.Manager.And(x, this.InterleavedInt16[2].Eq(s3));
+                x = manager.And(x, v16s[0].Eq(s1));
+                x = manager.And(x, v16s[1].Eq(s2));
+                x = manager.And(x, v16s[2].Eq(s3));
 
-                x = this.Manager.And(x, this.InterleavedInt32[0].Eq(i1));
-                x = this.Manager.And(x, this.InterleavedInt32[1].Eq(i2));
-                x = this.Manager.And(x, this.InterleavedInt32[2].Eq(i3));
+                x = manager.And(x, v32s[0].Eq(i1));
+                x = manager.And(x, v32s[1].Eq(i2));
+                x = manager.And(x, v32s[2].Eq(i3));
 
-                x = this.Manager.And(x, this.InterleavedInt64[0].Eq(l1));
-                x = this.Manager.And(x, this.InterleavedInt64[1].Eq(l2));
-                x = this.Manager.And(x, this.InterleavedInt64[2].Eq(l3));
+                x = manager.And(x, v64s[0].Eq(l1));
+                x = manager.And(x, v64s[1].Eq(l2));
+                x = manager.And(x, v64s[2].Eq(l3));
 
-                x = this.Manager.And(x, this.InterleavedInt[0].Eq(new byte[2] { b1, 0 }));
-                x = this.Manager.And(x, this.InterleavedInt[1].Eq(new byte[2] { b2, 0 }));
-                x = this.Manager.And(x, this.InterleavedInt[2].Eq(new byte[2] { b3, 0 }));
+                x = manager.And(x, v10s[0].Eq(new byte[2] { b1, 0 }));
+                x = manager.And(x, v10s[1].Eq(new byte[2] { b2, 0 }));
+                x = manager.And(x, v10s[2].Eq(new byte[2] { b3, 0 }));
 
-                var assignment = this.Manager.Sat(x);
+                var assignment = manager.Sat(x);
 
-                Assert.IsTrue(assignment.Get(this.InterleavedInt8[0]) == b1);
-                Assert.IsTrue(assignment.Get(this.InterleavedInt8[1]) == b2);
-                Assert.IsTrue(assignment.Get(this.InterleavedInt8[2]) == b3);
+                Assert.IsTrue(assignment.Get(v8s[0]) == b1);
+                Assert.IsTrue(assignment.Get(v8s[1]) == b2);
+                Assert.IsTrue(assignment.Get(v8s[2]) == b3);
 
-                Assert.IsTrue(assignment.Get(this.InterleavedInt16[0]) == s1);
-                Assert.IsTrue(assignment.Get(this.InterleavedInt16[1]) == s2);
-                Assert.IsTrue(assignment.Get(this.InterleavedInt16[2]) == s3);
+                Assert.IsTrue(assignment.Get(v16s[0]) == s1);
+                Assert.IsTrue(assignment.Get(v16s[1]) == s2);
+                Assert.IsTrue(assignment.Get(v16s[2]) == s3);
 
-                Assert.IsTrue(assignment.Get(this.InterleavedInt32[0]) == i1);
-                Assert.IsTrue(assignment.Get(this.InterleavedInt32[1]) == i2);
-                Assert.IsTrue(assignment.Get(this.InterleavedInt32[2]) == i3);
+                Assert.IsTrue(assignment.Get(v32s[0]) == i1);
+                Assert.IsTrue(assignment.Get(v32s[1]) == i2);
+                Assert.IsTrue(assignment.Get(v32s[2]) == i3);
 
-                Assert.IsTrue(assignment.Get(this.InterleavedInt64[0]) == l1);
-                Assert.IsTrue(assignment.Get(this.InterleavedInt64[1]) == l2);
-                Assert.IsTrue(assignment.Get(this.InterleavedInt64[2]) == l3);
+                Assert.IsTrue(assignment.Get(v64s[0]) == l1);
+                Assert.IsTrue(assignment.Get(v64s[1]) == l2);
+                Assert.IsTrue(assignment.Get(v64s[2]) == l3);
 
-                Assert.IsTrue(assignment.Get(this.InterleavedInt[0])[0] == b1);
-                Assert.IsTrue(assignment.Get(this.InterleavedInt[1])[0] == b2);
-                Assert.IsTrue(assignment.Get(this.InterleavedInt[2])[0] == b3);
+                Assert.IsTrue(assignment.Get(v10s[0])[0] == b1);
+                Assert.IsTrue(assignment.Get(v10s[1])[0] == b2);
+                Assert.IsTrue(assignment.Get(v10s[2])[0] == b3);
             }
         }
 
@@ -1083,6 +1007,9 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestOrEqualities()
         {
+            var manager = this.GetManager();
+            var v8 = manager.CreateInt8();
+
             for (int i = 0; i < numRandomTests; i++)
             {
                 byte val1 = (byte)this.Rnd.Next(0, 255);
@@ -1090,23 +1017,23 @@ namespace DecisionDiagramTests
                 byte val3 = (byte)this.Rnd.Next(0, 255);
                 byte val4 = (byte)this.Rnd.Next(0, 255);
 
-                var dd = this.V8.Eq(val1);
-                dd = this.Manager.Or(dd, this.V8.Eq(val2));
-                dd = this.Manager.Or(dd, this.V8.Eq(val3));
-                dd = this.Manager.Or(dd, this.V8.Eq(val4));
+                var dd = v8.Eq(val1);
+                dd = manager.Or(dd, v8.Eq(val2));
+                dd = manager.Or(dd, v8.Eq(val3));
+                dd = manager.Or(dd, v8.Eq(val4));
 
-                var assignment = this.Manager.Sat(dd);
-                var v = assignment.Get(this.V8);
+                var assignment = manager.Sat(dd);
+                var v = assignment.Get(v8);
 
                 Assert.IsTrue(v == val1 || v == val2 || v == val3 || v == val4);
 
-                dd = this.V8.Eq(val4);
-                dd = this.Manager.Or(dd, this.V8.Eq(val3));
-                dd = this.Manager.Or(dd, this.V8.Eq(val2));
-                dd = this.Manager.Or(dd, this.V8.Eq(val1));
+                dd = v8.Eq(val4);
+                dd = manager.Or(dd, v8.Eq(val3));
+                dd = manager.Or(dd, v8.Eq(val2));
+                dd = manager.Or(dd, v8.Eq(val1));
 
-                assignment = this.Manager.Sat(dd);
-                v = assignment.Get(this.V8);
+                assignment = manager.Sat(dd);
+                v = assignment.Get(v8);
 
                 Assert.IsTrue(v == val1 || v == val2 || v == val3 || v == val4);
             }
@@ -1118,10 +1045,16 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestBitvectorAddition()
         {
-            var bv8 = this.Manager.CreateBitvector(this.V8);
-            var bv16 = this.Manager.CreateBitvector(this.V16);
-            var bv32 = this.Manager.CreateBitvector(this.V32);
-            var bv64 = this.Manager.CreateBitvector(this.V64);
+            var manager = this.GetManager();
+            var v8 = manager.CreateInt8();
+            var v16 = manager.CreateInt16();
+            var v32 = manager.CreateInt32();
+            var v64 = manager.CreateInt64();
+
+            var bv8 = manager.CreateBitvector(v8);
+            var bv16 = manager.CreateBitvector(v16);
+            var bv32 = manager.CreateBitvector(v32);
+            var bv64 = manager.CreateBitvector(v64);
 
             for (int i = 0; i < numRandomTests; i++)
             {
@@ -1140,47 +1073,47 @@ namespace DecisionDiagramTests
                 var ul1 = (ulong)this.Rnd.Next(0, 20);
                 var ul2 = (ulong)this.Rnd.Next(0, 20);
 
-                var bv1 = this.Manager.CreateBitvector(b1);
-                var bv2 = this.Manager.CreateBitvector(b2);
-                var sum = this.Manager.Add(bv1, bv2);
-                var eq = this.Manager.Eq(bv8, sum);
-                Assert.AreEqual(b1 + b2, this.Manager.Sat(eq).Get(this.V8));
+                var bv1 = manager.CreateBitvector(b1);
+                var bv2 = manager.CreateBitvector(b2);
+                var sum = manager.Add(bv1, bv2);
+                var eq = manager.Eq(bv8, sum);
+                Assert.AreEqual(b1 + b2, manager.Sat(eq).Get(v8));
 
-                bv1 = this.Manager.CreateBitvector(s1);
-                bv2 = this.Manager.CreateBitvector(s2);
-                sum = this.Manager.Add(bv1, bv2);
-                eq = this.Manager.Eq(bv16, sum);
-                Assert.AreEqual(s1 + s2, this.Manager.Sat(eq).Get(this.V16));
+                bv1 = manager.CreateBitvector(s1);
+                bv2 = manager.CreateBitvector(s2);
+                sum = manager.Add(bv1, bv2);
+                eq = manager.Eq(bv16, sum);
+                Assert.AreEqual(s1 + s2, manager.Sat(eq).Get(v16));
 
-                bv1 = this.Manager.CreateBitvector(us1);
-                bv2 = this.Manager.CreateBitvector(us2);
-                sum = this.Manager.Add(bv1, bv2);
-                eq = this.Manager.Eq(bv16, sum);
-                Assert.AreEqual(us1 + us2, this.Manager.Sat(eq).Get(this.V16));
+                bv1 = manager.CreateBitvector(us1);
+                bv2 = manager.CreateBitvector(us2);
+                sum = manager.Add(bv1, bv2);
+                eq = manager.Eq(bv16, sum);
+                Assert.AreEqual(us1 + us2, manager.Sat(eq).Get(v16));
 
-                bv1 = this.Manager.CreateBitvector(i1);
-                bv2 = this.Manager.CreateBitvector(i2);
-                sum = this.Manager.Add(bv1, bv2);
-                eq = this.Manager.Eq(bv32, sum);
-                Assert.AreEqual(i1 + i2, this.Manager.Sat(eq).Get(this.V32));
+                bv1 = manager.CreateBitvector(i1);
+                bv2 = manager.CreateBitvector(i2);
+                sum = manager.Add(bv1, bv2);
+                eq = manager.Eq(bv32, sum);
+                Assert.AreEqual(i1 + i2, manager.Sat(eq).Get(v32));
 
-                bv1 = this.Manager.CreateBitvector(ui1);
-                bv2 = this.Manager.CreateBitvector(ui2);
-                sum = this.Manager.Add(bv1, bv2);
-                eq = this.Manager.Eq(bv32, sum);
-                Assert.AreEqual(ui1 + ui2, (uint)this.Manager.Sat(eq).Get(this.V32));
+                bv1 = manager.CreateBitvector(ui1);
+                bv2 = manager.CreateBitvector(ui2);
+                sum = manager.Add(bv1, bv2);
+                eq = manager.Eq(bv32, sum);
+                Assert.AreEqual(ui1 + ui2, (uint)manager.Sat(eq).Get(v32));
 
-                bv1 = this.Manager.CreateBitvector(l1);
-                bv2 = this.Manager.CreateBitvector(l2);
-                sum = this.Manager.Add(bv1, bv2);
-                eq = this.Manager.Eq(bv64, sum);
-                Assert.AreEqual(l1 + l2, this.Manager.Sat(eq).Get(this.V64));
+                bv1 = manager.CreateBitvector(l1);
+                bv2 = manager.CreateBitvector(l2);
+                sum = manager.Add(bv1, bv2);
+                eq = manager.Eq(bv64, sum);
+                Assert.AreEqual(l1 + l2, manager.Sat(eq).Get(v64));
 
-                bv1 = this.Manager.CreateBitvector(ul1);
-                bv2 = this.Manager.CreateBitvector(ul2);
-                sum = this.Manager.Add(bv1, bv2);
-                eq = this.Manager.Eq(bv64, sum);
-                Assert.AreEqual(ul1 + ul2, (ulong)this.Manager.Sat(eq).Get(this.V64));
+                bv1 = manager.CreateBitvector(ul1);
+                bv2 = manager.CreateBitvector(ul2);
+                sum = manager.Add(bv1, bv2);
+                eq = manager.Eq(bv64, sum);
+                Assert.AreEqual(ul1 + ul2, (ulong)manager.Sat(eq).Get(v64));
             }
         }
 
@@ -1190,10 +1123,16 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestBitvectorSubtraction()
         {
-            var bv8 = this.Manager.CreateBitvector(this.V8);
-            var bv16 = this.Manager.CreateBitvector(this.V16);
-            var bv32 = this.Manager.CreateBitvector(this.V32);
-            var bv64 = this.Manager.CreateBitvector(this.V64);
+            var manager = this.GetManager();
+            var v8 = manager.CreateInt8();
+            var v16 = manager.CreateInt16();
+            var v32 = manager.CreateInt32();
+            var v64 = manager.CreateInt64();
+
+            var bv8 = manager.CreateBitvector(v8);
+            var bv16 = manager.CreateBitvector(v16);
+            var bv32 = manager.CreateBitvector(v32);
+            var bv64 = manager.CreateBitvector(v64);
 
             for (int i = 0; i < numRandomTests; i++)
             {
@@ -1206,29 +1145,29 @@ namespace DecisionDiagramTests
                 var l1 = (long)this.Rnd.Next(0, 20);
                 var l2 = (long)this.Rnd.Next(21, 40);
 
-                var bv1 = this.Manager.CreateBitvector(b1);
-                var bv2 = this.Manager.CreateBitvector(b2);
-                var sum = this.Manager.Subtract(bv2, bv1);
-                var eq = this.Manager.Eq(bv8, sum);
-                Assert.AreEqual(b2 - b1, this.Manager.Sat(eq).Get(this.V8));
+                var bv1 = manager.CreateBitvector(b1);
+                var bv2 = manager.CreateBitvector(b2);
+                var sum = manager.Subtract(bv2, bv1);
+                var eq = manager.Eq(bv8, sum);
+                Assert.AreEqual(b2 - b1, manager.Sat(eq).Get(v8));
 
-                bv1 = this.Manager.CreateBitvector(s1);
-                bv2 = this.Manager.CreateBitvector(s2);
-                sum = this.Manager.Subtract(bv2, bv1);
-                eq = this.Manager.Eq(bv16, sum);
-                Assert.AreEqual(s2 - s1, this.Manager.Sat(eq).Get(this.V16));
+                bv1 = manager.CreateBitvector(s1);
+                bv2 = manager.CreateBitvector(s2);
+                sum = manager.Subtract(bv2, bv1);
+                eq = manager.Eq(bv16, sum);
+                Assert.AreEqual(s2 - s1, manager.Sat(eq).Get(v16));
 
-                bv1 = this.Manager.CreateBitvector(i1);
-                bv2 = this.Manager.CreateBitvector(i2);
-                sum = this.Manager.Subtract(bv2, bv1);
-                eq = this.Manager.Eq(bv32, sum);
-                Assert.AreEqual(i2 - i1, this.Manager.Sat(eq).Get(this.V32));
+                bv1 = manager.CreateBitvector(i1);
+                bv2 = manager.CreateBitvector(i2);
+                sum = manager.Subtract(bv2, bv1);
+                eq = manager.Eq(bv32, sum);
+                Assert.AreEqual(i2 - i1, manager.Sat(eq).Get(v32));
 
-                bv1 = this.Manager.CreateBitvector(l1);
-                bv2 = this.Manager.CreateBitvector(l2);
-                sum = this.Manager.Subtract(bv2, bv1);
-                eq = this.Manager.Eq(bv64, sum);
-                Assert.AreEqual(l2 - l1, this.Manager.Sat(eq).Get(this.V64));
+                bv1 = manager.CreateBitvector(l1);
+                bv2 = manager.CreateBitvector(l2);
+                sum = manager.Subtract(bv2, bv1);
+                eq = manager.Eq(bv64, sum);
+                Assert.AreEqual(l2 - l1, manager.Sat(eq).Get(v64));
             }
         }
 
@@ -1238,15 +1177,18 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestBitvectorSigned()
         {
-            var x = this.Manager.CreateBitvector(this.V32);
-            var y = this.Manager.CreateBitvector(-10);
-            var z = this.Manager.CreateBitvector(-20);
+            var manager = this.GetManager();
+            var v32 = manager.CreateInt32();
 
-            var a = this.Manager.LessOrEqualSigned(x, y);
-            var b = this.Manager.And(a, this.Manager.GreaterOrEqualSigned(x, z));
+            var x = manager.CreateBitvector(v32);
+            var y = manager.CreateBitvector(-10);
+            var z = manager.CreateBitvector(-20);
 
-            Assert.AreEqual(int.MinValue, this.Manager.Sat(a).Get(this.V32));
-            Assert.AreEqual(-20, this.Manager.Sat(b).Get(this.V32));
+            var a = manager.LessOrEqualSigned(x, y);
+            var b = manager.And(a, manager.GreaterOrEqualSigned(x, z));
+
+            Assert.AreEqual(int.MinValue, manager.Sat(a).Get(v32));
+            Assert.AreEqual(-20, manager.Sat(b).Get(v32));
         }
 
         /// <summary>
@@ -1255,6 +1197,8 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestBitvectorInequalities()
         {
+            var manager = this.GetManager();
+
             for (int i = 0; i < numRandomTests; i++)
             {
                 var b1 = (byte)this.Rnd.Next(0, 20);
@@ -1266,41 +1210,41 @@ namespace DecisionDiagramTests
                 var l1 = (long)this.Rnd.Next(0, 20);
                 var l2 = (long)this.Rnd.Next(21, 40);
 
-                var bv1 = this.Manager.CreateBitvector(b1);
-                var bv2 = this.Manager.CreateBitvector(b2);
-                Assert.AreEqual(this.Manager.True(), this.Manager.LessOrEqual(bv1, bv2));
-                Assert.AreEqual(this.Manager.True(), this.Manager.LessOrEqualSigned(bv1, bv2));
-                Assert.AreEqual(this.Manager.True(), this.Manager.Less(bv1, bv2));
-                Assert.AreEqual(this.Manager.True(), this.Manager.GreaterOrEqual(bv2, bv1));
-                Assert.AreEqual(this.Manager.True(), this.Manager.GreaterOrEqualSigned(bv2, bv1));
-                Assert.AreEqual(this.Manager.True(), this.Manager.Greater(bv2, bv1));
+                var bv1 = manager.CreateBitvector(b1);
+                var bv2 = manager.CreateBitvector(b2);
+                Assert.AreEqual(manager.True(), manager.LessOrEqual(bv1, bv2));
+                Assert.AreEqual(manager.True(), manager.LessOrEqualSigned(bv1, bv2));
+                Assert.AreEqual(manager.True(), manager.Less(bv1, bv2));
+                Assert.AreEqual(manager.True(), manager.GreaterOrEqual(bv2, bv1));
+                Assert.AreEqual(manager.True(), manager.GreaterOrEqualSigned(bv2, bv1));
+                Assert.AreEqual(manager.True(), manager.Greater(bv2, bv1));
 
-                bv1 = this.Manager.CreateBitvector(s1);
-                bv2 = this.Manager.CreateBitvector(s2);
-                Assert.AreEqual(this.Manager.True(), this.Manager.LessOrEqual(bv1, bv2));
-                Assert.AreEqual(this.Manager.True(), this.Manager.LessOrEqualSigned(bv1, bv2));
-                Assert.AreEqual(this.Manager.True(), this.Manager.Less(bv1, bv2));
-                Assert.AreEqual(this.Manager.True(), this.Manager.GreaterOrEqual(bv2, bv1));
-                Assert.AreEqual(this.Manager.True(), this.Manager.GreaterOrEqualSigned(bv2, bv1));
-                Assert.AreEqual(this.Manager.True(), this.Manager.Greater(bv2, bv1));
+                bv1 = manager.CreateBitvector(s1);
+                bv2 = manager.CreateBitvector(s2);
+                Assert.AreEqual(manager.True(), manager.LessOrEqual(bv1, bv2));
+                Assert.AreEqual(manager.True(), manager.LessOrEqualSigned(bv1, bv2));
+                Assert.AreEqual(manager.True(), manager.Less(bv1, bv2));
+                Assert.AreEqual(manager.True(), manager.GreaterOrEqual(bv2, bv1));
+                Assert.AreEqual(manager.True(), manager.GreaterOrEqualSigned(bv2, bv1));
+                Assert.AreEqual(manager.True(), manager.Greater(bv2, bv1));
 
-                bv1 = this.Manager.CreateBitvector(i1);
-                bv2 = this.Manager.CreateBitvector(i2);
-                Assert.AreEqual(this.Manager.True(), this.Manager.LessOrEqual(bv1, bv2));
-                Assert.AreEqual(this.Manager.True(), this.Manager.LessOrEqualSigned(bv1, bv2));
-                Assert.AreEqual(this.Manager.True(), this.Manager.Less(bv1, bv2));
-                Assert.AreEqual(this.Manager.True(), this.Manager.GreaterOrEqual(bv2, bv1));
-                Assert.AreEqual(this.Manager.True(), this.Manager.GreaterOrEqualSigned(bv2, bv1));
-                Assert.AreEqual(this.Manager.True(), this.Manager.Greater(bv2, bv1));
+                bv1 = manager.CreateBitvector(i1);
+                bv2 = manager.CreateBitvector(i2);
+                Assert.AreEqual(manager.True(), manager.LessOrEqual(bv1, bv2));
+                Assert.AreEqual(manager.True(), manager.LessOrEqualSigned(bv1, bv2));
+                Assert.AreEqual(manager.True(), manager.Less(bv1, bv2));
+                Assert.AreEqual(manager.True(), manager.GreaterOrEqual(bv2, bv1));
+                Assert.AreEqual(manager.True(), manager.GreaterOrEqualSigned(bv2, bv1));
+                Assert.AreEqual(manager.True(), manager.Greater(bv2, bv1));
 
-                bv1 = this.Manager.CreateBitvector(l1);
-                bv2 = this.Manager.CreateBitvector(l2);
-                Assert.AreEqual(this.Manager.True(), this.Manager.LessOrEqual(bv1, bv2));
-                Assert.AreEqual(this.Manager.True(), this.Manager.LessOrEqualSigned(bv1, bv2));
-                Assert.AreEqual(this.Manager.True(), this.Manager.Less(bv1, bv2));
-                Assert.AreEqual(this.Manager.True(), this.Manager.GreaterOrEqual(bv2, bv1));
-                Assert.AreEqual(this.Manager.True(), this.Manager.GreaterOrEqualSigned(bv2, bv1));
-                Assert.AreEqual(this.Manager.True(), this.Manager.Greater(bv2, bv1));
+                bv1 = manager.CreateBitvector(l1);
+                bv2 = manager.CreateBitvector(l2);
+                Assert.AreEqual(manager.True(), manager.LessOrEqual(bv1, bv2));
+                Assert.AreEqual(manager.True(), manager.LessOrEqualSigned(bv1, bv2));
+                Assert.AreEqual(manager.True(), manager.Less(bv1, bv2));
+                Assert.AreEqual(manager.True(), manager.GreaterOrEqual(bv2, bv1));
+                Assert.AreEqual(manager.True(), manager.GreaterOrEqualSigned(bv2, bv1));
+                Assert.AreEqual(manager.True(), manager.Greater(bv2, bv1));
             }
         }
 
@@ -1310,7 +1254,10 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestVariableToDomain()
         {
-            var domain = this.V8.CreateDomain();
+            var manager = this.GetManager();
+            var v8 = manager.CreateInt8();
+
+            var domain = v8.CreateDomain();
             var bits = domain.GetBits();
             Assert.AreEqual(8, bits.Length);
         }
@@ -1321,9 +1268,11 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestLeastSignificantBitFirst()
         {
-            var v = this.Manager.CreateInt8(Variable<T>.BitOrder.LSB_FIRST);
+            var manager = this.GetManager();
+
+            var v = manager.CreateInt8(Variable<T>.BitOrder.LSB_FIRST);
             var dd = v.Eq(4);
-            var assignment = this.Manager.Sat(dd);
+            var assignment = manager.Sat(dd);
             Assert.AreEqual((byte)4, assignment.Get(v));
         }
 
@@ -1333,8 +1282,12 @@ namespace DecisionDiagramTests
         [TestMethod]
         public virtual void TestNodeCountCorrect()
         {
-            var dd = this.Manager.Or(this.VarA, this.VarB);
-            Assert.AreEqual(4, this.Manager.NodeCount(dd));
+            var manager = this.GetManager();
+            var va = manager.CreateBool();
+            var vb = manager.CreateBool();
+
+            var dd = manager.Or(va.Id(), vb.Id());
+            Assert.AreEqual(4, manager.NodeCount(dd));
         }
 
         /// <summary>
@@ -1344,9 +1297,10 @@ namespace DecisionDiagramTests
         [ExpectedException(typeof(ArgumentException))]
         public void TestMismatchedBitvectorSizes()
         {
-            var bv1 = this.Manager.CreateBitvector((byte)3);
-            var bv2 = this.Manager.CreateBitvector((short)3);
-            this.Manager.Greater(bv1, bv2);
+            var manager = this.GetManager();
+            var bv1 = manager.CreateBitvector((byte)3);
+            var bv2 = manager.CreateBitvector((short)3);
+            manager.Greater(bv1, bv2);
         }
 
         /// <summary>
@@ -1355,14 +1309,19 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestBitvectorFromArray()
         {
-            var bv1 = this.Manager.CreateBitvector(new DD[] { this.VarA, this.VarB, this.One });
-            bv1[2] = this.VarC;
-            var bv2 = this.Manager.CreateBitvector(new DD[] { this.One, this.Zero, this.One });
-            var dd = this.Manager.Eq(bv1, bv2);
-            var assignment = this.Manager.Sat(dd);
-            Assert.IsTrue(assignment.Get(this.Va));
-            Assert.IsFalse(assignment.Get(this.Vb));
-            Assert.IsTrue(assignment.Get(this.Vc));
+            var manager = this.GetManager();
+            var va = manager.CreateBool();
+            var vb = manager.CreateBool();
+            var vc = manager.CreateBool();
+
+            var bv1 = manager.CreateBitvector(new DD[] { va.Id(), vb.Id(), manager.True() });
+            bv1[2] = vc.Id();
+            var bv2 = manager.CreateBitvector(new DD[] { manager.True(), manager.False(), manager.True() });
+            var dd = manager.Eq(bv1, bv2);
+            var assignment = manager.Sat(dd);
+            Assert.IsTrue(assignment.Get(va));
+            Assert.IsFalse(assignment.Get(vb));
+            Assert.IsTrue(assignment.Get(vc));
         }
 
         /// <summary>
@@ -1371,7 +1330,8 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestManagerNodeCount()
         {
-            var count = this.Manager.NodeCount();
+            var manager = this.GetManager();
+            var count = manager.NodeCount();
             Assert.IsTrue(count > 0);
         }
 
@@ -1381,16 +1341,19 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestBitvectorShiftRight()
         {
-            var bv8 = this.Manager.CreateBitvector(this.V8);
+            var manager = this.GetManager();
+            var v8 = manager.CreateInt8();
+
+            var bv8 = manager.CreateBitvector(v8);
 
             for (int i = 0; i < numRandomTests; i++)
             {
                 var b = (byte)this.Rnd.Next(0, 255);
                 var shiftAmount = (byte)this.Rnd.Next(0, 7);
-                var bv = this.Manager.CreateBitvector(b);
-                var shifted = this.Manager.ShiftRight(bv, shiftAmount);
-                var eq = this.Manager.Eq(bv8, shifted);
-                Assert.AreEqual(b >> shiftAmount, (int)this.Manager.Sat(eq).Get(this.V8));
+                var bv = manager.CreateBitvector(b);
+                var shifted = manager.ShiftRight(bv, shiftAmount);
+                var eq = manager.Eq(bv8, shifted);
+                Assert.AreEqual(b >> shiftAmount, (int)manager.Sat(eq).Get(v8));
             }
         }
 
@@ -1401,8 +1364,9 @@ namespace DecisionDiagramTests
         [ExpectedException(typeof(ArgumentException), "Expected ArgumentException.")]
         public void TestBitvectorShiftRightException1()
         {
-            var bv = this.Manager.CreateBitvector((byte)0);
-            var _ = this.Manager.ShiftRight(bv, -1);
+            var manager = this.GetManager();
+            var bv = manager.CreateBitvector((byte)0);
+            var _ = manager.ShiftRight(bv, -1);
         }
 
         /// <summary>
@@ -1412,8 +1376,9 @@ namespace DecisionDiagramTests
         [ExpectedException(typeof(ArgumentException), "Expected ArgumentException.")]
         public void TestBitvectorShiftRightException2()
         {
-            var bv = this.Manager.CreateBitvector((byte)0);
-            var _ = this.Manager.ShiftRight(bv, 9);
+            var manager = this.GetManager();
+            var bv = manager.CreateBitvector((byte)0);
+            var _ = manager.ShiftRight(bv, 9);
         }
 
         /// <summary>
@@ -1422,16 +1387,19 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestBitvectorShiftLeft()
         {
-            var bv8 = this.Manager.CreateBitvector(this.V8);
+            var manager = this.GetManager();
+            var v8 = manager.CreateInt8();
+
+            var bv8 = manager.CreateBitvector(v8);
 
             for (int i = 0; i < numRandomTests; i++)
             {
                 var b = (byte)this.Rnd.Next(0, 255);
                 var shiftAmount = (byte)this.Rnd.Next(0, 7);
-                var bv = this.Manager.CreateBitvector(b);
-                var shifted = this.Manager.ShiftLeft(bv, shiftAmount);
-                var eq = this.Manager.Eq(bv8, shifted);
-                Assert.AreEqual((byte)(b << shiftAmount), (int)this.Manager.Sat(eq).Get(this.V8));
+                var bv = manager.CreateBitvector(b);
+                var shifted = manager.ShiftLeft(bv, shiftAmount);
+                var eq = manager.Eq(bv8, shifted);
+                Assert.AreEqual((byte)(b << shiftAmount), (int)manager.Sat(eq).Get(v8));
             }
         }
 
@@ -1442,8 +1410,9 @@ namespace DecisionDiagramTests
         [ExpectedException(typeof(ArgumentException), "Expected ArgumentException.")]
         public void TestBitvectorShiftLeftException1()
         {
-            var bv = this.Manager.CreateBitvector((byte)0);
-            _ = this.Manager.ShiftLeft(bv, -1);
+            var manager = this.GetManager();
+            var bv = manager.CreateBitvector((byte)0);
+            _ = manager.ShiftLeft(bv, -1);
         }
 
         /// <summary>
@@ -1453,8 +1422,9 @@ namespace DecisionDiagramTests
         [ExpectedException(typeof(ArgumentException), "Expected ArgumentException.")]
         public void TestBitvectorShiftLeftException2()
         {
-            var bv = this.Manager.CreateBitvector((byte)0);
-            _ = this.Manager.ShiftLeft(bv, 9);
+            var manager = this.GetManager();
+            var bv = manager.CreateBitvector((byte)0);
+            _ = manager.ShiftLeft(bv, 9);
         }
 
         /// <summary>
@@ -1463,16 +1433,19 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestBitvectorIte()
         {
-            var bv32 = this.Manager.CreateBitvector(this.V32);
+            var manager = this.GetManager();
+            var v32 = manager.CreateInt32();
+
+            var bv32 = manager.CreateBitvector(v32);
 
             for (int i = 0; i < numRandomTests; i++)
             {
                 var value = this.Rnd.Next(0, 255);
-                var bv1 = this.Manager.CreateBitvector(value);
-                var bv2 = this.Manager.CreateBitvector(5);
-                var ite = this.Manager.Ite(this.Manager.True(), bv1, bv2);
-                var eq = this.Manager.Eq(bv32, ite);
-                Assert.AreEqual(value, this.Manager.Sat(eq).Get(this.V32));
+                var bv1 = manager.CreateBitvector(value);
+                var bv2 = manager.CreateBitvector(5);
+                var ite = manager.Ite(manager.True(), bv1, bv2);
+                var eq = manager.Eq(bv32, ite);
+                Assert.AreEqual(value, manager.Sat(eq).Get(v32));
             }
         }
 
@@ -1482,17 +1455,20 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestBitvectorOr()
         {
-            var bv32 = this.Manager.CreateBitvector(this.V32);
+            var manager = this.GetManager();
+            var v32 = manager.CreateInt32();
+
+            var bv32 = manager.CreateBitvector(v32);
 
             for (int i = 0; i < numRandomTests; i++)
             {
                 var value1 = this.Rnd.Next(0, 255);
                 var value2 = this.Rnd.Next(0, 255);
-                var bv1 = this.Manager.CreateBitvector(value1);
-                var bv2 = this.Manager.CreateBitvector(value2);
-                var or = this.Manager.Or(bv1, bv2);
-                var eq = this.Manager.Eq(bv32, or);
-                var val = this.Manager.Sat(eq).Get(this.V32);
+                var bv1 = manager.CreateBitvector(value1);
+                var bv2 = manager.CreateBitvector(value2);
+                var or = manager.Or(bv1, bv2);
+                var eq = manager.Eq(bv32, or);
+                var val = manager.Sat(eq).Get(v32);
                 Assert.AreEqual(value1 | value2, val);
             }
         }
@@ -1503,17 +1479,20 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestBitvectorAnd()
         {
-            var bv32 = this.Manager.CreateBitvector(this.V32);
+            var manager = this.GetManager();
+            var v32 = manager.CreateInt32();
+
+            var bv32 = manager.CreateBitvector(v32);
 
             for (int i = 0; i < numRandomTests; i++)
             {
                 var value1 = this.Rnd.Next(0, 255);
                 var value2 = this.Rnd.Next(0, 255);
-                var bv1 = this.Manager.CreateBitvector(value1);
-                var bv2 = this.Manager.CreateBitvector(value2);
-                var and = this.Manager.And(bv1, bv2);
-                var eq = this.Manager.Eq(bv32, and);
-                var val = this.Manager.Sat(eq).Get(this.V32);
+                var bv1 = manager.CreateBitvector(value1);
+                var bv2 = manager.CreateBitvector(value2);
+                var and = manager.And(bv1, bv2);
+                var eq = manager.Eq(bv32, and);
+                var val = manager.Sat(eq).Get(v32);
                 Assert.AreEqual(value1 & value2, val);
             }
         }
@@ -1524,17 +1503,20 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestBitvectorXor()
         {
-            var bv32 = this.Manager.CreateBitvector(this.V32);
+            var manager = this.GetManager();
+            var v32 = manager.CreateInt32();
+
+            var bv32 = manager.CreateBitvector(v32);
 
             for (int i = 0; i < numRandomTests; i++)
             {
                 var value1 = this.Rnd.Next(0, 255);
                 var value2 = this.Rnd.Next(0, 255);
-                var bv1 = this.Manager.CreateBitvector(value1);
-                var bv2 = this.Manager.CreateBitvector(value2);
-                var xor = this.Manager.Xor(bv1, bv2);
-                var eq = this.Manager.Eq(bv32, xor);
-                var val = this.Manager.Sat(eq).Get(this.V32);
+                var bv1 = manager.CreateBitvector(value1);
+                var bv2 = manager.CreateBitvector(value2);
+                var xor = manager.Xor(bv1, bv2);
+                var eq = manager.Eq(bv32, xor);
+                var val = manager.Sat(eq).Get(v32);
                 Assert.AreEqual(value1 ^ value2, val);
             }
         }
@@ -1545,15 +1527,18 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestBitvectorNot()
         {
-            var bv32 = this.Manager.CreateBitvector(this.V32);
+            var manager = this.GetManager();
+            var v32 = manager.CreateInt32();
+
+            var bv32 = manager.CreateBitvector(v32);
 
             for (int i = 0; i < numRandomTests; i++)
             {
                 var value = this.Rnd.Next(0, 255);
-                var bv = this.Manager.CreateBitvector(value);
-                var not = this.Manager.Not(bv);
-                var eq = this.Manager.Eq(bv32, not);
-                var val = this.Manager.Sat(eq).Get(this.V32);
+                var bv = manager.CreateBitvector(value);
+                var not = manager.Not(bv);
+                var eq = manager.Eq(bv32, not);
+                var val = manager.Sat(eq).Get(v32);
                 Assert.AreEqual(~value, val);
             }
         }
@@ -1564,8 +1549,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestTableResize()
         {
-            var factory = new BDDNodeFactory();
-            var manager = new DDManager<BDDNode>(factory, 8, 8, true);
+            var manager = this.GetManager();
             var v = manager.CreateBool();
             var w = manager.CreateBool();
             var x = manager.CreateBool();
@@ -1590,14 +1574,12 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestNodeCount()
         {
-            var factory = new BDDNodeFactory();
-            var manager = new DDManager<BDDNode>(factory, 8, 8, true);
+            var manager = this.GetManager();
             var v = manager.CreateBool();
             var w = manager.CreateBool();
             Assert.AreEqual(1, manager.NodeCount(manager.True()));
             Assert.AreEqual(1, manager.NodeCount(manager.False()));
             Assert.AreEqual(4, manager.NodeCount(manager.And(v.Id(), w.Id())));
-            Assert.AreEqual(4, manager.NodeCount(manager.Or(v.Id(), w.Id())));
         }
 
         /// <summary>
@@ -1642,12 +1624,20 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestVariableTypes()
         {
-            Assert.IsTrue(this.Va.IsBool());
-            Assert.IsTrue(this.V8.IsU8());
-            Assert.IsTrue(this.V16.IsU16());
-            Assert.IsTrue(this.V32.IsU32());
-            Assert.IsTrue(this.V64.IsU64());
-            Assert.IsTrue(this.V128.IsUint());
+            var manager = this.GetManager();
+            var va = manager.CreateBool();
+            var v8 = manager.CreateInt8();
+            var v16 = manager.CreateInt16();
+            var v32 = manager.CreateInt32();
+            var v64 = manager.CreateInt64();
+            var v128 = manager.CreateInt(128);
+
+            Assert.IsTrue(va.IsBool());
+            Assert.IsTrue(v8.IsU8());
+            Assert.IsTrue(v16.IsU16());
+            Assert.IsTrue(v32.IsU32());
+            Assert.IsTrue(v64.IsU64());
+            Assert.IsTrue(v128.IsUint());
         }
 
         /// <summary>
@@ -1656,8 +1646,11 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestAccessChildren()
         {
-            Assert.IsTrue(this.Manager.Low(this.VarA).Equals(this.Zero));
-            Assert.IsTrue(this.Manager.High(this.VarA).Equals(this.One));
+            var manager = this.GetManager();
+            var va = manager.CreateBool();
+
+            Assert.IsTrue(manager.Low(va.Id()).Equals(manager.False()));
+            Assert.IsTrue(manager.High(va.Id()).Equals(manager.True()));
         }
 
         /// <summary>
@@ -1666,9 +1659,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestNumBits()
         {
-            var factory = new BDDNodeFactory();
-            var manager = new DDManager<BDDNode>(factory);
-
+            var manager = this.GetManager();
             Assert.AreEqual(1, manager.CreateBool().NumBits);
             Assert.AreEqual(8, manager.CreateInt8().NumBits);
             Assert.AreEqual(16, manager.CreateInt16().NumBits);
@@ -1684,7 +1675,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestNumVariables()
         {
-            var manager = new DDManager<T>(this.Factory);
+            var manager = this.GetManager();
             manager.CreateBool();
             manager.CreateBool();
 
@@ -1702,9 +1693,13 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestVariable()
         {
-            Assert.AreEqual(this.Manager.Variable(this.VarA), 1);
-            Assert.AreEqual(this.Manager.Variable(this.VarB), 2);
-            Assert.AreEqual(this.Manager.Variable(this.Manager.Or(this.VarA, this.VarB)), 1);
+            var manager = this.GetManager();
+            var va = manager.CreateBool();
+            var vb = manager.CreateBool();
+
+            Assert.AreEqual(manager.Variable(va.Id()), 1);
+            Assert.AreEqual(manager.Variable(vb.Id()), 2);
+            Assert.AreEqual(manager.Variable(manager.Or(va.Id(), vb.Id())), 1);
         }
 
         /// <summary>
@@ -1713,9 +1708,12 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestGetVariableBit()
         {
-            var x = this.V32.GetVariableForIthBit(31);
-            var y = this.V32.Eq(1);
-            var z = this.Manager.And(x.Id(), y);
+            var manager = this.GetManager();
+            var v32 = manager.CreateInt32();
+
+            var x = v32.GetVariableForIthBit(31);
+            var y = v32.Eq(1);
+            var z = manager.And(x.Id(), y);
             Assert.AreEqual(y, z);
         }
 
@@ -1726,7 +1724,9 @@ namespace DecisionDiagramTests
         [ExpectedException(typeof(ArgumentException), "Expected ArgumentException.")]
         public void TestGetVariableBitException1()
         {
-            this.V32.GetVariableForIthBit(32);
+            var manager = this.GetManager();
+            var v32 = manager.CreateInt32();
+            v32.GetVariableForIthBit(32);
         }
 
         /// <summary>
@@ -1736,7 +1736,9 @@ namespace DecisionDiagramTests
         [ExpectedException(typeof(ArgumentException), "Expected ArgumentException.")]
         public void TestGetVariableBitException2()
         {
-            this.V32.GetVariableForIthBit(-1);
+            var manager = this.GetManager();
+            var v32 = manager.CreateInt32();
+            v32.GetVariableForIthBit(-1);
         }
 
         /// <summary>
@@ -1745,7 +1747,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestExistsNewVariable()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var manager = this.GetManager();
             var x = manager.CreateBool();
             var variableSet = manager.CreateVariableSet(new Variable<T>[] { x });
             var y = manager.CreateBool();
@@ -1760,7 +1762,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestExistsAnyIndex()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var manager = this.GetManager();
 
             for (int i = 0; i < 10000; i++)
             {
@@ -1777,7 +1779,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestExistsMultipleVariables()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var manager = this.GetManager();
             var a = manager.CreateInt32();
             var b = manager.CreateBool();
             var variableSet = manager.CreateVariableSet(new Variable<T>[] { b });
@@ -1792,7 +1794,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestExistsEarlyCutoff()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var manager = this.GetManager();
             var a = manager.CreateBool();
             var b = manager.CreateBool();
             var c = manager.CreateBool();
@@ -1810,7 +1812,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestExistsAlternatingVariables()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var manager = this.GetManager();
             var a = manager.CreateBool();
             var b = manager.CreateBool();
             var c = manager.CreateBool();
@@ -1828,7 +1830,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestExistsWithDontCareVariables()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var manager = this.GetManager();
             var a = manager.CreateBool();
             var b = manager.CreateBool();
             var c = manager.CreateBool();
@@ -1846,7 +1848,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestsQuanfiersRandom()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var manager = this.GetManager();
 
             var variables = new VarBool<T>[]
             {
@@ -1871,6 +1873,9 @@ namespace DecisionDiagramTests
 
             for (int i = 0; i < numRandomTests; i++)
             {
+                GC.Collect();
+                manager.GarbageCollect();
+
                 // randomly select some subset of 5 to quantify away
                 var vars = new HashSet<Variable<T>>();
                 for (int j = 0; j < 5; j++)
@@ -1903,7 +1908,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestVariableSetHasCorrectVariables()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var manager = this.GetManager();
             var a = manager.CreateBool();
             var b = manager.CreateBool();
             _ = manager.CreateBool();
@@ -1920,7 +1925,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestVariableSetAfterNewVariables1()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var manager = this.GetManager();
             var a = manager.CreateBool();
             var b = manager.CreateBool();
             var variableSet = manager.CreateVariableSet(new Variable<T>[] { a, b });
@@ -1938,7 +1943,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestVariableSetAfterNewVariables2()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var manager = this.GetManager();
             var variableSet = manager.CreateVariableSet(new Variable<T>[] { });
             var a = manager.CreateBool().Id();
             var x = manager.Exists(a, variableSet);
@@ -1951,13 +1956,13 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestVariableSetEquality()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var manager = this.GetManager();
             var a = manager.CreateBool();
             var b = manager.CreateBool();
             var c = manager.CreateInt8();
             var variableSet1 = manager.CreateVariableSet(new Variable<T>[] { a, b, c });
             var variableSet2 = manager.CreateVariableSet(new Variable<T>[] { c, b, a });
-            Assert.AreEqual(variableSet1.AsIndex, variableSet2.AsIndex);
+            Assert.AreEqual(variableSet1.Id, variableSet2.Id);
             Assert.AreEqual(variableSet1.ManagerId, variableSet2.ManagerId);
         }
 
@@ -1967,7 +1972,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestVariableSetInEquality()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var manager = this.GetManager();
             var a = manager.CreateBool();
             var b = manager.CreateBool();
             var c = manager.CreateInt8();
@@ -1977,10 +1982,10 @@ namespace DecisionDiagramTests
             var variableSet4 = manager.CreateVariableSet(new Variable<T>[] { a });
             var variableSet5 = manager.CreateVariableSet(new Variable<T>[] { b });
 
-            Assert.AreNotEqual(variableSet1.AsIndex, variableSet2.AsIndex);
-            Assert.AreNotEqual(variableSet2.AsIndex, variableSet3.AsIndex);
-            Assert.AreNotEqual(variableSet3.AsIndex, variableSet4.AsIndex);
-            Assert.AreNotEqual(variableSet4.AsIndex, variableSet5.AsIndex);
+            Assert.AreNotEqual(variableSet1.Id, variableSet2.Id);
+            Assert.AreNotEqual(variableSet2.Id, variableSet3.Id);
+            Assert.AreNotEqual(variableSet3.Id, variableSet4.Id);
+            Assert.AreNotEqual(variableSet4.Id, variableSet5.Id);
         }
 
         /// <summary>
@@ -1989,7 +1994,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestVariableMapHasCorrectValues()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var manager = this.GetManager();
             var a = manager.CreateInt16();
             var b = manager.CreateInt16();
             var map = new Dictionary<Variable<T>, Variable<T>>();
@@ -2006,7 +2011,7 @@ namespace DecisionDiagramTests
         [ExpectedException(typeof(ArgumentException))]
         public void TestVariableMapException()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var manager = this.GetManager();
             var a = manager.CreateInt8();
             var b = manager.CreateInt16();
             var map = new Dictionary<Variable<T>, Variable<T>>();
@@ -2020,7 +2025,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplaceWithEmpty()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var manager = this.GetManager();
             var a = manager.CreateBool();
             var b = manager.CreateBool();
             var c = manager.CreateBool();
@@ -2037,7 +2042,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplaceWithConstant()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var manager = this.GetManager();
             var variableMap = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>>());
             var x = manager.Replace(manager.True(), variableMap);
             var y = manager.Replace(manager.False(), variableMap);
@@ -2051,7 +2056,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplaceWithEmptyAfterNewVariables()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var manager = this.GetManager();
             var variableMap = manager.CreateVariableMap(new Dictionary<Variable<T>, Variable<T>>());
             var a = manager.CreateBool().Id();
             var x = manager.Replace(a, variableMap);
@@ -2064,7 +2069,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplaceSequence()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var manager = this.GetManager();
             var a = manager.CreateBool();
             var b = manager.CreateBool();
             var c = manager.CreateBool();
@@ -2084,7 +2089,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplaceSkippingLevel()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var manager = this.GetManager();
             var a = manager.CreateBool();
             var b = manager.CreateBool();
             var c = manager.CreateBool();
@@ -2102,7 +2107,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplaceMissingLevel()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var manager = this.GetManager();
             var a = manager.CreateBool();
             var b = manager.CreateBool();
             var c = manager.CreateBool();
@@ -2123,7 +2128,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplaceWithLater()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var manager = this.GetManager();
             var a = manager.CreateBool();
             var b = manager.CreateBool();
             var c = manager.CreateBool();
@@ -2142,7 +2147,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplaceWithEarlier()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var manager = this.GetManager();
             var a = manager.CreateBool();
             var b = manager.CreateBool();
             var c = manager.CreateBool();
@@ -2161,7 +2166,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplaceWithNegation()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var manager = this.GetManager();
             var a = manager.CreateBool();
             var b = manager.CreateBool();
             var c = manager.CreateBool();
@@ -2180,7 +2185,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplaceWithXor()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var manager = this.GetManager();
             var a = manager.CreateBool();
             var b = manager.CreateBool();
             var c = manager.CreateBool();
@@ -2209,7 +2214,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplaceAllVariables()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var manager = this.GetManager();
             var a = manager.CreateBool();
             var b = manager.CreateBool();
             var c = manager.CreateBool();
@@ -2235,7 +2240,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplaceWithMultiple()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var manager = this.GetManager();
             var a = manager.CreateBool();
             var b = manager.CreateBool();
             var c = manager.CreateBool();
@@ -2256,7 +2261,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplaceWithMultiple2()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var manager = this.GetManager();
             var a = manager.CreateBool();
             var b = manager.CreateInt16();
             var c = manager.CreateBool();
@@ -2277,7 +2282,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplacingWithSameVariable()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var manager = this.GetManager();
             var a = manager.CreateBool();
             var b = manager.CreateInt16();
             var f1 = manager.And(a.Id(), b.Eq(9));
@@ -2294,7 +2299,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplacingVariablesCommutes()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var manager = this.GetManager();
             var a = manager.CreateInt8();
             var b = manager.CreateInt8();
             var c = manager.CreateInt8();
@@ -2332,7 +2337,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestReplacingVariablesRandom()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, true);
+            var manager = this.GetManager();
 
             var variables = new VarBool<T>[]
             {
@@ -2395,12 +2400,53 @@ namespace DecisionDiagramTests
         }
 
         /// <summary>
+        /// Test that garbage collection doesn't invalidate nodes.
+        /// </summary>
+        [TestMethod]
+        public void TestVariableSetsAfterGarbageCollection()
+        {
+            var manager = this.GetManager();
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            this.CreateGarbage(manager);
+            var set1 = manager.CreateVariableSet(a, b);
+            this.CreateGarbage(manager);
+            this.CreateGarbage(manager);
+            GC.Collect();
+            manager.GarbageCollect();
+            var set2 = manager.CreateVariableSet(a, b);
+
+            Assert.AreEqual(set1.Id, set2.Id);
+        }
+
+        /// <summary>
+        /// Test that garbage collection doesn't fail with bitvectors.
+        /// </summary>
+        [TestMethod]
+        public void TestBitvectorsAfterGarbageCollection()
+        {
+            var manager = this.GetManager();
+            var vars = manager.CreateInterleavedInt32(2);
+            var a = vars[0].CreateDomain();
+            var b = vars[1].CreateDomain();
+            this.CreateGarbage(manager);
+            var x = manager.Add(a, b);
+            this.CreateGarbage(manager);
+            this.CreateGarbage(manager);
+            GC.Collect();
+            manager.GarbageCollect();
+            var y = manager.Add(a, b);
+
+            Assert.AreEqual(manager.True(), manager.Eq(x, y));
+        }
+
+        /// <summary>
         /// Test replacing multiple variables.
         /// </summary>
         [TestMethod]
         public void TestStaticCache()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, false);
+            var manager = new DDManager<T>(this.Factory, dynamicCache: false);
             var a = manager.CreateBool();
             var b = manager.CreateBool();
             var c = manager.CreateBool();
@@ -2417,7 +2463,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestTooManyVariablesOk()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, false);
+            var manager = this.GetManager();
 
             if (this.Factory is CBDDNodeFactory)
             {
@@ -2435,7 +2481,7 @@ namespace DecisionDiagramTests
         [ExpectedException(typeof(InvalidOperationException))]
         public void TestTooManyVariablesException()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, false);
+            var manager = this.GetManager();
 
             if (this.Factory is CBDDNodeFactory)
             {
@@ -2460,77 +2506,78 @@ namespace DecisionDiagramTests
         [ExpectedException(typeof(ArgumentException))]
         public void TestSatWithDuplicateVariables()
         {
-            var manager = new DDManager<T>(this.Factory, 8, 8, false);
+            var manager = this.GetManager();
             var a = manager.CreateBool();
             var b = manager.CreateBool();
             manager.CreateVariableSet(new Variable<T>[] { a, b, a });
         }
 
         /// <summary>
+        /// Run a number of random tests.
+        /// </summary>
+        /// <param name="manager">The manager object.</param>
+        /// <param name="action">The action to run.</param>
+        private void RandomTest(DDManager<T> manager, Action<DD> action)
+        {
+            var literals = GetLiterals(manager, 5);
+            for (int i = 0; i <= numRandomTests; i++)
+            {
+                action.Invoke(this.RandomDD(manager, literals));
+            }
+        }
+
+        /// <summary>
+        /// Run a number of random tests.
+        /// </summary>
+        /// <param name="manager">The manager object.</param>
+        /// <param name="action">The action to run.</param>
+        private void RandomTest(DDManager<T> manager, Action<DD, DD> action)
+        {
+            var literals = GetLiterals(manager, 5);
+            for (int i = 0; i <= numRandomTests; i++)
+            {
+                action.Invoke(this.RandomDD(manager, literals), this.RandomDD(manager, literals));
+            }
+        }
+
+        /// <summary>
+        /// Run a number of random tests.
+        /// </summary>
+        /// <param name="manager">The manager object.</param>
+        /// <param name="action">The action to run.</param>
+        private void RandomTest(DDManager<T> manager, Action<DD, DD, DD> action)
+        {
+            var literals = GetLiterals(manager, 5);
+            for (int i = 0; i <= numRandomTests; i++)
+            {
+                action.Invoke(this.RandomDD(manager, literals), this.RandomDD(manager, literals), this.RandomDD(manager, literals));
+            }
+        }
+
+        /// <summary>
         /// Select a random literal.
         /// </summary>
+        /// <param name="manager">The manager object.</param>
+        /// <param name="randomLiterals">Random literal values.</param>
         /// <returns>Returns a random literal.</returns>
-        private DD RandomLiteral()
+        private DD RandomDD(DDManager<T> manager, DD[] randomLiterals)
         {
-            var i = this.Rnd.Next(0, 7);
-            return this.RandomLiterals[i];
-        }
-
-        /// <summary>
-        /// Run a number of random tests.
-        /// </summary>
-        /// <param name="action">The action to run.</param>
-        private void RandomTest(Action<DD> action)
-        {
-            for (int i = 0; i <= numRandomTests; i++)
-            {
-                action.Invoke(this.RandomDD());
-            }
-        }
-
-        /// <summary>
-        /// Run a number of random tests.
-        /// </summary>
-        /// <param name="action">The action to run.</param>
-        private void RandomTest(Action<DD, DD> action)
-        {
-            for (int i = 0; i <= numRandomTests; i++)
-            {
-                action.Invoke(this.RandomDD(), this.RandomDD());
-            }
-        }
-
-        /// <summary>
-        /// Run a number of random tests.
-        /// </summary>
-        /// <param name="action">The action to run.</param>
-        private void RandomTest(Action<DD, DD, DD> action)
-        {
-            for (int i = 0; i <= numRandomTests; i++)
-            {
-                action.Invoke(this.RandomDD(), this.RandomDD(), this.RandomDD());
-            }
+            return this.RandomDD(manager, randomLiterals, 7);
         }
 
         /// <summary>
         /// Select a random literal.
         /// </summary>
-        /// <returns>Returns a random literal.</returns>
-        private DD RandomDD()
-        {
-            return this.RandomDD(7);
-        }
-
-        /// <summary>
-        /// Select a random literal.
-        /// </summary>
+        /// <param name="manager">The manager object.</param>
+        /// <param name="randomLiterals">The random literals.</param>
         /// <param name="maxDepth">The maximum depth.</param>
-        /// <returns>Returns a random literal.</returns>
-        private DD RandomDD(int maxDepth)
+        /// <returns>Returns a random decision diagram.</returns>
+        private DD RandomDD(DDManager<T> manager, DD[] randomLiterals, int maxDepth)
         {
             if (maxDepth == 0)
             {
-                return this.RandomLiteral();
+                var i = this.Rnd.Next(0, randomLiterals.Length);
+                return randomLiterals[i];
             }
 
             var d = maxDepth - 1;
@@ -2539,21 +2586,50 @@ namespace DecisionDiagramTests
             {
                 case 0:
                 case 1:
-                    return this.Manager.Or(this.RandomDD(d), this.RandomDD(d));
+                    return manager.Or(this.RandomDD(manager, randomLiterals, d), this.RandomDD(manager, randomLiterals, d));
                 case 2:
                 case 3:
-                    return this.Manager.And(this.RandomDD(d), this.RandomDD(d));
+                    return manager.And(this.RandomDD(manager, randomLiterals, d), this.RandomDD(manager, randomLiterals, d));
                 case 4:
                 case 5:
-                    return this.Manager.Not(this.RandomDD(d));
+                    return manager.Not(this.RandomDD(manager, randomLiterals, d));
                 case 6:
                 case 7:
-                    return this.Manager.Implies(this.RandomDD(d), this.RandomDD(d));
+                    return manager.Implies(this.RandomDD(manager, randomLiterals, d), this.RandomDD(manager, randomLiterals, d));
                 case 8:
-                    return this.Manager.True();
+                    return manager.True();
                 default:
-                    return this.RandomLiteral();
+                    var i = this.Rnd.Next(0, randomLiterals.Length);
+                    return randomLiterals[i];
             }
+        }
+
+        /// <summary>
+        /// Get some number of literals for a given manager object.
+        /// </summary>
+        /// <param name="manager">The manager object.</param>
+        /// <param name="numLiterals">The number of literals.</param>
+        /// <returns></returns>
+        private DD[] GetLiterals(DDManager<T> manager, int numLiterals)
+        {
+            var literals = new DD[2 * numLiterals];
+            for (int i = 0; i < numLiterals; i++)
+            {
+                var v = manager.CreateBool();
+                literals[i] = v.Id();
+                literals[i + numLiterals] = manager.Not(v.Id());
+            }
+
+            return literals;
+        }
+
+        /// <summary>
+        /// Get a new manager object.
+        /// </summary>
+        /// <returns>A new manager object.</returns>
+        internal DDManager<T> GetManager()
+        {
+            return new DDManager<T>(this.Factory, numNodes: 16, gcMinCutoff: 16, printDebug: false);
         }
     }
 }

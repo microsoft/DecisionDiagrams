@@ -5,6 +5,7 @@
 namespace DecisionDiagrams
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Runtime.InteropServices;
 
     /// <summary>
@@ -79,6 +80,7 @@ namespace DecisionDiagrams
         /// </summary>
         /// <param name="obj">The other node.</param>
         /// <returns>Whether the objects are equal.</returns>
+        [ExcludeFromCodeCoverage]
         public override bool Equals(object obj)
         {
             return this.Equals((BDDNode)obj);

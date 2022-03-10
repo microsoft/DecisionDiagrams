@@ -11,16 +11,31 @@ namespace DecisionDiagrams
         where T : IDDNode
     {
         /// <summary>
+        /// Gets the manager object.
+        /// </summary>
+        public DDManager<T> Manager { get; }
+
+        /// <summary>
+        /// One DD per bit, with the MSB appearing in the 0th index.
+        /// </summary>
+        internal DD[] Bits { get; private set; }
+
+        /// <summary>
+        /// Gets the number of bits.
+        /// </summary>
+        public int Size { get => this.Bits.Length; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="BitVector{T}"/> class.
         /// </summary>
         /// <param name="manager">The manager.</param>
         /// <param name="bits">The bits of the integer.</param>
         internal BitVector(DDManager<T> manager, DD[] bits)
         {
-            this.Bits = new DDIndex[bits.Length];
+            this.Bits = new DD[bits.Length];
             for (int i = 0; i < bits.Length; i++)
             {
-                this.Bits[i] = bits[i].Index;
+                this.Bits[i] = bits[i];
             }
 
             this.Manager = manager;
@@ -33,7 +48,7 @@ namespace DecisionDiagrams
         /// <param name="size">The domain size in bits.</param>
         internal BitVector(DDManager<T> manager, int size)
         {
-            this.Bits = new DDIndex[size];
+            this.Bits = new DD[size];
             this.Manager = manager;
         }
 
@@ -44,10 +59,10 @@ namespace DecisionDiagrams
         /// <param name="manager">The manager.</param>
         public BitVector(Variable<T> variable, DDManager<T> manager)
         {
-            this.Bits = new DDIndex[variable.Indices.Length];
+            this.Bits = new DD[variable.Indices.Length];
             for (int i = 0; i < variable.Indices.Length; i++)
             {
-                this.Bits[i] = variable.GetVariableForIthBit(i).IdIdx();
+                this.Bits[i] = variable.GetVariableForIthBit(i).Id();
             }
 
             this.Manager = manager;
@@ -60,8 +75,8 @@ namespace DecisionDiagrams
         /// <param name="manager">The manager.</param>
         public BitVector(byte x, DDManager<T> manager)
         {
-            this.InitializeConstant(x, 8);
             this.Manager = manager;
+            this.InitializeConstant(x, 8);
         }
 
         /// <summary>
@@ -71,8 +86,8 @@ namespace DecisionDiagrams
         /// <param name="manager">The manager.</param>
         public BitVector(ushort x, DDManager<T> manager)
         {
-            this.InitializeConstant(x, 16);
             this.Manager = manager;
+            this.InitializeConstant(x, 16);
         }
 
         /// <summary>
@@ -82,8 +97,8 @@ namespace DecisionDiagrams
         /// <param name="manager">The manager.</param>
         public BitVector(short x, DDManager<T> manager)
         {
-            this.InitializeConstant(x, 16);
             this.Manager = manager;
+            this.InitializeConstant(x, 16);
         }
 
         /// <summary>
@@ -93,8 +108,8 @@ namespace DecisionDiagrams
         /// <param name="manager">The manager.</param>
         public BitVector(uint x, DDManager<T> manager)
         {
-            this.InitializeConstant(x, 32);
             this.Manager = manager;
+            this.InitializeConstant(x, 32);
         }
 
         /// <summary>
@@ -104,8 +119,8 @@ namespace DecisionDiagrams
         /// <param name="manager">The manager.</param>
         public BitVector(int x, DDManager<T> manager)
         {
-            this.InitializeConstant(x, 32);
             this.Manager = manager;
+            this.InitializeConstant(x, 32);
         }
 
         /// <summary>
@@ -115,8 +130,8 @@ namespace DecisionDiagrams
         /// <param name="manager">The manager.</param>
         public BitVector(ulong x, DDManager<T> manager)
         {
-            this.InitializeConstant((long)x, 64);
             this.Manager = manager;
+            this.InitializeConstant((long)x, 64);
         }
 
         /// <summary>
@@ -126,24 +141,9 @@ namespace DecisionDiagrams
         /// <param name="manager">The manager.</param>
         public BitVector(long x, DDManager<T> manager)
         {
-            this.InitializeConstant(x, 64);
             this.Manager = manager;
+            this.InitializeConstant(x, 64);
         }
-
-        /// <summary>
-        /// Gets the manager object.
-        /// </summary>
-        public DDManager<T> Manager { get; }
-
-        /// <summary>
-        /// One DD per bit, with the MSB appearing in the 0th index.
-        /// </summary>
-        internal DDIndex[] Bits { get; private set; }
-
-        /// <summary>
-        /// Gets the number of bits.
-        /// </summary>
-        public int Size { get => this.Bits.Length; }
 
         /// <summary>
         /// Get the underlying bits as decision diagrams.
@@ -169,11 +169,11 @@ namespace DecisionDiagrams
         {
             get
             {
-                return this.Manager.FromIndex(this.Bits[i]);
+                return this.Bits[i];
             }
             set
             {
-                this.Bits[i] = value.Index;
+                this.Bits[i] = value;
             }
         }
 
@@ -184,10 +184,10 @@ namespace DecisionDiagrams
         /// <param name="size">The size in number of bits.</param>
         private void InitializeConstant(long value, int size)
         {
-            this.Bits = new DDIndex[size];
+            this.Bits = new DD[size];
             for (int i = size - 1; i >= 0; i--)
             {
-                this.Bits[i] = (value & 1) == 1 ? DDIndex.True : DDIndex.False;
+                this.Bits[i] = (value & 1) == 1 ? this.Manager.True() : this.Manager.False();
                 value = value >> 1;
             }
         }

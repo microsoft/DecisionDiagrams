@@ -22,7 +22,6 @@ namespace DecisionDiagramTests
         public void Initialize()
         {
             this.Factory = new CBDDNodeFactory();
-            this.Manager = new DDManager<CBDDNode>(this.Factory, 16, gcMinCutoff: 4);
             this.BaseInitialize();
         }
 
@@ -32,8 +31,11 @@ namespace DecisionDiagramTests
         [TestMethod]
         public override void TestNodeCountCorrect()
         {
-            var dd = this.Manager.Or(this.VarA, this.VarB);
-            Assert.AreEqual(3, this.Manager.NodeCount(dd));
+            var manager = this.GetManager();
+            var va = manager.CreateBool();
+            var vb = manager.CreateBool();
+            var dd = manager.Or(va.Id(), vb.Id());
+            Assert.AreEqual(3, manager.NodeCount(dd));
         }
 
         /// <summary>
@@ -42,8 +44,11 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestDisplay()
         {
-            var dd = this.Manager.Or(this.VarA, this.VarB);
-            Assert.AreEqual(this.Manager.Display(dd), "(1:2 ? true : false)");
+            var manager = this.GetManager();
+            var va = manager.CreateBool();
+            var vb = manager.CreateBool();
+            var dd = manager.Or(va.Id(), vb.Id());
+            Assert.AreEqual(manager.Display(dd), "(1:2 ? true : false)");
         }
     }
 }
