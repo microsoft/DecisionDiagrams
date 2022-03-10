@@ -124,6 +124,12 @@ namespace DecisionDiagrams
             index = this.count;
             this.count++;
             var value = this.manager.FreshNode(key);
+
+            if (value.IsConstant())
+            {
+                throw new Exception("BAD");
+            }
+
             this.entries[index] = new Entry { Next = this.buckets[targetBucket], Value = value };
             this.buckets[targetBucket] = index;
             return value;
@@ -222,7 +228,7 @@ namespace DecisionDiagrams
             Array.Copy(this.entries, 0, newEntries, 0, this.count);
             for (int i = 0; i < this.count; i++)
             {
-                var hashCode = this.manager.LookupNodeByIndex(newEntries[i].Value).GetHashCode();
+                var hashCode = this.manager.MemoryPool[newEntries[i].Value.Index].GetHashCode();
                 if (hashCode >= 0)
                 {
                     int bucket = hashCode & this.mask;

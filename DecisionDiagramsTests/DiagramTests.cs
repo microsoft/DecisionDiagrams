@@ -2420,6 +2420,27 @@ namespace DecisionDiagramTests
         }
 
         /// <summary>
+        /// Test that garbage collection doesn't fail with bitvectors.
+        /// </summary>
+        [TestMethod]
+        public void TestBitvectorsAfterGarbageCollection()
+        {
+            var manager = this.GetManager();
+            var vars = manager.CreateInterleavedInt32(2);
+            var a = vars[0].CreateDomain();
+            var b = vars[1].CreateDomain();
+            this.CreateGarbage(manager);
+            var x = manager.Add(a, b);
+            this.CreateGarbage(manager);
+            this.CreateGarbage(manager);
+            GC.Collect();
+            manager.GarbageCollect();
+            var y = manager.Add(a, b);
+
+            Assert.AreEqual(manager.True(), manager.Eq(x, y));
+        }
+
+        /// <summary>
         /// Test replacing multiple variables.
         /// </summary>
         [TestMethod]

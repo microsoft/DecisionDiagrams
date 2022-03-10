@@ -282,7 +282,7 @@ namespace DecisionDiagrams
                 return false;
             }
 
-            var lo = this.Manager.LookupNodeByIndex(node.Low);
+            var lo = this.Manager.MemoryPool[node.Low.GetPosition()];
             if (lo.Variable == node.NextVariable && lo.High.Equals(node.High))
             {
                 var reduced = new CBDDNode(node.Variable, lo.NextVariable, lo.Low, node.High);

@@ -29,14 +29,5 @@ namespace DecisionDiagrams
         {
             return this.Manager.Id(this);
         }
-
-        /// <summary>
-        /// Identity function for a variable.
-        /// </summary>
-        /// <returns>The identify function.</returns>
-        internal DDIndex IdIdx()
-        {
-            return this.Manager.IdIdx(this);
-        }
     }
 }

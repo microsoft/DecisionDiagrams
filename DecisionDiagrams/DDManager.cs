@@ -71,7 +71,7 @@ namespace DecisionDiagrams
         /// The current index into the memoryPool that holds nodes.
         /// Is incremented when a new unique node is created.
         /// </summary>
-        private int index = 2;
+        private int index = 1;
 
         /// <summary>
         /// The size of the memory pool that holds unique nodes.
@@ -120,7 +120,13 @@ namespace DecisionDiagrams
         /// The unique table that maps DDNode to DD in order to
         /// ensure that there is always complete structural sharing.
         /// </summary>
-        private UniqueTable<T> uniqueTable;
+        private Dictionary<T, DDIndex> uniqueTable;
+
+        /// <summary>
+        /// Dictionary from handles (externally visible nodes)
+        /// to internal indices.
+        /// </summary>
+        private Dictionary<DDIndex, WeakReference<DD>> handleTable;
 
         /// <summary>
         /// The operation cache for the "and" operation.
@@ -143,16 +149,16 @@ namespace DecisionDiagrams
         private OperationResult2[] replaceCache;
 
         /// <summary>
-        /// Dictionary from handles (externally visible nodes)
-        /// to internal indices.
-        /// </summary>
-        private HandleTable<T> handleTable;
-
-        /// <summary>
         /// Fraction of the nodes that, if remain after a collection,
         /// will trigger a unique table resize.
         /// </summary>
         private double gcLoadIncrease;
+
+        /// <summary>
+        /// The number of nodes allocated before a GC is triggered currently.
+        /// This is the memory pool size * gcLoadIncrease.
+        /// </summary>
+        private int currentGcNodeCount;
 
         /// <summary>
         /// The initial cache size.
@@ -164,6 +170,32 @@ namespace DecisionDiagrams
         /// resize occurs and when garbage collection takes place.
         /// </summary>
         private bool printDebug;
+
+        /// <summary>
+        /// The true decision diagram.
+        /// </summary>
+        private DD trueDD;
+
+        /// <summary>
+        /// The false decision diagram.
+        /// </summary>
+        private DD falseDD;
+
+        /// <summary>
+        /// Gets the unique id for this manager. Allows allow for safety
+        /// checks so that a node can't be used with the wrong manager.
+        /// </summary>
+        public ushort Uid { get; }
+
+        /// <summary>
+        /// Gets the number of allocated variables for this manager.
+        /// </summary>
+        public int NumVariables { get => this.numVariables; }
+
+        /// <summary>
+        /// Gets the underlying memory pool.
+        /// </summary>
+        internal T[] MemoryPool { get => this.memoryPool; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DDManager{DDNode}"/> class.
@@ -200,27 +232,74 @@ namespace DecisionDiagrams
             this.factory = nodeFactory;
             this.variables = new List<Variable<T>>();
             this.memoryPool = new T[this.poolSize];
-            this.uniqueTable = new UniqueTable<T>(this);
+            this.uniqueTable = new Dictionary<T, DDIndex>();
             this.UpdateGcLoadIncrease();
+            this.currentGcNodeCount = (int)(gcLoadTrigger * this.memoryPool.Length);
             this.ResetCaches();
-            this.handleTable = new HandleTable<T>(this);
+            this.handleTable = new Dictionary<DDIndex, WeakReference<DD>>();
+            this.trueDD = this.FromIndex(DDIndex.True);
+            this.falseDD = this.FromIndex(DDIndex.False);
         }
 
         /// <summary>
-        /// Gets the unique id for this manager. Allows allow for safety
-        /// checks so that a node can't be used with the wrong manager.
+        /// Allocate a new DD for a DDNode.
         /// </summary>
-        public ushort Uid { get; }
+        /// <param name="node">The DDNode.</param>
+        /// <returns>An index for the allocated node.</returns>
+        internal DDIndex Allocate(T node)
+        {
+            bool flipResult = false;
+            if (node.Low.IsComplemented())
+            {
+                node = this.factory.Flip(node);
+                flipResult = true;
+            }
+
+            if (this.factory.Reduce(node, out DDIndex result))
+            {
+                return flipResult ? result.Flip() : result;
+            }
+
+            if (!this.uniqueTable.TryGetValue(node, out var index))
+            {
+                if (this.index == this.memoryPool.Length)
+                {
+                    this.Resize();
+                }
+
+                index = new DDIndex(this.index, false);
+                this.memoryPool[this.index++] = node;
+                this.uniqueTable[node] = index;
+            }
+
+            return flipResult ? index.Flip() : index;
+        }
 
         /// <summary>
-        /// Gets the number of allocated variables for this manager.
+        /// Convert from an index to a DD. To ensure GC works correctly,
+        /// we need to make sure there is a unique DD per DDIndex. We
+        /// use the handleTable for this and use a WeakReference to ensure
+        /// that GC collection occurs.
         /// </summary>
-        public int NumVariables { get => this.numVariables; }
+        /// <param name="index">The node index.</param>
+        /// <returns>An external handle.</returns>
+        internal DD FromIndex(DDIndex index)
+        {
+            if (this.handleTable.TryGetValue(index, out var wref))
+            {
+                if (!wref.TryGetTarget(out var target))
+                {
+                    target = new DD(this.Uid, index);
+                    wref.SetTarget(target);
+                }
 
-        /// <summary>
-        /// Gets the underlying memory pool.
-        /// </summary>
-        internal T[] MemoryPool { get => this.memoryPool; }
+                return target;
+            }
+
+            var result = new DD(this.Uid, index);
+            this.handleTable[index] = new WeakReference<DD>(result);
+            return result;
+        }
 
         /// <summary>
         /// Creates a new variable set.
@@ -249,6 +328,8 @@ namespace DecisionDiagrams
         /// <returns>The identity function.</returns>
         public DD Id(VarBool<T> var)
         {
+            this.Check(var.Manager.Uid);
+            this.CheckForCollection();
             return this.FromIndex(this.IdIdx(var));
         }
 
@@ -269,7 +350,7 @@ namespace DecisionDiagrams
         /// <returns>The false function.</returns>
         public DD False()
         {
-            return this.FromIndex(DDIndex.False);
+            return this.falseDD;
         }
 
         /// <summary>
@@ -278,7 +359,7 @@ namespace DecisionDiagrams
         /// <returns>The true function.</returns>
         public DD True()
         {
-            return this.FromIndex(DDIndex.True);
+            return this.trueDD;
         }
 
         /// <summary>
@@ -318,6 +399,20 @@ namespace DecisionDiagrams
             this.Check(y.ManagerId);
             this.CheckForCollection();
             return this.FromIndex(this.Or(x.Index, y.Index));
+        }
+
+        /// <summary>
+        /// Exclusive or for DDs.
+        /// </summary>
+        /// <param name="x">The first operand.</param>
+        /// <param name="y">The second operand.</param>
+        /// <returns>Their conjunction.</returns>
+        public DD Xor(DD x, DD y)
+        {
+            this.Check(x.ManagerId);
+            this.Check(y.ManagerId);
+            this.CheckForCollection();
+            return this.FromIndex(this.Xor(x.Index, y.Index));
         }
 
         /// <summary>
@@ -369,6 +464,7 @@ namespace DecisionDiagrams
         {
             this.Check(x.ManagerId);
             this.Check(y.ManagerId);
+            this.CheckForCollection();
             return this.FromIndex(this.Or(this.Not(x.Index), y.Index));
         }
 
@@ -384,6 +480,7 @@ namespace DecisionDiagrams
             this.Check(g.ManagerId);
             this.Check(t.ManagerId);
             this.Check(f.ManagerId);
+            this.CheckForCollection();
             return this.FromIndex(this.Ite(g.Index, t.Index, f.Index));
         }
 
@@ -397,6 +494,7 @@ namespace DecisionDiagrams
         {
             this.Check(x.ManagerId);
             this.Check(y.ManagerId);
+            this.CheckForCollection();
             return this.FromIndex(this.Or(this.And(x.Index, y.Index), this.And(this.Not(x.Index), this.Not(y.Index))));
         }
 
@@ -407,7 +505,7 @@ namespace DecisionDiagrams
         /// <returns>The left child.</returns>
         public DD Low(DD x)
         {
-            var node = this.LookupNodeByIndex(x.Index);
+            var node = this.MemoryPool[x.Index.GetPosition()];
             return this.FromIndex(node.Low);
         }
 
@@ -418,7 +516,7 @@ namespace DecisionDiagrams
         /// <returns>The left child.</returns>
         public DD High(DD x)
         {
-            var node = this.LookupNodeByIndex(x.Index);
+            var node = this.MemoryPool[x.Index.GetPosition()];
             return this.FromIndex(node.High);
         }
 
@@ -429,7 +527,7 @@ namespace DecisionDiagrams
         /// <returns>The left child.</returns>
         public int Variable(DD x)
         {
-            var node = this.LookupNodeByIndex(x.Index);
+            var node = this.MemoryPool[x.Index.GetPosition()];
             return node.Variable;
         }
 
@@ -907,7 +1005,7 @@ namespace DecisionDiagrams
             {
                 var b1 = bitvector1.Bits[i];
                 var b2 = bitvector2.Bits[i];
-                result.Bits[i] = this.Ite(guard.Index, b1, b2);
+                result.Bits[i] = this.Ite(guard, b1, b2);
             }
 
             return result;
@@ -923,7 +1021,7 @@ namespace DecisionDiagrams
         {
             this.CheckBitvectorSizes(bitvector1, bitvector2);
 
-            var result = DDIndex.True;
+            var result = this.True();
             for (int i = 0; i < bitvector1.Size; i++)
             {
                 var b1 = bitvector1.Bits[i];
@@ -932,7 +1030,7 @@ namespace DecisionDiagrams
                 result = this.And(result, bitsEqual);
             }
 
-            return this.FromIndex(result);
+            return result;
         }
 
         /// <summary>
@@ -945,7 +1043,7 @@ namespace DecisionDiagrams
         {
             this.CheckBitvectorSizes(bitvector1, bitvector2);
 
-            var result = DDIndex.True;
+            var result = this.True();
             for (int i = bitvector1.Size - 1; i >= 0; i--)
             {
                 var b1 = bitvector1.Bits[i];
@@ -955,7 +1053,7 @@ namespace DecisionDiagrams
                 result = this.Or(lt, this.And(result, eq));
             }
 
-            return this.FromIndex(result);
+            return result;
         }
 
         /// <summary>
@@ -968,7 +1066,7 @@ namespace DecisionDiagrams
         {
             this.CheckBitvectorSizes(bitvector1, bitvector2);
 
-            var result = DDIndex.True;
+            var result = this.True();
             for (int i = bitvector1.Size - 1; i >= 0; i--)
             {
                 var b1 = bitvector1.Bits[i];
@@ -978,7 +1076,7 @@ namespace DecisionDiagrams
                 result = this.Or(lt, this.And(result, eq));
             }
 
-            return this.FromIndex(result);
+            return result;
         }
 
         /// <summary>
@@ -991,7 +1089,7 @@ namespace DecisionDiagrams
         {
             this.CheckBitvectorSizes(bitvector1, bitvector2);
 
-            var result = DDIndex.True;
+            var result = this.True();
             for (int i = bitvector1.Size - 1; i >= 0; i--)
             {
                 var b1 = bitvector1.Bits[i];
@@ -1001,7 +1099,7 @@ namespace DecisionDiagrams
                 result = this.Or(gt, this.And(result, eq));
             }
 
-            return this.FromIndex(result);
+            return result;
         }
 
         /// <summary>
@@ -1014,7 +1112,7 @@ namespace DecisionDiagrams
         {
             this.CheckBitvectorSizes(bitvector1, bitvector2);
 
-            var result = DDIndex.True;
+            var result = this.True();
             for (int i = bitvector1.Size - 1; i >= 0; i--)
             {
                 var b1 = bitvector1.Bits[i];
@@ -1024,7 +1122,7 @@ namespace DecisionDiagrams
                 result = this.Or(gt, this.And(result, eq));
             }
 
-            return this.FromIndex(result);
+            return result;
         }
 
         /// <summary>
@@ -1036,7 +1134,7 @@ namespace DecisionDiagrams
         public BitVector<T> Add(BitVector<T> bitvector1, BitVector<T> bitvector2)
         {
             var result = new BitVector<T>(this, bitvector1.Size);
-            var c = DDIndex.False;
+            var c = this.False();
 
             for (int n = result.Size - 1; n >= 0; n--)
             {
@@ -1082,7 +1180,7 @@ namespace DecisionDiagrams
         public BitVector<T> Subtract(BitVector<T> bitvector1, BitVector<T> bitvector2)
         {
             var result = new BitVector<T>(this, bitvector1.Size);
-            var c = DDIndex.False;
+            var c = this.False();
 
             for (int n = result.Size - 1; n >= 0; n--)
             {
@@ -1121,7 +1219,7 @@ namespace DecisionDiagrams
 
             for (int n = num - 1; n >= 0; n--)
             {
-                result.Bits[n] = DDIndex.False;
+                result.Bits[n] = this.False();
             }
 
             return result;
@@ -1148,7 +1246,7 @@ namespace DecisionDiagrams
 
             for (int n = result.Size - num; n < result.Size; n++)
             {
-                result.Bits[n] = DDIndex.False;
+                result.Bits[n] = this.False();
             }
 
             return result;
@@ -1247,70 +1345,6 @@ namespace DecisionDiagrams
         public void GarbageCollect()
         {
             this.GarbageCollectInternal();
-        }
-
-        /// <summary>
-        /// Allocate a fresh node in the memory pool
-        /// and return its index.
-        /// </summary>
-        /// <param name="node">The node to allocate.</param>
-        /// <returns>Its new index in the memory pool.</returns>
-        internal DDIndex FreshNode(T node)
-        {
-            if (this.index == this.memoryPool.Length)
-            {
-                this.Resize();
-            }
-
-            var value = new DDIndex(this.index, false);
-            this.memoryPool[this.index++] = node;
-            return value;
-        }
-
-        /// <summary>
-        /// Return the underlying DDNode for a DD index.
-        /// </summary>
-        /// <param name="value">The function.</param>
-        /// <returns>The underlying node.</returns>
-        internal T LookupNodeByIndex(DDIndex value)
-        {
-            return this.memoryPool[value.GetPosition()];
-        }
-
-        /// <summary>
-        /// Allocate a new DD for a DDNode.
-        /// </summary>
-        /// <param name="node">The DDNode.</param>
-        /// <returns>An index for the allocated node.</returns>
-        internal DDIndex Allocate(T node)
-        {
-            bool flipResult = false;
-            if (node.Low.IsComplemented())
-            {
-                node = this.factory.Flip(node);
-                flipResult = true;
-            }
-
-            if (this.factory.Reduce(node, out DDIndex result))
-            {
-                return flipResult ? result.Flip() : result;
-            }
-
-            DDIndex ret = this.uniqueTable.GetOrAdd(node);
-            return flipResult ? ret.Flip() : ret;
-        }
-
-        /// <summary>
-        /// Convert from an index to a DD. To ensure GC works correctly,
-        /// we need to make sure there is a unique DD per DDIndex. We
-        /// use the handleTable for this and use a WeakReference to ensure
-        /// that GC collection occurs.
-        /// </summary>
-        /// <param name="index">The node index.</param>
-        /// <returns>An external handle.</returns>
-        internal DD FromIndex(DDIndex index)
-        {
-            return this.handleTable.GetOrAdd(index);
         }
 
         /// <summary>
@@ -1508,17 +1542,6 @@ namespace DecisionDiagrams
         }
 
         /// <summary>
-        /// Compute the iff of two functions.
-        /// </summary>
-        /// <param name="x">The first function.</param>
-        /// <param name="y">The second function.</param>
-        /// <returns>The logical "iff".</returns>
-        internal DDIndex Iff(DDIndex x, DDIndex y)
-        {
-            return this.Or(this.And(x, y), this.And(this.Not(x), this.Not(y)));
-        }
-
-        /// <summary>
         /// Compute the ite of two functions.
         /// </summary>
         /// <param name="f">The guard function.</param>
@@ -1678,8 +1701,7 @@ namespace DecisionDiagrams
         /// </summary>
         private void CheckForCollection()
         {
-            if (this.index >= gcLoadTrigger * this.memoryPool.Length &&
-                this.memoryPool.Length >= this.gcMinCutoff)
+            if (this.memoryPool.Length >= this.gcMinCutoff && this.index >= this.currentGcNodeCount)
             {
                 this.GarbageCollectInternal();
             }
@@ -1703,12 +1725,18 @@ namespace DecisionDiagrams
         private void GarbageCollectInternal()
         {
             PrintDebug($"[DD] Garbage collection: {this.index} / {this.memoryPool.Length}");
-
             PrintDebug($"[DD] Garbage collection: unique table size before {this.uniqueTable.Count}");
             PrintDebug($"[DD] Garbage collection: handle table size before {this.handleTable.Count}");
 
             // find all live external handles, mark those nodes
-            this.handleTable.MarkAllLive();
+            foreach (var kv in this.handleTable)
+            {
+                var position = kv.Key.GetPosition();
+                if (position != 0 && kv.Value.TryGetTarget(out var _))
+                {
+                    this.memoryPool[position].Mark = true;
+                }
+            }
 
             // recursively mark all nodes that are reachable
             var numMarked = 0;
@@ -1751,8 +1779,39 @@ namespace DecisionDiagrams
             PrintDebug($"[DD] Garbage collection: shifted {nextFree - 1} nodes");
 
             // rebuild the unique and handle tables now that indices are invalidated
-            this.uniqueTable = this.uniqueTable.Rebuild(nextFree, forwardingAddresses);
-            this.handleTable = this.handleTable.Rebuild(forwardingAddresses);
+            var uniqueTable = new Dictionary<T, DDIndex>(this.uniqueTable.Count);
+            foreach (var kv in this.uniqueTable)
+            {
+                var ddindex = kv.Value;
+                var newPosition = forwardingAddresses[ddindex.GetPosition()];
+                if (newPosition != 0)
+                {
+                    uniqueTable.Add(this.MemoryPool[newPosition], new DDIndex(newPosition, ddindex.IsComplemented()));
+                }
+            }
+
+            this.uniqueTable = uniqueTable;
+
+            // rebuild the handle table
+            var table = new Dictionary<DDIndex, WeakReference<DD>>(this.handleTable.Count);
+            foreach (var kv in this.handleTable)
+            {
+                var index = kv.Key;
+                var wref = kv.Value;
+                var position = index.GetPosition();
+                var newPosition = forwardingAddresses[position];
+                if (newPosition != 0)
+                {
+                    var newIndex = new DDIndex(newPosition, index.IsComplemented());
+                    if (wref.TryGetTarget(out DD target))
+                    {
+                        target.Index = newIndex;
+                        table.Add(newIndex, wref);
+                    }
+                }
+            }
+
+            this.handleTable = table;
 
             PrintDebug($"[DD] Garbage collection: unique table size now {this.uniqueTable.Count}");
             PrintDebug($"[DD] Garbage collection: handle table size now {this.handleTable.Count}");
@@ -1798,32 +1857,27 @@ namespace DecisionDiagrams
             if (currentNodeCount <= (1 << 19))
             {
                 this.gcLoadIncrease = 0.2;
-                return;
             }
-
             // about 20MB
-            if (currentNodeCount <= (1 << 20))
+            else if (currentNodeCount <= (1 << 20))
             {
                 this.gcLoadIncrease = 0.35;
-                return;
             }
-
             // about 40MB
-            if (currentNodeCount <= (1 << 21))
+            else if (currentNodeCount <= (1 << 21))
             {
                 this.gcLoadIncrease = 0.5;
-                return;
             }
-
             // about 80MB
-            if (currentNodeCount <= (1 << 22))
+            else if (currentNodeCount <= (1 << 22))
             {
                 this.gcLoadIncrease = 0.65;
-                return;
             }
-
             // for large problems, be conservative to resize.
-            this.gcLoadIncrease = 0.8;
+            else
+            {
+                this.gcLoadIncrease = 0.8;
+            }
         }
 
         /// <summary>
@@ -1897,6 +1951,7 @@ namespace DecisionDiagrams
             PrintDebug($"[DD] Resizing node table to: {2 * this.poolSize}");
             this.poolSize = 2 * this.poolSize;
             Array.Resize(ref this.memoryPool, unchecked((int)this.poolSize));
+            this.currentGcNodeCount = (int)(gcLoadTrigger * this.memoryPool.Length);
             this.ResetCaches();
         }
 
@@ -1933,8 +1988,7 @@ namespace DecisionDiagrams
                 return 1;
             }
 
-            var node = this.LookupNodeByIndex(value);
-
+            var node = this.MemoryPool[value.GetPosition()];
             return 1 + this.NodeCount(node.Low, seen) + this.NodeCount(node.High, seen);
         }
 
@@ -2058,7 +2112,7 @@ namespace DecisionDiagrams
                 return;
             }
 
-            var node = this.LookupNodeByIndex(value);
+            var node = this.MemoryPool[value.GetPosition()];
             lookingFor = value.IsComplemented() ? !lookingFor : lookingFor;
             var goLeft = (lookingFor && !node.Low.IsZero()) || (!lookingFor && !node.Low.IsOne());
             if (goLeft)
