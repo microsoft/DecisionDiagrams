@@ -22,7 +22,7 @@ namespace DecisionDiagramTests
         /// <summary>
         /// How many random inputs to generate per test.
         /// </summary>
-        private static int numRandomTests = 4000;
+        private static int numRandomTests = 2000;
 
         /// <summary>
         /// Gets or sets the decision diagram factory.
@@ -2446,7 +2446,7 @@ namespace DecisionDiagramTests
         [TestMethod]
         public void TestStaticCache()
         {
-            var manager = this.GetManager();
+            var manager = new DDManager<T>(this.Factory, dynamicCache: false);
             var a = manager.CreateBool();
             var b = manager.CreateBool();
             var c = manager.CreateBool();
@@ -2629,7 +2629,7 @@ namespace DecisionDiagramTests
         /// <returns>A new manager object.</returns>
         internal DDManager<T> GetManager()
         {
-            return new DDManager<T>(this.Factory, numNodes: 16, gcMinCutoff: 16, printDebug: true);
+            return new DDManager<T>(this.Factory, numNodes: 16, gcMinCutoff: 16, printDebug: false);
         }
     }
 }
