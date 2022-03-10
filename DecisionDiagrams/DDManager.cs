@@ -120,7 +120,7 @@ namespace DecisionDiagrams
         /// The unique table that maps DDNode to DD in order to
         /// ensure that there is always complete structural sharing.
         /// </summary>
-        private Dictionary<T, DDIndex> uniqueTable;
+        private UniqueTable<T> uniqueTable;
 
         /// <summary>
         /// Dictionary from handles (externally visible nodes)
@@ -232,13 +232,31 @@ namespace DecisionDiagrams
             this.factory = nodeFactory;
             this.variables = new List<Variable<T>>();
             this.memoryPool = new T[this.poolSize];
-            this.uniqueTable = new Dictionary<T, DDIndex>();
+            this.uniqueTable = new UniqueTable<T>(this);
             this.UpdateGcLoadIncrease();
             this.currentGcNodeCount = (int)(gcLoadTrigger * this.memoryPool.Length);
             this.ResetCaches();
             this.handleTable = new Dictionary<DDIndex, WeakReference<DD>>();
             this.trueDD = this.FromIndex(DDIndex.True);
             this.falseDD = this.FromIndex(DDIndex.False);
+        }
+
+        /// <summary>
+        /// Allocate a fresh node in the memory pool
+        /// and return its index.
+        /// </summary>
+        /// <param name="node">The node to allocate.</param>
+        /// <returns>Its new index in the memory pool.</returns>
+        internal DDIndex FreshNode(T node)
+        {
+            if (this.index == this.memoryPool.Length)
+            {
+                this.Resize();
+            }
+
+            var value = new DDIndex(this.index, false);
+            this.memoryPool[this.index++] = node;
+            return value;
         }
 
         /// <summary>
@@ -260,19 +278,8 @@ namespace DecisionDiagrams
                 return flipResult ? result.Flip() : result;
             }
 
-            if (!this.uniqueTable.TryGetValue(node, out var index))
-            {
-                if (this.index == this.memoryPool.Length)
-                {
-                    this.Resize();
-                }
-
-                index = new DDIndex(this.index, false);
-                this.memoryPool[this.index++] = node;
-                this.uniqueTable[node] = index;
-            }
-
-            return flipResult ? index.Flip() : index;
+            DDIndex ret = this.uniqueTable.GetOrAdd(node);
+            return flipResult ? ret.Flip() : ret;
         }
 
         /// <summary>
@@ -1779,18 +1786,7 @@ namespace DecisionDiagrams
             PrintDebug($"[DD] Garbage collection: shifted {nextFree - 1} nodes");
 
             // rebuild the unique and handle tables now that indices are invalidated
-            var uniqueTable = new Dictionary<T, DDIndex>(this.uniqueTable.Count);
-            foreach (var kv in this.uniqueTable)
-            {
-                var ddindex = kv.Value;
-                var newPosition = forwardingAddresses[ddindex.GetPosition()];
-                if (newPosition != 0)
-                {
-                    uniqueTable.Add(this.MemoryPool[newPosition], new DDIndex(newPosition, ddindex.IsComplemented()));
-                }
-            }
-
-            this.uniqueTable = uniqueTable;
+            this.uniqueTable = this.uniqueTable.Rebuild(nextFree, forwardingAddresses);
 
             // rebuild the handle table
             var table = new Dictionary<DDIndex, WeakReference<DD>>(this.handleTable.Count);

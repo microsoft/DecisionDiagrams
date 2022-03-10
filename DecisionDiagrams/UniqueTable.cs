@@ -228,7 +228,8 @@ namespace DecisionDiagrams
             Array.Copy(this.entries, 0, newEntries, 0, this.count);
             for (int i = 0; i < this.count; i++)
             {
-                var hashCode = this.manager.MemoryPool[newEntries[i].Value.Index].GetHashCode();
+                var position = newEntries[i].Value.GetPosition();
+                var hashCode = this.manager.MemoryPool[position].GetHashCode();
                 if (hashCode >= 0)
                 {
                     int bucket = hashCode & this.mask;
