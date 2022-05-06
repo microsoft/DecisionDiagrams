@@ -67,13 +67,15 @@ Internally, the manager supports several operations: conjunction, existential qu
 
 # Performance
 
-The performance of the library should be comparable to other highly optimized BDD implementations. Below are the timings to solve the famous n-queens chess problem (how to arrange n queens on an n x n chess board such that none attack each other) compared to JavaBDD, which has a direct translation of the C-based BuDDy implementaiton into Java. The times are for a 64-bit Intel Core i7-8650U CPU @ 1.90GHz machine.
+The performance of the library should be comparable to other highly optimized BDD implementations. Below are the timings to solve the famous n-queens chess problem (how to arrange n queens on an n x n chess board such that none attack each other). The library is compared to BuDDy, which is considered to be one of the fastest BDD implementations, as well as JavaBDD, which has a direct translation of the C-based BuDDy implementation into Java. The times given are using .net core 6.0 for a 64-bit Intel Core i7-8650U CPU @ 1.90GHz machine. All implementations require around 200MB of memory, while the CBDDNode implementation uses roughly half that at 100MB of memory.
 
-| Implementation               | Language | n  | Time (seconds) | Peak live memory (MB) |
-| ---------------------------- | -------- | -- | -------------- | --------------------- |
-| DecisionDiagrams (BDDNode)   | C#       | 12 | 16s            | 207 MB                |
-| DecisionDiagrams (CBDDNode)  | C#       | 12 | 12s            | 104 MB                |
-| JavaBDD (BuDDy translation)  | Java     | 12 | 32s            | 214 MB                |
+| Implementation               | Language | n  | Time (seconds) |
+| ---------------------------- | -------- | -- | -------------- |
+| DecisionDiagrams (CBDDNode)  | C#       | 12 | 11.4s          |
+| DecisionDiagrams (BDDNode)   | C#       | 12 | 14.8s          |
+| BuDDy (aggressive allocation)| C        | 12 | 21.9s          |
+| JavaBDD (BuDDy translation)  | Java     | 12 | 27.5s          |
+| BuDDy (default settings)     | C        | 12 | 35.9s          |
 
 # Contributing
 
