@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29709.97
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32414.318
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DecisionDiagrams", "DecisionDiagrams\DecisionDiagrams.csproj", "{379C16D4-D87C-4A11-9949-3B651C047CEF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DecisionDiagramsTests", "DecisionDiagramsTests\DecisionDiagramsTests.csproj", "{48936F64-10D3-44A6-BB52-73F72B7EA7ED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DecisionDiagrams.Tests", "DecisionDiagrams.Tests\DecisionDiagrams.Tests.csproj", "{48936F64-10D3-44A6-BB52-73F72B7EA7ED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DecisionDiagramsBench", "DecisionDiagramsBench\DecisionDiagramsBench.csproj", "{D879580E-83A1-4A0C-9D08-7088D3FB864B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DecisionDiagrams.Bench", "DecisionDiagrams.Bench\DecisionDiagrams.Bench.csproj", "{D879580E-83A1-4A0C-9D08-7088D3FB864B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

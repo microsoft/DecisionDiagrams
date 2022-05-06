@@ -2,7 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // </copyright>
 
-namespace DecisionDiagramsBench
+namespace DecisionDiagrams.Bench
 {
     using System;
     using DecisionDiagrams;
