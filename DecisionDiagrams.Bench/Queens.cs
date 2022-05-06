@@ -61,10 +61,20 @@ namespace DecisionDiagrams.Bench
                     Build(i, j);
                 }
             }
+
+            /* var assignment = this.manager.Sat(this.problemEncoding);
+
+            for (int i = 0; i < this.boardSize; i++)
+            {
+                for (int j = 0; j < this.boardSize; j++)
+                {
+                    Console.WriteLine($"[{i}, {j}] = {assignment.Get(this.variables[i, j])}");
+                }
+            } */
         }
 
         /// <summary>
-        /// Adds diaganol constraints for position i, j.
+        /// Adds diagonal constraints for position i, j.
         /// </summary>
         /// <param name="i">The row.</param>
         /// <param name="j">The column.</param>
