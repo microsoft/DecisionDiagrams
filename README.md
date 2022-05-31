@@ -1,6 +1,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Build Status](https://dev.azure.com/rybecket/DecisionDiagrams/_apis/build/status/microsoft.DecisionDiagrams?branchName=master)](https://dev.azure.com/rybecket/DecisionDiagrams/_build/latest?definitionId=1&branchName=master)
-![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/rybecket/DecisionDiagrams/1)
+![Build Status](https://github.com/microsoft/DecisionDiagrams/actions/workflows/dotnet.yml/badge.svg)
+![badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/rabeckett/4e0516e3b9f171c6b195744513656d58/raw/code-coverage-dd.json)
 
 # Introduction 
 This project is an implementation for various variants of [binary decision diagrams](https://en.wikipedia.org/wiki/Binary_decision_diagram) that is used at Microsoft Research. It focuses on high performance, usability, and correctness. The library maintains 100% test coverage.
