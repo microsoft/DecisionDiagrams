@@ -26,29 +26,29 @@ namespace DecisionDiagrams
         public long MaxVariables { get; } = (long)(1U << 15) - 1;
 
         /// <summary>
-        /// The logical conjunction of two BDDs as the
-        /// standard BDD "apply" operation.
+        /// The apply of two CBDDs.
         /// </summary>
         /// <param name="xid">The left operand index.</param>
         /// <param name="x">The left operand node.</param>
         /// <param name="yid">The right operand index.</param>
         /// <param name="y">The right operand node.</param>
+        /// <param name="operation">The apply operation.</param>
         /// <returns>A new node representing the "And".</returns>
-        public DDIndex And(DDIndex xid, CBDDNode x, DDIndex yid, CBDDNode y)
+        public DDIndex Apply(DDIndex xid, CBDDNode x, DDIndex yid, CBDDNode y, DDOperation operation)
         {
             if (x.Variable < y.Variable)
             {
                 if (x.NextVariable <= y.Variable)
                 {
-                    var xlow = this.Manager.And(x.Low, yid);
-                    var xhigh = this.Manager.And(x.High, yid);
+                    var xlow = this.Manager.Apply(x.Low, yid, operation);
+                    var xhigh = this.Manager.Apply(x.High, yid, operation);
                     return this.Manager.Allocate(new CBDDNode(x.Variable, x.NextVariable, xlow, xhigh));
                 }
                 else
                 {
                     var child = this.Manager.Allocate(new CBDDNode(y.Variable, x.NextVariable, x.Low, x.High));
-                    var xlow = this.Manager.And(child, yid);
-                    var xhigh = this.Manager.And(x.High, yid);
+                    var xlow = this.Manager.Apply(child, yid, operation);
+                    var xhigh = this.Manager.Apply(x.High, yid, operation);
                     return this.Manager.Allocate(new CBDDNode(x.Variable, y.Variable, xlow, xhigh));
                 }
             }
@@ -56,15 +56,15 @@ namespace DecisionDiagrams
             {
                 if (y.NextVariable <= x.Variable)
                 {
-                    var ylow = this.Manager.And(y.Low, xid);
-                    var yhigh = this.Manager.And(y.High, xid);
+                    var ylow = this.Manager.Apply(y.Low, xid, operation);
+                    var yhigh = this.Manager.Apply(y.High, xid, operation);
                     return this.Manager.Allocate(new CBDDNode(y.Variable, y.NextVariable, ylow, yhigh));
                 }
                 else
                 {
                     var child = this.Manager.Allocate(new CBDDNode(x.Variable, y.NextVariable, y.Low, y.High));
-                    var ylow = this.Manager.And(child, xid);
-                    var yhigh = this.Manager.And(y.High, xid);
+                    var ylow = this.Manager.Apply(child, xid, operation);
+                    var yhigh = this.Manager.Apply(y.High, xid, operation);
                     return this.Manager.Allocate(new CBDDNode(y.Variable, x.Variable, ylow, yhigh));
                 }
             }
@@ -72,22 +72,22 @@ namespace DecisionDiagrams
             {
                 if (x.NextVariable == y.NextVariable)
                 {
-                    var lo = this.Manager.And(x.Low, y.Low);
-                    var hi = this.Manager.And(x.High, y.High);
+                    var lo = this.Manager.Apply(x.Low, y.Low, operation);
+                    var hi = this.Manager.Apply(x.High, y.High, operation);
                     return this.Manager.Allocate(new CBDDNode(x.Variable, x.NextVariable, lo, hi));
                 }
                 else if (x.NextVariable < y.NextVariable)
                 {
                     var ychild = this.Manager.Allocate(new CBDDNode(x.NextVariable, y.NextVariable, y.Low, y.High));
-                    var lo = this.Manager.And(x.Low, ychild);
-                    var hi = this.Manager.And(x.High, y.High);
+                    var lo = this.Manager.Apply(x.Low, ychild, operation);
+                    var hi = this.Manager.Apply(x.High, y.High, operation);
                     return this.Manager.Allocate(new CBDDNode(x.Variable, x.NextVariable, lo, hi));
                 }
                 else
                 {
                     var xchild = this.Manager.Allocate(new CBDDNode(y.NextVariable, x.NextVariable, x.Low, x.High));
-                    var lo = this.Manager.And(y.Low, xchild);
-                    var hi = this.Manager.And(y.High, x.High);
+                    var lo = this.Manager.Apply(y.Low, xchild, operation);
+                    var hi = this.Manager.Apply(y.High, x.High, operation);
                     return this.Manager.Allocate(new CBDDNode(y.Variable, y.NextVariable, lo, hi));
                 }
             }

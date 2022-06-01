@@ -48,15 +48,16 @@ namespace DecisionDiagrams
         bool Reduce(T node, out DDIndex result);
 
         /// <summary>
-        /// Implement the logical "and" operation,
+        /// Implement the logical "apply" operation,
         /// recursively calling the manager if necessary.
         /// </summary>
         /// <param name="xid">The left index.</param>
         /// <param name="x">The left node.</param>
         /// <param name="yid">The right index.</param>
         /// <param name="y">The right node.</param>
-        /// <returns>The and of the two nodes.</returns>
-        DDIndex And(DDIndex xid, T x, DDIndex yid, T y);
+        /// <param name="operation">The operation.</param>
+        /// <returns>The apply of the two nodes.</returns>
+        DDIndex Apply(DDIndex xid, T x, DDIndex yid, T y, DDOperation operation);
 
         /// <summary>
         /// Implement the logical "ite" operation,

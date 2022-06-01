@@ -31,32 +31,32 @@ namespace DecisionDiagrams
         public long MaxVariables { get; } = (long)(1U << 31) - 1;
 
         /// <summary>
-        /// The logical conjunction of two BDDs as the
-        /// standard BDD "apply" operation.
+        /// The apply of two bdds.
         /// </summary>
         /// <param name="xid">The left operand index.</param>
         /// <param name="x">The left operand node.</param>
         /// <param name="yid">The right operand index.</param>
         /// <param name="y">The right operand node.</param>
-        /// <returns>A new node representing the "And".</returns>
-        public DDIndex And(DDIndex xid, BDDNode x, DDIndex yid, BDDNode y)
+        /// <param name="operation">The apply operation.</param>
+        /// <returns>A new node representing the "Apply".</returns>
+        public DDIndex Apply(DDIndex xid, BDDNode x, DDIndex yid, BDDNode y, DDOperation operation)
         {
             if (x.Variable < y.Variable)
             {
-                var xlow = this.Manager.And(x.Low, yid);
-                var xhigh = this.Manager.And(x.High, yid);
+                var xlow = this.Manager.Apply(x.Low, yid, operation);
+                var xhigh = this.Manager.Apply(x.High, yid, operation);
                 return this.Manager.Allocate(new BDDNode(x.Variable, xlow, xhigh));
             }
             else if (y.Variable < x.Variable)
             {
-                var ylow = this.Manager.And(y.Low, xid);
-                var yhigh = this.Manager.And(y.High, xid);
+                var ylow = this.Manager.Apply(y.Low, xid, operation);
+                var yhigh = this.Manager.Apply(y.High, xid, operation);
                 return this.Manager.Allocate(new BDDNode(y.Variable, ylow, yhigh));
             }
             else
             {
-                var low = this.Manager.And(x.Low, y.Low);
-                var high = this.Manager.And(x.High, y.High);
+                var low = this.Manager.Apply(x.Low, y.Low, operation);
+                var high = this.Manager.Apply(x.High, y.High, operation);
                 return this.Manager.Allocate(new BDDNode(x.Variable, low, high));
             }
         }

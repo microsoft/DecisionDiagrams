@@ -6,6 +6,7 @@ namespace DecisionDiagrams
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
     using System.Threading;
 
@@ -14,7 +15,7 @@ namespace DecisionDiagrams
     /// lifting for allocating new nodes and applying basic operations
     /// that implementations can call back to. This class is parametric
     /// over the specific implementation of the decision diagram, which
-    /// makes it easy implement BDD variants (e.g., BDD, ZDD, CBDD).
+    /// makes it easy implement BDD variants (e.g., BDD, CBDD).
     ///
     /// Garbage collection is performed by maintaining unique external
     /// handle objects for every external node. The GC is a simple
@@ -129,24 +130,14 @@ namespace DecisionDiagrams
         private Dictionary<DDIndex, WeakReference<DD>> handleTable;
 
         /// <summary>
-        /// The operation cache for the "and" operation.
+        /// The operation cache for the 2 argument operations.
         /// </summary>
-        private OperationResult2[] andCache;
+        private OperationResult2[] operation2Cache;
 
         /// <summary>
         /// The operation cache for the "ite" operation.
         /// </summary>
         private OperationResult3[] iteCache;
-
-        /// <summary>
-        /// The operation cache for the quantifier operations.
-        /// </summary>
-        private OperationResult2[] quantifierCache;
-
-        /// <summary>
-        /// The operation cache for replace operations.
-        /// </summary>
-        private OperationResult2[] replaceCache;
 
         /// <summary>
         /// Fraction of the nodes that, if remain after a collection,
@@ -391,7 +382,7 @@ namespace DecisionDiagrams
             this.Check(x.ManagerId);
             this.Check(y.ManagerId);
             this.CheckForCollection();
-            return this.FromIndex(this.And(x.Index, y.Index));
+            return this.FromIndex(this.Apply(x.Index, y.Index, DDOperation.And));
         }
 
         /// <summary>
@@ -502,7 +493,7 @@ namespace DecisionDiagrams
             this.Check(x.ManagerId);
             this.Check(y.ManagerId);
             this.CheckForCollection();
-            return this.FromIndex(this.Or(this.And(x.Index, y.Index), this.And(this.Not(x.Index), this.Not(y.Index))));
+            return this.FromIndex(this.Apply(x.Index, y.Index, DDOperation.Iff));
         }
 
         /// <summary>
@@ -1347,14 +1338,6 @@ namespace DecisionDiagrams
         }
 
         /// <summary>
-        /// Perform a garbage collection.
-        /// </summary>
-        public void GarbageCollect()
-        {
-            this.GarbageCollectInternal();
-        }
-
-        /// <summary>
         /// Compute the negation of a function.
         /// </summary>
         /// <param name="x">The input function.</param>
@@ -1366,36 +1349,68 @@ namespace DecisionDiagrams
         }
 
         /// <summary>
-        /// Compute the conjunction of two functions.
+        /// Compute the apply of two functions.
         /// </summary>
         /// <param name="x">The first function.</param>
         /// <param name="y">The second function.</param>
+        /// <param name="operation">The operation.</param>
         /// <returns>The logical "and".</returns>
-        internal DDIndex And(DDIndex x, DDIndex y)
+        internal DDIndex Apply(DDIndex x, DDIndex y, DDOperation operation)
         {
-            if (this.andCache == null)
+            if (this.operation2Cache == null)
             {
-                this.andCache = CreateCache2();
+                this.operation2Cache = CreateCache2();
             }
 
-            if (x.IsOne())
+            if (operation == DDOperation.And)
             {
-                return y;
-            }
+                if (x.IsOne())
+                {
+                    return y;
+                }
 
-            if (y.IsOne())
-            {
-                return x;
-            }
+                if (y.IsOne())
+                {
+                    return x;
+                }
 
-            if (x.Equals(y))
-            {
-                return x;
-            }
+                if (x.Equals(y))
+                {
+                    return x;
+                }
 
-            if (x.IsZero() || y.IsZero())
+                if (x.IsZero() || y.IsZero())
+                {
+                    return DDIndex.False;
+                }
+            }
+            else
             {
-                return DDIndex.False;
+                Debug.Assert(operation == DDOperation.Iff);
+                if (x.IsZero())
+                {
+                    return y.Flip();
+                }
+
+                if (x.IsOne())
+                {
+                    return y;
+                }
+
+                if (y.IsZero())
+                {
+                    return x.Flip();
+                }
+
+                if (y.IsOne())
+                {
+                    return x;
+                }
+
+                if (x.Equals(y))
+                {
+                    return DDIndex.True;
+                }
             }
 
             var xidx = x.GetPosition();
@@ -1406,32 +1421,30 @@ namespace DecisionDiagrams
                 return DDIndex.False;
             }
 
-            var arg = xidx < yidx ? new OperationArg2(x, y) : new OperationArg2(y, x);
+            // operations are commutative, so we can use a canonical order
+            var arg = xidx < yidx ? new OperationArg2(x, y, operation) : new OperationArg2(y, x, operation);
             var hash = arg.GetHashCode() & 0x7FFFFFFF;
 
             // Look for result in the cache
             int index = hash & this.cacheMask;
-            OperationResult2 result = this.andCache[index];
+            OperationResult2 result = this.operation2Cache[index];
             if (result.Arg.Equals(arg))
             {
                 return result.Result;
             }
 
-            // Console.WriteLine($"memory pool: {this.memoryPool.Length}");
-            // Console.WriteLine($"xidx: {xidx}");
-            // Console.WriteLine($"yidx: {yidx}");
             T lo = this.memoryPool[xidx];
             T hi = this.memoryPool[yidx];
 
-            // complement if needed
+            // restore the canonical negation form
             lo = x.IsComplemented() ? this.factory.Flip(lo) : lo;
             hi = y.IsComplemented() ? this.factory.Flip(hi) : hi;
 
-            var res = this.factory.And(x, lo, y, hi);
+            var res = this.factory.Apply(x, lo, y, hi, operation);
 
             // insert the result into the cache
             OperationResult2 oresult = new OperationResult2 { Arg = arg, Result = res };
-            this.andCache[index] = oresult;
+            this.operation2Cache[index] = oresult;
 
             return res;
         }
@@ -1444,9 +1457,9 @@ namespace DecisionDiagrams
         /// <returns>The logical "existential" quantification.</returns>
         internal DDIndex Exists(DDIndex x, VariableSet<T> variables)
         {
-            if (this.quantifierCache == null)
+            if (this.operation2Cache == null)
             {
-                this.quantifierCache = CreateCache2();
+                this.operation2Cache = CreateCache2();
             }
 
             if (x.IsConstant())
@@ -1455,12 +1468,12 @@ namespace DecisionDiagrams
             }
 
             var xidx = x.GetPosition();
-            var arg = new OperationArg2(x, variables.Id.Index);
+            var arg = new OperationArg2(x, variables.Id.Index, DDOperation.Exists);
             var hash = arg.GetHashCode() & 0x7FFFFFFF;
 
             // Look for result in the cache
             int index = hash & this.cacheMask;
-            OperationResult2 result = this.quantifierCache[index];
+            OperationResult2 result = this.operation2Cache[index];
             if (result.Arg.Equals(arg))
             {
                 return result.Result;
@@ -1476,7 +1489,7 @@ namespace DecisionDiagrams
             // insert the result into the cache
             // cache may have been resized during allocation
             OperationResult2 oresult = new OperationResult2 { Arg = arg, Result = res };
-            this.quantifierCache[index] = oresult;
+            this.operation2Cache[index] = oresult;
 
             return res;
         }
@@ -1489,9 +1502,9 @@ namespace DecisionDiagrams
         /// <returns>The substituted decision diagram.</returns>
         internal DDIndex Replace(DDIndex x, VariableMap<T> variableMap)
         {
-            if (this.replaceCache == null)
+            if (this.operation2Cache == null)
             {
-                this.replaceCache = CreateCache2();
+                this.operation2Cache = CreateCache2();
             }
 
             if (x.IsConstant())
@@ -1500,12 +1513,12 @@ namespace DecisionDiagrams
             }
 
             var xidx = x.GetPosition();
-            var arg = new OperationArg2(x, variableMap.IdIndex);
+            var arg = new OperationArg2(x, variableMap.IdIndex, DDOperation.Replace);
             var hash = arg.GetHashCode() & 0x7FFFFFFF;
 
             // Look for result in the cache
             int index = hash & this.cacheMask;
-            OperationResult2 result = this.replaceCache[index];
+            OperationResult2 result = this.operation2Cache[index];
             if (result.Arg.Equals(arg))
             {
                 return result.Result;
@@ -1521,7 +1534,7 @@ namespace DecisionDiagrams
             // insert the result into the cache
             // cache may have been resized during allocation
             OperationResult2 oresult = new OperationResult2 { Arg = arg, Result = res };
-            this.replaceCache[index] = oresult;
+            this.operation2Cache[index] = oresult;
 
             return res;
         }
@@ -1534,7 +1547,18 @@ namespace DecisionDiagrams
         /// <returns>The logical "or".</returns>
         internal DDIndex Or(DDIndex x, DDIndex y)
         {
-            return this.Not(this.And(this.Not(x), this.Not(y)));
+            return this.Not(this.Apply(this.Not(x), this.Not(y), DDOperation.And));
+        }
+
+        /// <summary>
+        /// Compute the conjunction of two functions.
+        /// </summary>
+        /// <param name="x">The first function.</param>
+        /// <param name="y">The second function.</param>
+        /// <returns>The logical "and".</returns>
+        internal DDIndex And(DDIndex x, DDIndex y)
+        {
+            return this.Apply(x, y, DDOperation.And);
         }
 
         /// <summary>
@@ -1545,7 +1569,7 @@ namespace DecisionDiagrams
         /// <returns>The logical "xor".</returns>
         internal DDIndex Xor(DDIndex x, DDIndex y)
         {
-            return this.Or(this.And(x, this.Not(y)), this.And(this.Not(x), y));
+            return this.Not(this.Apply(x, y, DDOperation.Iff));
         }
 
         /// <summary>
@@ -1710,27 +1734,27 @@ namespace DecisionDiagrams
         {
             if (this.memoryPool.Length >= this.gcMinCutoff && this.index >= this.currentGcNodeCount)
             {
-                this.GarbageCollectInternal();
+                this.GarbageCollect();
             }
         }
 
         /// <summary>
         /// Perform a garbage collection of all live nodes.
-        /// This is a sliding collector that works in 4 stages:
-        ///
-        /// 1. We look through all live external nodes and
-        ///    mark these nodes as reachable.
-        /// 2. We walk through all nodes in the memoryPool
-        ///    in order of descending node age, and mark children
-        ///    of nodes as being reachable.
-        /// 3. We simultaneously clear all non-reachable nodes
-        ///    and compact the remaining nodes by sliding them left
-        ///    into unused spots.
-        /// 4. We rebuild the unique table and the handle table.
-        ///    The cache also must be invalidated.
         /// </summary>
-        private void GarbageCollectInternal()
+        public void GarbageCollect()
         {
+            // This is a sliding collector that works in 4 stages:
+            //
+            // 1. We look through all live external nodes and
+            //    mark these nodes as reachable.
+            // 2. We walk through all nodes in the memoryPool
+            //    in order of descending node age, and mark children
+            //    of nodes as being reachable.
+            // 3. We simultaneously clear all non-reachable nodes
+            //    and compact the remaining nodes by sliding them left
+            //    into unused spots.
+            // 4. We rebuild the unique table and the handle table.
+            //    The cache also must be invalidated.
             PrintDebug($"[DD] Garbage collection: {this.index} / {this.memoryPool.Length}");
             PrintDebug($"[DD] Garbage collection: unique table size before {this.uniqueTable.Count}");
             PrintDebug($"[DD] Garbage collection: handle table size before {this.handleTable.Count}");
@@ -1884,24 +1908,14 @@ namespace DecisionDiagrams
             var computedSize = CurrentCacheSize();
             this.cacheMask = Bitops.BitmaskForPowerOfTwo(computedSize);
 
-            if (this.andCache != null)
+            if (this.operation2Cache != null)
             {
-                this.andCache = new OperationResult2[computedSize];
+                this.operation2Cache = new OperationResult2[computedSize];
             }
 
             if (this.iteCache != null)
             {
                 this.iteCache = new OperationResult3[computedSize];
-            }
-
-            if (this.quantifierCache != null)
-            {
-                this.quantifierCache = new OperationResult2[computedSize];
-            }
-
-            if (this.replaceCache != null)
-            {
-                this.replaceCache = new OperationResult2[computedSize];
             }
         }
 
@@ -2155,15 +2169,19 @@ namespace DecisionDiagrams
 
             private DDIndex param2;
 
+            private DDOperation operation;
+
             /// <summary>
             /// Initializes a new instance of the <see cref="OperationArg2"/> struct.
             /// </summary>
             /// <param name="param1">The first operand.</param>
             /// <param name="param2">The second operand.</param>
-            public OperationArg2(DDIndex param1, DDIndex param2)
+            /// <param name="operation">The apply operation.</param>
+            public OperationArg2(DDIndex param1, DDIndex param2, DDOperation operation)
             {
                 this.param1 = param1;
                 this.param2 = param2;
+                this.operation = operation;
             }
 
             /// <summary>
@@ -2173,7 +2191,7 @@ namespace DecisionDiagrams
             /// <returns>Whether the objects are equal.</returns>
             public bool Equals(OperationArg2 other)
             {
-                return this.param1.Equals(other.param1) && this.param2.Equals(other.param2);
+                return this.param1.Equals(other.param1) && this.param2.Equals(other.param2) && this.operation == other.operation;
             }
 
             /// <summary>
@@ -2184,7 +2202,8 @@ namespace DecisionDiagrams
             {
                 var a = this.param1.GetHashCode();
                 var b = this.param2.GetHashCode();
-                return a + b;
+                var c = (int)this.operation;
+                return a + b + c;
             }
         }
 
