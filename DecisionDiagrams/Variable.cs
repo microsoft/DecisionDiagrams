@@ -225,10 +225,10 @@ namespace DecisionDiagrams
         }
 
         /// <summary>
-        /// Create a domain from a variable.
+        /// Create a bitvector from a variable.
         /// </summary>
         /// <returns></returns>
-        public BitVector<T> CreateDomain()
+        public BitVector<T> ToBitvector()
         {
             return new BitVector<T>(this, this.Manager);
         }

@@ -5,7 +5,7 @@
 namespace DecisionDiagrams
 {
     /// <summary>
-    /// A domain of values represented using DDs.
+    /// A bitvector of values represented using DDs.
     /// </summary>
     public class BitVector<T>
         where T : IDDNode
@@ -45,7 +45,7 @@ namespace DecisionDiagrams
         /// Initializes a new instance of the <see cref="BitVector{T}"/> class.
         /// </summary>
         /// <param name="manager">The manager.</param>
-        /// <param name="size">The domain size in bits.</param>
+        /// <param name="size">The bitvector size in bits.</param>
         internal BitVector(DDManager<T> manager, int size)
         {
             this.Bits = new DD[size];
@@ -178,7 +178,7 @@ namespace DecisionDiagrams
         }
 
         /// <summary>
-        /// Initialize the domain to a constant.
+        /// Initialize the bitvector to a constant.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <param name="size">The size in number of bits.</param>

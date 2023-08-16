@@ -867,7 +867,7 @@ namespace DecisionDiagrams
         }
 
         /// <summary>
-        /// Create a new domain from a uint constant.
+        /// Create a new bitvector from a uint constant.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <returns>bitvector.</returns>
@@ -877,7 +877,7 @@ namespace DecisionDiagrams
         }
 
         /// <summary>
-        /// Create a new domain from a long constant.
+        /// Create a new bitvector from a long constant.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <returns>bitvector.</returns>
@@ -971,8 +971,8 @@ namespace DecisionDiagrams
         /// <summary>
         /// Compute the exclusive or of two bitvectors.
         /// </summary>
-        /// <param name="bitvector1">The first domain.</param>
-        /// <param name="bitvector2">The second domain.</param>
+        /// <param name="bitvector1">The first bitvector.</param>
+        /// <param name="bitvector2">The second bitvector.</param>
         /// <returns>Bitvector.</returns>
         public BitVector<T> Xor(BitVector<T> bitvector1, BitVector<T> bitvector2)
         {
@@ -1253,13 +1253,13 @@ namespace DecisionDiagrams
         /// <summary>
         /// Check the equality of bitvector sizes.
         /// </summary>
-        /// <param name="domain1">The first domain.</param>
-        /// <param name="domain2">The second domain.</param>
-        private void CheckBitvectorSizes(BitVector<T> domain1, BitVector<T> domain2)
+        /// <param name="bitvector1">The first domain.</param>
+        /// <param name="bitvector2">The second bitvector.</param>
+        private void CheckBitvectorSizes(BitVector<T> bitvector1, BitVector<T> bitvector2)
         {
-            if (domain1.Size != domain2.Size)
+            if (bitvector1.Size != bitvector2.Size)
             {
-                throw new ArgumentException($"Mismatched domain sizes: {domain1.Size}, {domain2.Size}");
+                throw new ArgumentException($"Mismatched bitvector sizes: {bitvector1.Size}, {bitvector2.Size}");
             }
         }
 

@@ -1257,7 +1257,7 @@ namespace DecisionDiagram.Tests
             var manager = this.GetManager();
             var v8 = manager.CreateInt8();
 
-            var domain = v8.CreateDomain();
+            var domain = v8.ToBitvector();
             var bits = domain.GetBits();
             Assert.AreEqual(8, bits.Length);
         }
@@ -2427,8 +2427,8 @@ namespace DecisionDiagram.Tests
         {
             var manager = this.GetManager();
             var vars = manager.CreateInterleavedInt32(2);
-            var a = vars[0].CreateDomain();
-            var b = vars[1].CreateDomain();
+            var a = vars[0].ToBitvector();
+            var b = vars[1].ToBitvector();
             this.CreateGarbage(manager);
             var x = manager.Add(a, b);
             this.CreateGarbage(manager);
