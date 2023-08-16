@@ -547,7 +547,7 @@ namespace DecisionDiagrams
         /// </summary>
         /// <param name="order">The variable order.</param>
         /// <returns>An unsigned 8-bit variable.</returns>
-        public VarInt8<T> CreateInt8(Variable<T>.BitOrder order = Variable<T>.BitOrder.MSB_FIRST)
+        public VarInt8<T> CreateInt8(BitOrder order = BitOrder.MSB_FIRST)
         {
             return this.CreateInt8(FunctionOfOrder(8, order));
         }
@@ -572,7 +572,7 @@ namespace DecisionDiagrams
         /// <param name="numVariables">The number of variables.</param>
         /// <param name="order">The variable order.</param>
         /// <returns>Unsigned 8-bit variables.</returns>
-        public VarInt8<T>[] CreateInterleavedInt8(int numVariables, Variable<T>.BitOrder order = Variable<T>.BitOrder.MSB_FIRST)
+        public VarInt8<T>[] CreateInterleavedInt8(int numVariables, BitOrder order = BitOrder.MSB_FIRST)
         {
             return this.CreateInterleavedInt8(numVariables, FunctionOfOrder(8, order));
         }
@@ -603,7 +603,7 @@ namespace DecisionDiagrams
         /// </summary>
         /// <param name="order">The variable order.</param>
         /// <returns>An unsigned 16-bit variable.</returns>
-        public VarInt16<T> CreateInt16(Variable<T>.BitOrder order = Variable<T>.BitOrder.MSB_FIRST)
+        public VarInt16<T> CreateInt16(BitOrder order = BitOrder.MSB_FIRST)
         {
             return this.CreateInt16(FunctionOfOrder(16, order));
         }
@@ -628,7 +628,7 @@ namespace DecisionDiagrams
         /// <param name="numVariables">The number of variables.</param>
         /// <param name="order">The variable order.</param>
         /// <returns>Unsigned 16-bit variables.</returns>
-        public VarInt16<T>[] CreateInterleavedInt16(int numVariables, Variable<T>.BitOrder order = Variable<T>.BitOrder.MSB_FIRST)
+        public VarInt16<T>[] CreateInterleavedInt16(int numVariables, BitOrder order = BitOrder.MSB_FIRST)
         {
             return this.CreateInterleavedInt16(numVariables, FunctionOfOrder(16, order));
         }
@@ -659,7 +659,7 @@ namespace DecisionDiagrams
         /// </summary>
         /// <param name="order">The variable order.</param>
         /// <returns>An unsigned 32-bit variable.</returns>
-        public VarInt32<T> CreateInt32(Variable<T>.BitOrder order = Variable<T>.BitOrder.MSB_FIRST)
+        public VarInt32<T> CreateInt32(BitOrder order = BitOrder.MSB_FIRST)
         {
             return this.CreateInt32(FunctionOfOrder(32, order));
         }
@@ -684,7 +684,7 @@ namespace DecisionDiagrams
         /// <param name="numVariables">The number of variables.</param>
         /// <param name="order">The variable order.</param>
         /// <returns>Unsigned 32-bit variables.</returns>
-        public VarInt32<T>[] CreateInterleavedInt32(int numVariables, Variable<T>.BitOrder order = Variable<T>.BitOrder.MSB_FIRST)
+        public VarInt32<T>[] CreateInterleavedInt32(int numVariables, BitOrder order = BitOrder.MSB_FIRST)
         {
             return this.CreateInterleavedInt32(numVariables, FunctionOfOrder(32, order));
         }
@@ -715,7 +715,7 @@ namespace DecisionDiagrams
         /// </summary>
         /// <param name="order">The variable order.</param>
         /// <returns>An unsigned 64-bit variable.</returns>
-        public VarInt64<T> CreateInt64(Variable<T>.BitOrder order = Variable<T>.BitOrder.MSB_FIRST)
+        public VarInt64<T> CreateInt64(BitOrder order = BitOrder.MSB_FIRST)
         {
             return this.CreateInt64(FunctionOfOrder(64, order));
         }
@@ -740,7 +740,7 @@ namespace DecisionDiagrams
         /// <param name="numVariables">The number of variables.</param>
         /// <param name="order">The variable order.</param>
         /// <returns>Unsigned 64-bit variables.</returns>
-        public VarInt64<T>[] CreateInterleavedInt64(int numVariables, Variable<T>.BitOrder order = Variable<T>.BitOrder.MSB_FIRST)
+        public VarInt64<T>[] CreateInterleavedInt64(int numVariables, BitOrder order = BitOrder.MSB_FIRST)
         {
             return this.CreateInterleavedInt64(numVariables, FunctionOfOrder(64, order));
         }
@@ -772,7 +772,7 @@ namespace DecisionDiagrams
         /// <param name="size">The number of bits.</param>
         /// <param name="order">The variable order.</param>
         /// <returns>An unsigned integer variable.</returns>
-        public VarInt<T> CreateInt(int size, Variable<T>.BitOrder order = Variable<T>.BitOrder.MSB_FIRST)
+        public VarInt<T> CreateInt(int size, BitOrder order = BitOrder.MSB_FIRST)
         {
             return this.CreateInt(size, FunctionOfOrder(size, order));
         }
@@ -799,7 +799,7 @@ namespace DecisionDiagrams
         /// <param name="size">The number of bits per variable.</param>
         /// <param name="order">The variable order.</param>
         /// <returns>Unsigned integer variables.</returns>
-        public VarInt<T>[] CreateInterleavedInt(int numVariables, int size, Variable<T>.BitOrder order = Variable<T>.BitOrder.MSB_FIRST)
+        public VarInt<T>[] CreateInterleavedInt(int numVariables, int size, BitOrder order = BitOrder.MSB_FIRST)
         {
             return this.CreateInterleavedInt(numVariables, size, FunctionOfOrder(size, order));
         }
@@ -1716,9 +1716,9 @@ namespace DecisionDiagrams
         /// <param name="len">The bitwidth.</param>
         /// <param name="order">The bitorder.</param>
         /// <returns>A function on indices.</returns>
-        private static Func<int, int> FunctionOfOrder(int len, Variable<T>.BitOrder order)
+        private static Func<int, int> FunctionOfOrder(int len, BitOrder order)
         {
-            if (order == Variable<T>.BitOrder.MSB_FIRST)
+            if (order == BitOrder.MSB_FIRST)
             {
                 return i => i;
             }

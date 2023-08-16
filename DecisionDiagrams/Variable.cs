@@ -75,22 +75,6 @@ namespace DecisionDiagrams
         }
 
         /// <summary>
-        /// Bit order of variables.
-        /// </summary>
-        public enum BitOrder
-        {
-            /// <summary>
-            /// Most significant bit first.
-            /// </summary>
-            MSB_FIRST,
-
-            /// <summary>
-            /// Least significant bit first.
-            /// </summary>
-            LSB_FIRST,
-        }
-
-        /// <summary>
         /// The type of the variable, which determines the bit width.
         /// </summary>
         internal enum VariableType

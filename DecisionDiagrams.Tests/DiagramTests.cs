@@ -1270,7 +1270,7 @@ namespace DecisionDiagram.Tests
         {
             var manager = this.GetManager();
 
-            var v = manager.CreateInt8(Variable<T>.BitOrder.LSB_FIRST);
+            var v = manager.CreateInt8(BitOrder.LSB_FIRST);
             var dd = v.Eq(4);
             var assignment = manager.Sat(dd);
             Assert.AreEqual((byte)4, assignment.Get(v));
