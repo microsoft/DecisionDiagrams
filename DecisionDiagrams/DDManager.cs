@@ -130,6 +130,11 @@ namespace DecisionDiagrams
         private Dictionary<DDIndex, WeakReference<DD>> handleTable;
 
         /// <summary>
+        /// The operation cache for the 1 argument operations.
+        /// </summary>
+        private OperationResult[] operationCache;
+
+        /// <summary>
         /// The operation cache for the 2 argument operations.
         /// </summary>
         private OperationResult2[] operation2Cache;
@@ -494,6 +499,18 @@ namespace DecisionDiagrams
             this.Check(y.ManagerId);
             this.CheckForCollection();
             return this.FromIndex(this.Apply(x.Index, y.Index, DDOperation.Iff));
+        }
+
+        /// <summary>
+        /// Satisfiability count for DDs.
+        /// </summary>
+        /// <param name="x">The operand.</param>
+        /// <returns>The number of satisfying assignments.</returns>
+        public double SatCount(DD x)
+        {
+            this.Check(x.ManagerId);
+            var variable = this.MemoryPool[x.Index.GetPosition()].Variable;
+            return Math.Pow(2.0, variable - 1) * this.SatCount(x.Index);
         }
 
         /// <summary>
@@ -1540,6 +1557,46 @@ namespace DecisionDiagrams
         }
 
         /// <summary>
+        /// Count the number of satisfying assignments.
+        /// </summary>
+        /// <param name="x">The input function.</param>
+        /// <returns>The substituted decision diagram.</returns>
+        internal double SatCount(DDIndex x)
+        {
+            if (this.operationCache == null)
+            {
+                this.operationCache = CreateCache();
+            }
+
+            if (x.IsOne())
+            {
+                return 1;
+            }
+
+            if (x.IsZero())
+            {
+                return 0;
+            }
+
+            var xidx = x.GetPosition();
+            var hash = xidx & 0x7FFFFFFF;
+            int index = hash & this.cacheMask;
+            OperationResult result = this.operationCache[index];
+            if (result.Arg.Equals(x))
+            {
+                return result.Result;
+            }
+
+            T node = this.memoryPool[xidx];
+            node = x.IsComplemented() ? this.factory.Flip(node) : node;
+            var res = this.factory.SatCount(node);
+            OperationResult oresult = new OperationResult { Arg = x, Result = res };
+            this.operationCache[index] = oresult;
+
+            return res;
+        }
+
+        /// <summary>
         /// Compute the disjunction of two functions.
         /// </summary>
         /// <param name="x">The first function.</param>
@@ -1940,6 +1997,14 @@ namespace DecisionDiagrams
         /// <summary>
         /// Creates a cache with the correct size.
         /// </summary>
+        private OperationResult[] CreateCache()
+        {
+            return new OperationResult[CurrentCacheSize()];
+        }
+
+        /// <summary>
+        /// Creates a cache with the correct size.
+        /// </summary>
         private OperationResult2[] CreateCache2()
         {
             return new OperationResult2[CurrentCacheSize()];
@@ -2157,6 +2222,22 @@ namespace DecisionDiagrams
         private int EnsurePowerOfTwo(int arg)
         {
             return Bitops.NextPowerOfTwo(arg);
+        }
+
+        /// <summary>
+        /// A data structure for a cache result for a single argument.
+        /// </summary>
+        private struct OperationResult
+        {
+            /// <summary>
+            /// Gets or sets the key argument in the cache.
+            /// </summary>
+            public DDIndex Arg { get; set; }
+
+            /// <summary>
+            /// Gets or sets the result from the operation.
+            /// </summary>
+            public double Result { get; set; }
         }
 
         /// <summary>

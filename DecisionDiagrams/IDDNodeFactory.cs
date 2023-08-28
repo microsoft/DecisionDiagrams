@@ -93,6 +93,13 @@ namespace DecisionDiagrams
         DDIndex Replace(DDIndex xid, T x, VariableMap<T> variableMap);
 
         /// <summary>
+        /// The sat count for a node.
+        /// </summary>
+        /// <param name="node">The node.</param>
+        /// <returns>The number of satisfying assignments.</returns>
+        double SatCount(T node);
+
+        /// <summary>
         /// How to display a node.
         /// </summary>
         /// <param name="node">The node.</param>

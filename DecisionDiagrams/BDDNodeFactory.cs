@@ -4,7 +4,9 @@
 
 namespace DecisionDiagrams
 {
+    using System;
     using System.Collections.Generic;
+    using System.Security.Cryptography;
 
     /// <summary>
     /// Implementation of a factory for BDDNode objects.
@@ -19,11 +21,6 @@ namespace DecisionDiagrams
         /// ensuring canonicity.
         /// </summary>
         public DDManager<BDDNode> Manager { get; set; }
-
-        /// <summary>
-        /// Gets a value indicating whether the factory supports complement edges.
-        /// </summary>
-        public bool SupportsComplement { get; } = true;
 
         /// <summary>
         /// Gets the maximum number of variables allowed by the manager.
@@ -202,11 +199,8 @@ namespace DecisionDiagrams
             var loNode = this.Manager.MemoryPool[lo.GetPosition()];
             var hiNode = this.Manager.MemoryPool[hi.GetPosition()];
 
-            if (this.SupportsComplement)
-            {
-                loNode = lo.IsComplemented() ? Flip(loNode) : loNode;
-                hiNode = hi.IsComplemented() ? Flip(hiNode) : hiNode;
-            }
+            loNode = lo.IsComplemented() ? Flip(loNode) : loNode;
+            hiNode = hi.IsComplemented() ? Flip(hiNode) : hiNode;
 
             var loLevel = Level(lo, loNode);
             var hiLevel = Level(hi, hiNode);
@@ -274,6 +268,24 @@ namespace DecisionDiagrams
         }
 
         /// <summary>
+        /// The sat count for a node.
+        /// </summary>
+        /// <param name="node">The node.</param>
+        /// <returns>The number of satisfying assignments.</returns>
+        public double SatCount(BDDNode node)
+        {
+            var loNode = this.Manager.MemoryPool[node.Low.GetPosition()];
+            var hiNode = this.Manager.MemoryPool[node.High.GetPosition()];
+            var loLevel = Level(node.Low, loNode);
+            var hiLevel = Level(node.High, hiNode);
+            var scaleLo = Math.Pow(2.0, loLevel - node.Variable - 1);
+            var scaleHi = Math.Pow(2.0, hiLevel - node.Variable - 1);
+            var countLo = this.Manager.SatCount(node.Low);
+            var countHi = this.Manager.SatCount(node.High);
+            return scaleLo * countLo + scaleHi * countHi;
+        }
+
+        /// <summary>
         /// How to display a node.
         /// </summary>
         /// <param name="node">The node.</param>
@@ -308,7 +320,7 @@ namespace DecisionDiagrams
         /// <returns></returns>
         private int Level(DDIndex idx, BDDNode node)
         {
-            return idx.IsConstant() ? int.MaxValue : node.Variable;
+            return idx.IsConstant() ? this.Manager.NumVariables + 1 : node.Variable;
         }
     }
 }

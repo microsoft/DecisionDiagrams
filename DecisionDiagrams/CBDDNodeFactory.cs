@@ -294,6 +294,25 @@ namespace DecisionDiagrams
         }
 
         /// <summary>
+        /// The sat count for a node.
+        /// </summary>
+        /// <param name="node">The node.</param>
+        /// <returns>The number of satisfying assignments.</returns>
+        public double SatCount(CBDDNode node)
+        {
+            var low = this.ExpandLowChild(node);
+            var loNode = this.Manager.MemoryPool[low.GetPosition()];
+            var hiNode = this.Manager.MemoryPool[node.High.GetPosition()];
+            var loLevel = Level(low, loNode);
+            var hiLevel = Level(node.High, hiNode);
+            var scaleLo = Math.Pow(2.0, loLevel - node.Variable - 1);
+            var scaleHi = Math.Pow(2.0, hiLevel - node.Variable - 1);
+            var countLo = this.Manager.SatCount(low);
+            var countHi = this.Manager.SatCount(node.High);
+            return scaleLo * countLo + scaleHi * countHi;
+        }
+
+        /// <summary>
         /// How to display a node.
         /// </summary>
         /// <param name="node">The node.</param>
@@ -354,7 +373,7 @@ namespace DecisionDiagrams
         /// <returns></returns>
         private int Level(DDIndex idx, CBDDNode node)
         {
-            return idx.IsConstant() ? int.MaxValue : node.Variable;
+            return idx.IsConstant() ? this.Manager.NumVariables + 1 : node.Variable;
         }
     }
 }

@@ -2400,6 +2400,68 @@ namespace DecisionDiagram.Tests
         }
 
         /// <summary>
+        /// Test that the sat count operation works.
+        /// </summary>
+        [TestMethod]
+        public void TestSatCount1()
+        {
+            var manager = this.GetManager();
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            var c = manager.CreateBool();
+            var f = manager.And(a.Id(), manager.And(b.Id(), c.Id()));
+            var count = manager.SatCount(f);
+            Assert.AreEqual(1, count);
+        }
+
+        /// <summary>
+        /// Test that the sat count operation works.
+        /// </summary>
+        [TestMethod]
+        public void TestSatCount2()
+        {
+            var manager = this.GetManager();
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            var c = manager.CreateBool();
+            var f = manager.Or(a.Id(), manager.Or(b.Id(), c.Id()));
+            var count = manager.SatCount(f);
+            Assert.AreEqual(7, count);
+        }
+
+        /// <summary>
+        /// Test that the sat count operation works.
+        /// </summary>
+        [TestMethod]
+        public void TestSatCount3()
+        {
+            var manager = this.GetManager();
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            var c = manager.CreateBool();
+            Assert.AreEqual(4, manager.SatCount(a.Id()));
+            Assert.AreEqual(4, manager.SatCount(b.Id()));
+            Assert.AreEqual(4, manager.SatCount(c.Id()));
+            Assert.AreEqual(4, manager.SatCount(manager.Not(a.Id())));
+            Assert.AreEqual(4, manager.SatCount(manager.Not(b.Id())));
+            Assert.AreEqual(4, manager.SatCount(manager.Not(c.Id())));
+        }
+
+        /// <summary>
+        /// Test that the sat count operation works.
+        /// </summary>
+        [TestMethod]
+        public void TestSatCount4()
+        {
+            var manager = this.GetManager();
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            var c = manager.CreateBool();
+            var f = manager.Or(manager.And(a.Id(), b.Id()), manager.And(b.Id(), c.Id()));
+            Assert.AreEqual(3, manager.SatCount(f));
+        }
+
+        /// <summary>
         /// Test that garbage collection doesn't invalidate nodes.
         /// </summary>
         [TestMethod]
