@@ -2403,6 +2403,20 @@ namespace DecisionDiagram.Tests
         /// Test that the sat count operation works.
         /// </summary>
         [TestMethod]
+        public void TestSatCountTrivial()
+        {
+            var manager = this.GetManager();
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            var c = manager.CreateBool();
+            Assert.AreEqual(0, manager.SatCount(manager.False()));
+            Assert.AreEqual(8, manager.SatCount(manager.True()));
+        }
+
+        /// <summary>
+        /// Test that the sat count operation works.
+        /// </summary>
+        [TestMethod]
         public void TestSatCount1()
         {
             var manager = this.GetManager();

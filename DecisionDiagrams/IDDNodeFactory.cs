@@ -114,5 +114,14 @@ namespace DecisionDiagrams
         /// <param name="hi">Which edge.</param>
         /// <param name="assignment">current assignment.</param>
         void Sat(T node, bool hi, Dictionary<int, bool> assignment);
+
+        /// <summary>
+        /// Gets the "level" for the node, where the maximum
+        /// value is used for constants.
+        /// </summary>
+        /// <param name="idx">The node index.</param>
+        /// <param name="node">The node.</param>
+        /// <returns>The level.</returns>
+        int Level(DDIndex idx, T node);
     }
 }

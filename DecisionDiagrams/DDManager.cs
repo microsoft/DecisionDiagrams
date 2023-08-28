@@ -509,8 +509,8 @@ namespace DecisionDiagrams
         public double SatCount(DD x)
         {
             this.Check(x.ManagerId);
-            var variable = this.MemoryPool[x.Index.GetPosition()].Variable;
-            return Math.Pow(2.0, variable - 1) * this.SatCount(x.Index);
+            var level = this.factory.Level(x.Index, this.MemoryPool[x.Index.GetPosition()]);
+            return Math.Pow(2.0, level - 1) * this.SatCount(x.Index);
         }
 
         /// <summary>

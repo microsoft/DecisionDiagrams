@@ -318,7 +318,7 @@ namespace DecisionDiagrams
         /// <param name="idx">The node index.</param>
         /// <param name="node">The node.</param>
         /// <returns></returns>
-        private int Level(DDIndex idx, BDDNode node)
+        public int Level(DDIndex idx, BDDNode node)
         {
             return idx.IsConstant() ? this.Manager.NumVariables + 1 : node.Variable;
         }
