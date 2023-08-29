@@ -25,11 +25,6 @@ namespace DecisionDiagram.Tests
         private static int numRandomTests = 2000;
 
         /// <summary>
-        /// Gets or sets the decision diagram factory.
-        /// </summary>
-        internal IDDNodeFactory<T> Factory { get; set; }
-
-        /// <summary>
         /// Gets or setst he random number generator.
         /// </summary>
         internal Random Rnd { get; set; }
@@ -1588,8 +1583,7 @@ namespace DecisionDiagram.Tests
         [ExpectedException(typeof(ArgumentException), "Expected ArgumentException.")]
         public void TestManagerParameters()
         {
-            var factory = new BDDNodeFactory();
-            new DDManager<BDDNode>(factory, 8, -1);
+            new DDManager<BDDNode>(8, -1);
         }
 
         /// <summary>
@@ -1599,9 +1593,8 @@ namespace DecisionDiagram.Tests
         [ExpectedException(typeof(ArgumentException), "Expected ArgumentException.")]
         public void TestWrongManagerOperation()
         {
-            var factory = new BDDNodeFactory();
-            var manager1 = new DDManager<BDDNode>(factory);
-            var manager2 = new DDManager<BDDNode>(factory);
+            var manager1 = new DDManager<BDDNode>();
+            var manager2 = new DDManager<BDDNode>();
             var x = manager1.CreateBool();
             var y = manager2.CreateBool();
             manager1.And(x.Id(), y.Id());
@@ -1613,8 +1606,7 @@ namespace DecisionDiagram.Tests
         [TestMethod]
         public void TestManagerEnsuresPowerOfTwo()
         {
-            var factory = new BDDNodeFactory();
-            var _ = new DDManager<BDDNode>(factory, 3, 13, true, 9999);
+            var _ = new DDManager<BDDNode>(3, 13, true, 9999);
         }
 
         /// <summary>
@@ -2492,7 +2484,7 @@ namespace DecisionDiagram.Tests
         [TestMethod]
         public void TestSatCountCache()
         {
-            var manager = new DDManager<T>(this.Factory, numNodes: 16, cacheRatio: 1);
+            var manager = new DDManager<T>(numNodes: 16, cacheRatio: 1);
             var a = manager.CreateBool();
             var b = manager.CreateBool();
             var c = manager.CreateBool();
@@ -2549,7 +2541,7 @@ namespace DecisionDiagram.Tests
         [TestMethod]
         public void TestStaticCache()
         {
-            var manager = new DDManager<T>(this.Factory, dynamicCache: false);
+            var manager = new DDManager<T>(dynamicCache: false);
             var a = manager.CreateBool();
             var b = manager.CreateBool();
             var c = manager.CreateBool();
@@ -2568,7 +2560,7 @@ namespace DecisionDiagram.Tests
         {
             var manager = this.GetManager();
 
-            if (this.Factory is CBDDNodeFactory)
+            if (typeof(T) == typeof(CBDDNode))
             {
                 for (int i = 0; i < 32767; i++)
                 {
@@ -2586,7 +2578,7 @@ namespace DecisionDiagram.Tests
         {
             var manager = this.GetManager();
 
-            if (this.Factory is CBDDNodeFactory)
+            if (typeof(T) == typeof(CBDDNode))
             {
                 for (int i = 0; i < 32767; i++)
                 {
@@ -2732,7 +2724,7 @@ namespace DecisionDiagram.Tests
         /// <returns>A new manager object.</returns>
         internal DDManager<T> GetManager()
         {
-            return new DDManager<T>(this.Factory, numNodes: 16, gcMinCutoff: 16, printDebug: false);
+            return new DDManager<T>(numNodes: 16, gcMinCutoff: 16, printDebug: false);
         }
     }
 }

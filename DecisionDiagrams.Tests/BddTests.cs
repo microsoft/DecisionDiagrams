@@ -21,7 +21,6 @@ namespace DecisionDiagram.Tests
         [TestInitialize]
         public void Initialize()
         {
-            this.Factory = new BDDNodeFactory();
             this.BaseInitialize();
         }
 

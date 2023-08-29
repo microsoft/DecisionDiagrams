@@ -18,7 +18,7 @@ namespace DecisionDiagrams.Bench
         /// <param name="args">Command line arguments.</param>
         static void Main(string[] args)
         {
-            var manager = new DDManager<CBDDNode>(new CBDDNodeFactory());
+            var manager = new DDManager<CBDDNode>();
             var q = new Queens<CBDDNode>(manager, 12);
 
             var timer = System.Diagnostics.Stopwatch.StartNew();

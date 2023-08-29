@@ -12,7 +12,7 @@ namespace DecisionDiagrams
     /// Implementation of a CBDD node factory that creates CBDD nodes that
     /// are always reduced to a canonical form.
     /// </summary>
-    public class CBDDNodeFactory : IDDNodeFactory<CBDDNode>
+    internal struct CBDDNodeFactory : IDDNodeFactory<CBDDNode>
     {
         /// <summary>
         /// Gets or sets the manager object. We call back into the manager recursively.
@@ -23,7 +23,7 @@ namespace DecisionDiagrams
         /// <summary>
         /// Gets the maximum number of variables allowed by the manager.
         /// </summary>
-        public long MaxVariables { get; } = (long)(1U << 15) - 1;
+        public long MaxVariables { get; set; }
 
         /// <summary>
         /// The apply of two CBDDs.
@@ -269,7 +269,7 @@ namespace DecisionDiagrams
         /// <param name="result">The modified node.</param>
         /// <returns>If there was a reduction.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual bool Reduce(CBDDNode node, out DDIndex result)
+        public bool Reduce(CBDDNode node, out DDIndex result)
         {
             result = DDIndex.False;
             if (node.Low.Equals(node.High))

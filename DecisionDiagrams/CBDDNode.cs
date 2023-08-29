@@ -87,9 +87,9 @@ namespace DecisionDiagrams
         public bool Equals(CBDDNode other)
         {
             return this.Variable == other.Variable &&
-                   this.Low.Equals(other.Low) &&
-                   this.High.Equals(other.High) &&
-                   this.NextVariable.Equals(other.NextVariable);
+                   this.Low.Index == other.Low.Index &&
+                   this.High.Index == other.High.Index &&
+                   this.NextVariable == other.NextVariable;
         }
 
         /// <summary>

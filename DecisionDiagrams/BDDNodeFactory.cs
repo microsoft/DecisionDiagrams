@@ -7,13 +7,12 @@ namespace DecisionDiagrams
     using System;
     using System.Collections.Generic;
     using System.Runtime.CompilerServices;
-    using System.Security.Cryptography;
 
     /// <summary>
     /// Implementation of a factory for BDDNode objects.
     /// Calls back into DDManager recursively.
     /// </summary>
-    public class BDDNodeFactory : IDDNodeFactory<BDDNode>
+    internal struct BDDNodeFactory : IDDNodeFactory<BDDNode>
     {
         /// <summary>
         /// Gets or sets the manager object. We call
@@ -26,7 +25,7 @@ namespace DecisionDiagrams
         /// <summary>
         /// Gets the maximum number of variables allowed by the manager.
         /// </summary>
-        public long MaxVariables { get; } = (long)(1U << 31) - 1;
+        public long MaxVariables { get; set; }
 
         /// <summary>
         /// The apply of two bdds.

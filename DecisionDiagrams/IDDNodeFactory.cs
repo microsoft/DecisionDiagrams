@@ -13,7 +13,7 @@ namespace DecisionDiagrams
     /// the factory must implement this interface.
     /// </summary>
     /// <typeparam name="T">The custom node type.</typeparam>
-    public interface IDDNodeFactory<T>
+    internal interface IDDNodeFactory<T>
         where T : IDDNode, IEquatable<T>
     {
         /// <summary>
@@ -24,7 +24,7 @@ namespace DecisionDiagrams
         /// <summary>
         /// Gets the maximum number of variables allowed by the manager.
         /// </summary>
-        long MaxVariables { get; }
+        long MaxVariables { get; set; }
 
         /// <summary>
         /// Create the node representing the identity function.

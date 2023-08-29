@@ -196,28 +196,43 @@ namespace DecisionDiagrams
         /// <summary>
         /// Initializes a new instance of the <see cref="DDManager{DDNode}"/> class.
         /// </summary>
-        /// <param name="nodeFactory">The client node factory.</param>
         /// <param name="numNodes">Initial number of nodes to allocate.</param>
         /// <param name="cacheRatio">Size of the cache relative to the number of nodes.</param>
         /// <param name="dynamicCache">Whether to dynamically expand the cache.</param>
         /// <param name="gcMinCutoff">The minimum node table size required to invoke collection.</param>
         /// <param name="printDebug">Whether to print debugging information such as GC collections.</param>
         public DDManager(
-            IDDNodeFactory<T> nodeFactory,
             uint numNodes = 1 << 19,
             int cacheRatio = 16,
             bool dynamicCache = true,
             int gcMinCutoff = 1 << 20,
             bool printDebug = false)
         {
+            // check for invalid settings.
             if (cacheRatio < 0)
             {
                 throw new ArgumentException("Cache ratio must be positive");
             }
 
+            // create the node factory object based on the type.
+            IDDNodeFactory<T> nodeFactory;
+            if (typeof(T) == typeof(CBDDNode))
+            {
+                nodeFactory = (IDDNodeFactory<T>)(object)new CBDDNodeFactory();
+                nodeFactory.Manager = this;
+                nodeFactory.MaxVariables = (long)(1U << 15) - 1;
+            }
+            else
+            {
+                Debug.Assert(typeof(T) == typeof(BDDNode));
+                nodeFactory = (IDDNodeFactory<T>)(object)new BDDNodeFactory();
+                nodeFactory.Manager = this;
+                nodeFactory.MaxVariables = (long)(1U << 31) - 1;
+            }
+
+            // set the initial values.
             var nodes = (uint)this.EnsurePowerOfTwo((int)Math.Max(numNodes, 16));
             var ratio = this.EnsurePowerOfTwo(cacheRatio);
-            nodeFactory.Manager = this;
             this.Uid = (ushort)Interlocked.Increment(ref nextManagerId);
             this.poolSize = nodes;
             this.cacheRatio = ratio;
