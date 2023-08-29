@@ -6,6 +6,7 @@ namespace DecisionDiagrams
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
+    using System.Runtime.CompilerServices;
 
     /// <summary>
     /// An implementation of Compressed Binary Decision Diagrams (CBDDs).
@@ -84,6 +85,7 @@ namespace DecisionDiagrams
         /// </summary>
         /// <param name="other">The other node.</param>
         /// <returns>Whether the objects are equal.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Equals(CBDDNode other)
         {
             return this.Variable == other.Variable &&
