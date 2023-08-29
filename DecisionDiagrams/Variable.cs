@@ -218,6 +218,15 @@ namespace DecisionDiagrams
         }
 
         /// <summary>
+        /// Get the bits for the variable.
+        /// </summary>
+        /// <returns></returns>
+        public DD[] GetBits()
+        {
+            return this.ToBitvector().GetBits();
+        }
+
+        /// <summary>
         /// DD representing an arbitary sized value.
         /// </summary>
         /// <param name="value">The value.</param>

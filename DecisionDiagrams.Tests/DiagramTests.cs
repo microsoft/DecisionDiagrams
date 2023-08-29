@@ -1249,16 +1249,15 @@ namespace DecisionDiagram.Tests
         }
 
         /// <summary>
-        /// Test variable to domain.
+        /// Test variable to bitvector.
         /// </summary>
         [TestMethod]
-        public void TestVariableToDomain()
+        public void TestVariableToBitvector()
         {
             var manager = this.GetManager();
             var v8 = manager.CreateInt8();
 
-            var domain = v8.ToBitvector();
-            var bits = domain.GetBits();
+            var bits = v8.GetBits();
             Assert.AreEqual(8, bits.Length);
         }
 
@@ -2485,6 +2484,22 @@ namespace DecisionDiagram.Tests
             var a = manager.CreateInt32();
             var b = manager.LessOrEqual(a.ToBitvector(), manager.CreateBitvector(255));
             Assert.AreEqual(256, manager.SatCount(b));
+        }
+
+        /// <summary>
+        /// Test that the sat count operation caching works.
+        /// </summary>
+        [TestMethod]
+        public void TestSatCountCache()
+        {
+            var manager = new DDManager<T>(this.Factory, numNodes: 16, cacheRatio: 1);
+            var a = manager.CreateBool();
+            var b = manager.CreateBool();
+            var c = manager.CreateBool();
+            var f1 = manager.And(a.Id(), c.Id());
+            var f2 = manager.And(b.Id(), c.Id());
+            var f3 = manager.Or(f1, f2);
+            Assert.AreEqual(3, manager.SatCount(f3));
         }
 
         /// <summary>
