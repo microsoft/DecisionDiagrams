@@ -11,7 +11,7 @@ namespace DecisionDiagrams
     /// Represents a set of variables.
     /// </summary>
     /// <typeparam name="T">The node type.</typeparam>
-    public class VariableSet<T>
+    public sealed class VariableSet<T>
         where T : IDDNode, IEquatable<T>
     {
         /// <summary>

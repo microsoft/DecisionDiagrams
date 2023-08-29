@@ -12,7 +12,7 @@ namespace DecisionDiagrams
     /// Represents a mapping from variable to variable.
     /// </summary>
     /// <typeparam name="T">The node type.</typeparam>
-    public class VariableMap<T>
+    public sealed class VariableMap<T>
         where T : IDDNode, IEquatable<T>
     {
         private static int nextId = 0;

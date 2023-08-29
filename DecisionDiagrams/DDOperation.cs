@@ -7,7 +7,7 @@ namespace DecisionDiagrams
     /// <summary>
     /// A decision diagram operation.
     /// </summary>
-    public enum DDOperation
+    internal enum DDOperation
     {
         /// <summary>
         /// Logical conjunction operation.

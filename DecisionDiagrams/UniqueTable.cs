@@ -22,7 +22,7 @@ namespace DecisionDiagrams
     ///    node age ordering invariant.
     /// </summary>
     /// <typeparam name="T">The key type.</typeparam>
-    internal class UniqueTable<T>
+    internal sealed class UniqueTable<T>
         where T : IDDNode, IEquatable<T>
     {
         /// <summary>
@@ -155,20 +155,14 @@ namespace DecisionDiagrams
         {
             var values = new DDIndex[newSize];
             var table = new UniqueTable<T>(this.manager, this.Count);
-            for (int bucket = 0; bucket < this.buckets.Length; bucket++)
+            for (int i = 0; i < this.count; i++)
             {
-                int i = this.buckets[bucket];
-                while (i >= 0)
+                var entry = this.entries[i];
+                var ddindex = entry.Value;
+                var newPosition = forwardingAddresses[ddindex.GetPosition()];
+                if (newPosition != 0)
                 {
-                    var entry = this.entries[i];
-                    var ddindex = entry.Value;
-                    var newPosition = forwardingAddresses[ddindex.GetPosition()];
-                    if (newPosition != 0)
-                    {
-                        values[newPosition] = new DDIndex(newPosition, ddindex.IsComplemented());
-                    }
-
-                    i = entry.Next;
+                    values[newPosition] = new DDIndex(newPosition, ddindex.IsComplemented());
                 }
             }
 

@@ -9,7 +9,7 @@ namespace DecisionDiagrams
     /// <summary>
     /// Collection of helper functions for bit twiddling operations.
     /// </summary>
-    public class Bitops
+    internal class Bitops
     {
         /// <summary>
         /// A table used for an efficient implementation of BitScanForward.

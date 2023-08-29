@@ -20,7 +20,8 @@ A basic use of the library is shown shown below:
 
 ```csharp
 // create a manager that uses traditional binary decision diagrams.
-var manager = new DDManager<BDDNode>(new BDDNodeFactory());
+// alternatively use `new DDManager<CBDDNode>()` for the chain-reduced variant.
+var manager = new DDManager<BDDNode>();
 
 // allocate three variables, two booleans and one 32-bit integer
 // the internal ordering will match the order allocated from the manager.
@@ -117,7 +118,7 @@ You can control the decision diagram variable ordering to improve performance in
 
 ```csharp
 // create a manager that uses traditional binary decision diagrams.
-var manager = new DDManager<BDDNode>(new BDDNodeFactory());
+var manager = new DDManager<BDDNode>();
 
 // the order will be 'a' before 'b'.
 var a = manager.CreateBool();
