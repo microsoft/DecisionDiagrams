@@ -12,7 +12,7 @@ namespace DecisionDiagrams
     /// </summary>
     /// <typeparam name="T">The node type.</typeparam>
     public class VariableSet<T>
-        where T : IDDNode
+        where T : IDDNode, IEquatable<T>
     {
         /// <summary>
         /// The set of variables.

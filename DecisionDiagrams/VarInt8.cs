@@ -11,7 +11,7 @@ namespace DecisionDiagrams
     /// </summary>
     /// <typeparam name="T">The node type.</typeparam>
     public class VarInt8<T> : Variable<T>
-        where T : IDDNode
+        where T : IDDNode, IEquatable<T>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="VarInt8{T}"/> class.

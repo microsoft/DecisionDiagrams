@@ -14,7 +14,7 @@ namespace DecisionDiagrams
     /// </summary>
     /// <typeparam name="T">The node type.</typeparam>
     public abstract class Variable<T>
-        where T : IDDNode
+        where T : IDDNode, IEquatable<T>
     {
         /// <summary>
         /// Unique id for variables.

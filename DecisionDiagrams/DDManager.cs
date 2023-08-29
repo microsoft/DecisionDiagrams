@@ -49,7 +49,7 @@ namespace DecisionDiagrams
     /// <typeparam name="T">The type of the decision diagram node.</typeparam>
     [SuppressMessage("CSharp.DocumentationRules", "SA1503", Justification = "Readability of 'And' cases")]
     public class DDManager<T>
-        where T : IDDNode
+        where T : IDDNode, IEquatable<T>
     {
         /// <summary>
         /// Unique manager ID that makes it possible to

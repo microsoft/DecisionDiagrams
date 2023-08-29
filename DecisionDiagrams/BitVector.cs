@@ -2,13 +2,15 @@
 // Copyright (c) Microsoft. All rights reserved.
 // </copyright>
 
+using System;
+
 namespace DecisionDiagrams
 {
     /// <summary>
     /// A bitvector of values represented using DDs.
     /// </summary>
     public class BitVector<T>
-        where T : IDDNode
+        where T : IDDNode, IEquatable<T>
     {
         /// <summary>
         /// Gets the manager object.

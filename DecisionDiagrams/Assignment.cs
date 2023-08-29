@@ -12,7 +12,7 @@ namespace DecisionDiagrams
     /// </summary>
     /// <typeparam name="T">The node type.</typeparam>
     public class Assignment<T>
-        where T : IDDNode
+        where T : IDDNode, IEquatable<T>
     {
         /// <summary>
         /// Gets the boolean assignments.

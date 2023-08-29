@@ -2,6 +2,8 @@
 // Copyright (c) Microsoft. All rights reserved.
 // </copyright>
 
+using System;
+
 namespace DecisionDiagrams
 {
     /// <summary>
@@ -9,7 +11,7 @@ namespace DecisionDiagrams
     /// </summary>
     /// <typeparam name="T">The node type.</typeparam>
     public class VarBool<T> : Variable<T>
-        where T : IDDNode
+        where T : IDDNode, IEquatable<T>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="VarBool{T}"/> class.

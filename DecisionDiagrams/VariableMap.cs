@@ -13,7 +13,7 @@ namespace DecisionDiagrams
     /// </summary>
     /// <typeparam name="T">The node type.</typeparam>
     public class VariableMap<T>
-        where T : IDDNode
+        where T : IDDNode, IEquatable<T>
     {
         private static int nextId = 0;
 

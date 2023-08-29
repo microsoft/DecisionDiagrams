@@ -10,7 +10,7 @@ namespace DecisionDiagrams.Bench
     /// <summary>
     /// Benchmark for the n queens problem.
     /// </summary>
-    public class Queens<T> where T : IDDNode
+    public class Queens<T> where T : IDDNode, IEquatable<T>
     {
         private DDManager<T> manager;
 

@@ -268,6 +268,7 @@ namespace DecisionDiagrams
         /// <param name="node">The node to reduce.</param>
         /// <param name="result">The modified node.</param>
         /// <returns>If there was a reduction.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual bool Reduce(CBDDNode node, out DDIndex result)
         {
             result = DDIndex.False;

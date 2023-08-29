@@ -23,7 +23,7 @@ namespace DecisionDiagrams
     /// </summary>
     /// <typeparam name="T">The key type.</typeparam>
     internal class UniqueTable<T>
-        where T : IDDNode
+        where T : IDDNode, IEquatable<T>
     {
         /// <summary>
         /// The manager object.

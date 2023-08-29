@@ -4,6 +4,7 @@
 
 namespace DecisionDiagrams
 {
+    using System;
     using System.Collections.Generic;
 
     /// <summary>
@@ -13,7 +14,7 @@ namespace DecisionDiagrams
     /// </summary>
     /// <typeparam name="T">The custom node type.</typeparam>
     public interface IDDNodeFactory<T>
-        where T : IDDNode
+        where T : IDDNode, IEquatable<T>
     {
         /// <summary>
         /// Gets or sets the decision diagram manager.

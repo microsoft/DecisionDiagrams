@@ -17,7 +17,7 @@ namespace DecisionDiagram.Tests
     /// <typeparam name="T">The node type.</typeparam>
     [ExcludeFromCodeCoverage]
     public class DiagramTests<T>
-        where T : IDDNode
+        where T : IDDNode, IEquatable<T>
     {
         /// <summary>
         /// How many random inputs to generate per test.
@@ -2417,7 +2417,7 @@ namespace DecisionDiagram.Tests
         /// Test that the sat count operation works.
         /// </summary>
         [TestMethod]
-        public void TestSatCount1()
+        public void TestSatCountAnd()
         {
             var manager = this.GetManager();
             var a = manager.CreateBool();
@@ -2432,7 +2432,7 @@ namespace DecisionDiagram.Tests
         /// Test that the sat count operation works.
         /// </summary>
         [TestMethod]
-        public void TestSatCount2()
+        public void TestSatCountOr()
         {
             var manager = this.GetManager();
             var a = manager.CreateBool();
@@ -2447,7 +2447,7 @@ namespace DecisionDiagram.Tests
         /// Test that the sat count operation works.
         /// </summary>
         [TestMethod]
-        public void TestSatCount3()
+        public void TestSatCountSame()
         {
             var manager = this.GetManager();
             var a = manager.CreateBool();
@@ -2465,7 +2465,7 @@ namespace DecisionDiagram.Tests
         /// Test that the sat count operation works.
         /// </summary>
         [TestMethod]
-        public void TestSatCount4()
+        public void TestSatCountCases()
         {
             var manager = this.GetManager();
             var a = manager.CreateBool();
@@ -2473,6 +2473,18 @@ namespace DecisionDiagram.Tests
             var c = manager.CreateBool();
             var f = manager.Or(manager.And(a.Id(), b.Id()), manager.And(b.Id(), c.Id()));
             Assert.AreEqual(3, manager.SatCount(f));
+        }
+
+        /// <summary>
+        /// Test that the sat count operation works.
+        /// </summary>
+        [TestMethod]
+        public void TestSatCountInteger()
+        {
+            var manager = this.GetManager();
+            var a = manager.CreateInt32();
+            var b = manager.LessOrEqual(a.ToBitvector(), manager.CreateBitvector(255));
+            Assert.AreEqual(256, manager.SatCount(b));
         }
 
         /// <summary>

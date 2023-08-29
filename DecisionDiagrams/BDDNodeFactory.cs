@@ -6,6 +6,7 @@ namespace DecisionDiagrams
 {
     using System;
     using System.Collections.Generic;
+    using System.Runtime.CompilerServices;
     using System.Security.Cryptography;
 
     /// <summary>
@@ -255,6 +256,7 @@ namespace DecisionDiagrams
         /// <param name="node">The node to reduce.</param>
         /// <param name="result">The modified node.</param>
         /// <returns>If there was a reduction.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Reduce(BDDNode node, out DDIndex result)
         {
             result = DDIndex.False;
