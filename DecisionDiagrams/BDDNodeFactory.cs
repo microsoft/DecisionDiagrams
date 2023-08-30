@@ -182,51 +182,8 @@ namespace DecisionDiagrams
 
             var lo = this.Manager.Replace(x.Low, variableMap);
             var hi = this.Manager.Replace(x.High, variableMap);
-
             var level = variableMap.Get(x.Variable);
-            return RepairOrder(level, lo, hi);
-        }
-
-        /// <summary>
-        /// Returns a new formula that repairs the order after a substitution.
-        /// </summary>
-        /// <param name="level">Variable level of the new node.</param>
-        /// <param name="lo">The node's lo branch.</param>
-        /// <param name="hi">The node's hi branch.</param>
-        /// <returns></returns>
-        private DDIndex RepairOrder(int level, DDIndex lo, DDIndex hi)
-        {
-            var loNode = this.Manager.MemoryPool[lo.GetPosition()];
-            var hiNode = this.Manager.MemoryPool[hi.GetPosition()];
-
-            loNode = lo.IsComplemented() ? Flip(loNode) : loNode;
-            hiNode = hi.IsComplemented() ? Flip(hiNode) : hiNode;
-
-            var loLevel = Level(lo, loNode);
-            var hiLevel = Level(hi, hiNode);
-
-            if (level < loLevel && level < hiLevel)
-            {
-                return this.Manager.Allocate(new BDDNode(level, lo, hi));
-            }
-            else if (loLevel < hiLevel)
-            {
-                var l = RepairOrder(level, loNode.Low, hi);
-                var h = RepairOrder(level, loNode.High, hi);
-                return this.Manager.Allocate(new BDDNode(loNode.Variable, l, h));
-            }
-            else if (loLevel > hiLevel)
-            {
-                var l = RepairOrder(level, lo, hiNode.Low);
-                var h = RepairOrder(level, lo, hiNode.High);
-                return this.Manager.Allocate(new BDDNode(hiNode.Variable, l, h));
-            }
-            else
-            {
-                var l = RepairOrder(level, loNode.Low, hiNode.Low);
-                var h = RepairOrder(level, loNode.High, hiNode.High);
-                return this.Manager.Allocate(new BDDNode(loNode.Variable, l, h));
-            }
+            return this.Manager.Ite(this.Manager.Allocate(this.Id(level)), hi, lo);
         }
 
         /// <summary>
