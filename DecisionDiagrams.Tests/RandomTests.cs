@@ -5,10 +5,8 @@
 namespace DecisionDiagram.Tests
 {
     using System;
-    using System.Collections.Generic;
     using System.Collections.Immutable;
     using System.Diagnostics.CodeAnalysis;
-    using System.Linq;
     using DecisionDiagrams;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -40,8 +38,8 @@ namespace DecisionDiagram.Tests
         [TestMethod]
         public void TestFormulasRandomly()
         {
-            var numVars = 4;
-            for (int i = 0; i < 8000; i++)
+            var numVars = 3;
+            for (int i = 0; i < 10000; i++)
             {
                 var f = Formula.CreateRandom(this.Rnd, numVars, 8);
                 if (!IsSound(f, numVars))

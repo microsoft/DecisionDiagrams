@@ -15,7 +15,7 @@
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
     <PackageTags>binary decision diagrams diagram bdd bdds contraint solving verification</PackageTags>
     <PackageId>DecisionDiagrams</PackageId>
-    <Version>1.2.2</Version>
+    <Version>1.3.0</Version>
     <RepositoryUrl>https://github.com/microsoft/DecisionDiagrams</RepositoryUrl>
   </PropertyGroup>
 

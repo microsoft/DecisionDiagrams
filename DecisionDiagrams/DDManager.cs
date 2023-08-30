@@ -112,12 +112,6 @@ namespace DecisionDiagrams
         private List<Variable<T>> variables;
 
         /// <summary>
-        /// The memory pool that holds all the unique nodes.
-        /// The index from a DD points into this array.
-        /// </summary>
-        private T[] memoryPool;
-
-        /// <summary>
         /// The unique table that maps DDNode to DD in order to
         /// ensure that there is always complete structural sharing.
         /// </summary>
@@ -178,6 +172,12 @@ namespace DecisionDiagrams
         private DD falseDD;
 
         /// <summary>
+        /// The memory pool that holds all the unique nodes.
+        /// The index from a DD points into this array.
+        /// </summary>
+        internal T[] MemoryPool;
+
+        /// <summary>
         /// Gets the unique id for this manager. Allows allow for safety
         /// checks so that a node can't be used with the wrong manager.
         /// </summary>
@@ -187,11 +187,6 @@ namespace DecisionDiagrams
         /// Gets the number of allocated variables for this manager.
         /// </summary>
         public int NumVariables { get => this.numVariables; }
-
-        /// <summary>
-        /// Gets the underlying memory pool.
-        /// </summary>
-        internal T[] MemoryPool { get => this.memoryPool; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DDManager{DDNode}"/> class.
@@ -242,10 +237,10 @@ namespace DecisionDiagrams
             this.printDebug = printDebug;
             this.factory = nodeFactory;
             this.variables = new List<Variable<T>>();
-            this.memoryPool = new T[this.poolSize];
+            this.MemoryPool = new T[this.poolSize];
             this.uniqueTable = new UniqueTable<T>(this);
             this.UpdateGcLoadIncrease();
-            this.currentGcNodeCount = (int)(gcLoadTrigger * this.memoryPool.Length);
+            this.currentGcNodeCount = (int)(gcLoadTrigger * this.MemoryPool.Length);
             this.ResetCaches();
             this.handleTable = new Dictionary<DDIndex, WeakReference<DD>>();
             this.trueDD = this.FromIndex(DDIndex.True);
@@ -260,13 +255,13 @@ namespace DecisionDiagrams
         /// <returns>Its new index in the memory pool.</returns>
         internal DDIndex FreshNode(T node)
         {
-            if (this.index == this.memoryPool.Length)
+            if (this.index == this.MemoryPool.Length)
             {
                 this.Resize();
             }
 
             var value = new DDIndex(this.index, false);
-            this.memoryPool[this.index++] = node;
+            this.MemoryPool[this.index++] = node;
             return value;
         }
 
@@ -1465,8 +1460,8 @@ namespace DecisionDiagrams
                 return result.Result;
             }
 
-            T lo = this.memoryPool[xidx];
-            T hi = this.memoryPool[yidx];
+            T lo = this.MemoryPool[xidx];
+            T hi = this.MemoryPool[yidx];
 
             // restore the canonical negation form
             lo = x.IsComplemented() ? this.factory.Flip(lo) : lo;
@@ -1511,7 +1506,7 @@ namespace DecisionDiagrams
                 return result.Result;
             }
 
-            T node = this.memoryPool[xidx];
+            T node = this.MemoryPool[xidx];
 
             // complement if needed
             node = x.IsComplemented() ? this.factory.Flip(node) : node;
@@ -1556,7 +1551,7 @@ namespace DecisionDiagrams
                 return result.Result;
             }
 
-            T node = this.memoryPool[xidx];
+            T node = this.MemoryPool[xidx];
 
             // complement if needed
             node = x.IsComplemented() ? this.factory.Flip(node) : node;
@@ -1602,7 +1597,7 @@ namespace DecisionDiagrams
                 return result.Result;
             }
 
-            T node = this.memoryPool[xidx];
+            T node = this.MemoryPool[xidx];
             node = x.IsComplemented() ? this.factory.Flip(node) : node;
             var res = this.factory.SatCount(node);
             OperationResult oresult = new OperationResult { Arg = x, Result = res };
@@ -1698,9 +1693,9 @@ namespace DecisionDiagrams
                 return result.Result;
             }
 
-            T fnode = this.memoryPool[fidx];
-            T gnode = this.memoryPool[gidx];
-            T hnode = this.memoryPool[hidx];
+            T fnode = this.MemoryPool[fidx];
+            T gnode = this.MemoryPool[gidx];
+            T hnode = this.MemoryPool[hidx];
 
             // complement if needed
             fnode = f.IsComplemented() ? this.factory.Flip(fnode) : fnode;
@@ -1765,7 +1760,7 @@ namespace DecisionDiagrams
             }
 
             negated ^= index.IsComplemented();
-            var node = this.memoryPool[index.GetPosition()];
+            var node = this.MemoryPool[index.GetPosition()];
             return this.factory.Display(node, negated);
         }
 
@@ -1804,7 +1799,7 @@ namespace DecisionDiagrams
         /// </summary>
         private void CheckForCollection()
         {
-            if (this.memoryPool.Length >= this.gcMinCutoff && this.index >= this.currentGcNodeCount)
+            if (this.MemoryPool.Length >= this.gcMinCutoff && this.index >= this.currentGcNodeCount)
             {
                 this.GarbageCollect();
             }
@@ -1827,7 +1822,7 @@ namespace DecisionDiagrams
             //    into unused spots.
             // 4. We rebuild the unique table and the handle table.
             //    The cache also must be invalidated.
-            PrintDebug($"[DD] Garbage collection: {this.index} / {this.memoryPool.Length}");
+            PrintDebug($"[DD] Garbage collection: {this.index} / {this.MemoryPool.Length}");
             PrintDebug($"[DD] Garbage collection: unique table size before {this.uniqueTable.Count}");
             PrintDebug($"[DD] Garbage collection: handle table size before {this.handleTable.Count}");
 
@@ -1837,7 +1832,7 @@ namespace DecisionDiagrams
                 var position = kv.Key.GetPosition();
                 if (position != 0 && kv.Value.TryGetTarget(out var _))
                 {
-                    this.memoryPool[position].Mark = true;
+                    this.MemoryPool[position].Mark = true;
                 }
             }
 
@@ -1845,13 +1840,13 @@ namespace DecisionDiagrams
             var numMarked = 0;
             for (int i = this.index - 1; i >= 1; i--)
             {
-                if (this.memoryPool[i].Mark)
+                if (this.MemoryPool[i].Mark)
                 {
                     numMarked++;
-                    var posl = this.memoryPool[i].Low.GetPosition();
-                    var posh = this.memoryPool[i].High.GetPosition();
-                    this.memoryPool[posl].Mark = true;
-                    this.memoryPool[posh].Mark = true;
+                    var posl = this.MemoryPool[i].Low.GetPosition();
+                    var posh = this.MemoryPool[i].High.GetPosition();
+                    this.MemoryPool[posl].Mark = true;
+                    this.MemoryPool[posh].Mark = true;
                 }
             }
 
@@ -1859,22 +1854,22 @@ namespace DecisionDiagrams
 
             // compact all nodes by shifting left into unused spots.
             // preserves the order of node age, which is important.
-            int[] forwardingAddresses = new int[this.memoryPool.Length];
+            int[] forwardingAddresses = new int[this.MemoryPool.Length];
 
             var nextFree = 1;
             for (int i = 1; i < this.index; i++)
             {
-                if (this.memoryPool[i].Mark)
+                if (this.MemoryPool[i].Mark)
                 {
                     var n = nextFree++;
-                    var lo = this.memoryPool[i].Low;
-                    var hi = this.memoryPool[i].High;
+                    var lo = this.MemoryPool[i].Low;
+                    var hi = this.MemoryPool[i].High;
                     var posl = lo.GetPosition();
                     var posh = hi.GetPosition();
-                    this.memoryPool[i].Low = new DDIndex(forwardingAddresses[posl], lo.IsComplemented());
-                    this.memoryPool[i].High = new DDIndex(forwardingAddresses[posh], hi.IsComplemented());
-                    this.memoryPool[i].Mark = false;
-                    this.memoryPool[n] = this.memoryPool[i];
+                    this.MemoryPool[i].Low = new DDIndex(forwardingAddresses[posl], lo.IsComplemented());
+                    this.MemoryPool[i].High = new DDIndex(forwardingAddresses[posh], hi.IsComplemented());
+                    this.MemoryPool[i].Mark = false;
+                    this.MemoryPool[n] = this.MemoryPool[i];
                     forwardingAddresses[i] = n;
                 }
             }
@@ -1911,7 +1906,7 @@ namespace DecisionDiagrams
             // set the new free index
             this.index = nextFree;
 
-            var fractionRetained = this.index / (double)this.memoryPool.Length;
+            var fractionRetained = this.index / (double)this.MemoryPool.Length;
 
             PrintDebug($"[DD] Garbage collection finished: {100 * fractionRetained}% nodes remaining.");
 
@@ -1943,7 +1938,7 @@ namespace DecisionDiagrams
         [ExcludeFromCodeCoverage]  // requires too large of a manager
         private void UpdateGcLoadIncrease()
         {
-            var currentNodeCount = this.memoryPool.Length;
+            var currentNodeCount = this.MemoryPool.Length;
 
             // about 10MB so we can be quick to resize
             if (currentNodeCount <= (1 << 19))
@@ -2040,8 +2035,8 @@ namespace DecisionDiagrams
         {
             PrintDebug($"[DD] Resizing node table to: {2 * this.poolSize}");
             this.poolSize = 2 * this.poolSize;
-            Array.Resize(ref this.memoryPool, unchecked((int)this.poolSize));
-            this.currentGcNodeCount = (int)(gcLoadTrigger * this.memoryPool.Length);
+            Array.Resize(ref this.MemoryPool, unchecked((int)this.poolSize));
+            this.currentGcNodeCount = (int)(gcLoadTrigger * this.MemoryPool.Length);
             this.ResetCaches();
         }
 
